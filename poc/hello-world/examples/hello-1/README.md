@@ -25,8 +25,8 @@ evaluates, terminates, and emits the Receipt.
 Requires Node 22.19 or newer and an OpenRouter API key.
 
 ```sh
-cp .env.example .env
-# Set OPENROUTER_API_KEY in .env
+cp .env.example ../../../../.env
+# Set OPENROUTER_API_KEY in the repository-root .env
 npm install
 npm run --silent start
 ```
