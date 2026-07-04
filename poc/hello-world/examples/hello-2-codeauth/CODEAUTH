@@ -1,0 +1,7 @@
+grants:
+  - principal: learner@example.test
+    capability: read_file
+    resource: sandbox/input.txt
+  - principal: learner@example.test
+    capability: write_file
+    resource: sandbox/output.txt

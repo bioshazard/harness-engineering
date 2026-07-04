@@ -43,6 +43,18 @@ terminates.
 Structured evidence of the Proposal, authority decision, Effect, Observation,
 and final verdict.
 
+**Principal**
+
+The actor whose authority is evaluated for a Proposal.
+
+**Grant**
+
+Permission for one Principal to use one Capability on one State resource.
+
+**Policy**
+
+The immutable set of Grants consulted during a Harness Run.
+
 ## Relationships
 
 ```mermaid
@@ -51,6 +63,9 @@ flowchart LR
   I --> X["Executor"]
   X --> P["Proposal"]
   P --> G["Guard"]
+  G --> N["Principal"]
+  G --> Y["Policy"]
+  Y --> A["Grant"]
   G --> C["Capability"]
   C --> F["Effect"]
   F --> S["State"]
