@@ -20,6 +20,7 @@ working examples, not speculative architecture.
 
 - Derive before naming.
 - Introduce one conceptual pressure at a time.
+- Require every meso example to compose at least one frozen micro example.
 - Keep examples executable, bounded, and inspectable.
 - Separate intent, authority, execution, observation, evaluation, and evidence.
 - Distinguish domain concepts from implementation mechanisms.
