@@ -122,6 +122,12 @@ This chapter deliberately excludes retries, durable history, orchestration,
 multiple capabilities, ambiguous intent, and adversarial path hardening. Those
 concerns should be introduced only when a later example requires them.
 
+`hello-2-codeauth` also freezes its own limits: UTF-8 text rather than arbitrary
+bytes, preflight rather than race-safe symlink defense, trusted canonical Policy
+resources, Git email as a label rather than authentication, final rather than
+per-Proposal write Observation, and model-dependent integration behavior.
+These are explicit non-claims, not properties of contextual authority.
+
 - [Run the lab](./examples/hello-1/README.md)
 - [Run the contextual authority lab](./examples/hello-2-codeauth/README.md)
 - [Current ontology](./docs/ontology.md)

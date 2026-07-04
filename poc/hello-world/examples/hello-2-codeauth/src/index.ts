@@ -74,7 +74,7 @@ async function main(): Promise<number> {
     noThemes: true,
     noContextFiles: true,
     systemPrompt:
-      "Use read_file, then write_file, to copy exact bytes. Stop after the write attempt.",
+      "Use read_file, then write_file, to copy the exact UTF-8 text. Stop after the write attempt.",
   });
   await resourceLoader.reload();
   const { session } = await createAgentSession({
@@ -92,7 +92,7 @@ async function main(): Promise<number> {
   let responseModel: string | undefined;
   try {
     await session.prompt(
-      `Copy ${SOURCE} byte-for-byte to ${destinationFor(intent)}.`,
+      `Copy the exact UTF-8 text from ${SOURCE} to ${destinationFor(intent)}.`,
     );
   } catch (error) {
     if (!evidence.some((proposal) => proposal.guard === "block")) throw error;
