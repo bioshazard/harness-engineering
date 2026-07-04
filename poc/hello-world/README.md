@@ -95,6 +95,27 @@ raw tool execution. Remove readback and the harness trusts self-report. Remove
 the Evaluator and no component judges the goal. Remove the Receipt and the
 result is not accountable.
 
+## 6. Authority is contextual
+
+The first lab's Guard knows one path. A reusable Capability needs a stronger
+answer: who may perform which operation on which State resource?
+
+```text
+authority = Principal × Capability × State resource
+```
+
+`hello-2-codeauth` snapshots the actor and rules before execution. Every
+Proposal is normalized, checked against unconditional hard denials, then
+matched exactly against the actor's allowed operation and resource. Missing or
+unknown identity, symlink traversal, and absent matches fail closed.
+
+The actor is the **Principal**. One permitted Principal–Capability–resource
+tuple is a **Grant**. The immutable set of Grants consulted during a Harness
+Run is its **Policy**.
+
+The Receipt identifies the Principal, normalized resource, matched Grant or
+denial reason, and Effect. It does not reproduce the full Policy.
+
 ## Scope
 
 This chapter deliberately excludes retries, durable history, orchestration,
@@ -102,6 +123,7 @@ multiple capabilities, ambiguous intent, and adversarial path hardening. Those
 concerns should be introduced only when a later example requires them.
 
 - [Run the lab](./examples/hello-1/README.md)
+- [Run the contextual authority lab](./examples/hello-2-codeauth/README.md)
 - [Current ontology](./docs/ontology.md)
 - [Design notes](./docs/hello-world.md)
 - [Optimization notes](./docs/hello-world-optimization.md)
