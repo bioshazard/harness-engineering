@@ -14,6 +14,11 @@ A desired condition of State.
 **State**  
 The world a Harness Run may affect and observe.
 
+**Context**
+
+The selected view of State, history, and guidance presented to one Executor.
+Context may intentionally omit sensitive or unauthorized State.
+
 **Executor**  
 A model-driven runtime that interprets Intent and emits Proposals.
 
@@ -63,7 +68,9 @@ serve as Observation for its parent, and Harness Runs may compose recursively.
 ```mermaid
 flowchart LR
   H["Harness Run"] --> I["Intent"]
-  I --> X["Executor"]
+  I --> K["Context"]
+  S --> K
+  K --> X["Executor"]
   X --> P["Proposal"]
   P --> G["Guard"]
   G --> N["Principal"]

@@ -208,18 +208,13 @@ layers should share one universal harness implementation.
 - denied Effects and preserved State are observable.
 
 Both remain micro. Their Reaction terminates rather than selecting a meaningful
-next child transition. They provide no parent Intent, child composition,
-workflow checkpoint, durable lineage, or promotion boundary.
+next child transition.
 
-Meso therefore remains a hypothesis to test. The next example should compose
-bounded micro-shaped transitions, consume child Receipts as parent evidence,
-and choose a genuinely different next transition from Evaluation. It need not
-import a prior lab: the dependence is typological, not implementation reuse. It
-should add no macro machinery until that composition law works.
+Two executable examples now demonstrate meso control.
 
-## Candidate meso experiment
+## Dependency-upgrade meso experiment
 
-> Status: agreed design hypothesis, not executable evidence.
+> Status: executable evidence.
 
 Use a pinned `minimatch` `3.1.2` to `9.0.9` upgrade to break one pre-existing
 dependency adapter. The parent should steer from child evidence:
@@ -269,6 +264,22 @@ The experiment deliberately defers version discovery, external research,
 vulnerability and license Policy, AST analysis, arbitrary repository support,
 general retry and planning, rollback of authoritative State, durable resume,
 Git promotion, multi-agent execution, and production isolation.
+
+## Email review-and-send meso experiment
+
+`email-review-send` demonstrates meso control:
+
+- narrow MCP interfaces supply mechanisms without becoming Harness Runs;
+- draft, review, and send children retain micro authority and Evaluation;
+- the parent consumes Review Receipts as Observation;
+- review evidence selects send, one bounded revision, rejection, or escalation;
+- send authority binds one trusted review identity and exact draft hash; and
+- terminal mailbox Observation may override otherwise successful children.
+
+The child transitions depend typologically on the micro layer rather than
+importing a prior frozen lab. Meso is therefore executable evidence rather than
+only a hypothesis. Workflow checkpoints, durable lineage, promotion, and macro
+operation remain deferred.
 
 ## Relationship to 7FH
 

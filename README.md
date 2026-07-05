@@ -20,6 +20,7 @@ The ontology records only what the examples have earned.
 3. Run the [hello-1 lab](./poc/hello-world/examples/hello-1/README.md).
 4. Inspect the [current ontology](./poc/hello-world/docs/ontology.md).
 5. Read the [meso adapter-surgery chapter](./poc/dependency-upgrade/README.md).
+6. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
 
 ## Current scope
 
@@ -31,11 +32,12 @@ Intent → Proposal → Guard → Capability → Effect
        → Observation → Evaluator → Reaction → Receipt
 ```
 
-The meso chapter composes bounded child Harness Runs and demonstrates that a
-child Receipt can steer the parent's next transition. Durable orchestration,
-promotion, rollback, and generalized planning remain deliberately deferred.
+The dependency-upgrade chapter composes verification, exact upgrade, and
+bounded adapter-remediation children. The email chapter separates narrow MCP
+mechanisms from harness control, then composes draft, review, and guarded
+mock-send children. Both use child evidence to select the next transition.
 
 ## Status
 
-Early and intentionally narrow. Executable micro and meso chapters are
-complete; the broader model will emerge incrementally.
+Early and intentionally narrow. Executable examples continue to earn the model
+one concrete pressure at a time.
