@@ -20,6 +20,18 @@ Intent → Proposal → Guard → Capability → Observation → Evaluator → R
 The model proposes. The Guard authorizes. The tool writes. The host reads,
 evaluates, terminates, and emits the Receipt.
 
+## Layer map
+
+```text
+Pi SDK                         → vanilla model harness
+hello tool/prompt composition → domain meta-harness
+single guarded write          → workflow transition
+host authority and verdict    → micro Goal System
+```
+
+The code retains its historical `harness.ts` name while terminology remains
+provisional.
+
 ## Run
 
 Requires Node 22.19 or newer and an OpenRouter API key.

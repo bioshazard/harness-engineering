@@ -7,6 +7,13 @@ The smallest useful harness asks an executor to make one real change:
 A function could write the file directly. That would demonstrate execution, not
 harness engineering. The point is to expose the boundaries around execution.
 
+Under the provisional terminology in
+[Goal-System Engineering](../../docs/thinking/goal-system-engineering.md), the
+Pi runtime and extensions form the model harness while the host owns a micro
+Goal System: Intent, write authority, readback Evaluation, terminality, and
+Receipt. The example predates that terminology; this layer map clarifies rather
+than rewrites its evidence.
+
 ## 1. Intent produces a proposal
 
 The executor receives the intent and a `write_file(path, content)` capability.

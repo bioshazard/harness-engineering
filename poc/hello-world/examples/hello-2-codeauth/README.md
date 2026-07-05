@@ -21,6 +21,18 @@ The lab defaults `GIT_CONFIG_GLOBAL` to `fixtures/gitconfig` for determinism.
 Authority order: hard-deny `.git/**` and `CODEAUTH`; allow an exact matching
 Grant; otherwise deny. Symlink path components are always rejected.
 
+## Layer map
+
+```text
+Pi SDK                         → vanilla model harness
+CODEAUTH/tool composition      → domain meta-harness
+read then guarded write        → workflow
+host authority and Evaluation → micro Goal System
+```
+
+Policy governs the outcome transition; model permissions alone do not
+determine success.
+
 ## Verify
 
 Requires Node 22.19+ and `OPENROUTER_API_KEY` in repository-root `.env`.

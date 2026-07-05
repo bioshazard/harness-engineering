@@ -3,6 +3,11 @@
 Canonical terms earned by the examples. This file records the model; the
 chapter README derives it.
 
+> Terminology note: [Goal-System Engineering](../../../docs/thinking/goal-system-engineering.md)
+> proposes a future migration from broad “Harness Run” usage to “Goal System
+> Run.” This ontology preserves current canonical names until that migration is
+> accepted.
+
 ## Current terms
 
 **Harness Run**  
@@ -42,7 +47,7 @@ A post-effect judgment comparing Observation with Intent.
 
 **Reaction**  
 The harness response to a Guard or Evaluator verdict. It may terminate a
-Harness Run or select its next bounded child Harness Run.
+Harness Run or select the next bounded transition.
 
 **Receipt**  
 Structured evidence of the Proposal, authority decision, Effect, Observation,
@@ -60,8 +65,9 @@ Permission for one Principal to use one Capability on one State resource.
 
 The immutable set of Grants consulted during a Harness Run.
 
-No new noun is required for meso composition. A child Harness Run's Receipt may
-serve as Observation for its parent, and Harness Runs may compose recursively.
+No new noun is required for meso workflow governance. A bounded transition's
+Receipt may serve as parent Observation. Only call that transition a child
+Harness Run when it independently satisfies the full Run anatomy.
 
 ## Relationships
 
@@ -85,7 +91,7 @@ flowchart LR
   E --> R["Reaction"]
   R --> Q["Receipt"]
   Q -. "parent Observation" .-> O
-  R -. "next child Harness Run" .-> H
+  R -. "next bounded transition" .-> P
 ```
 
 Implementation names such as Pi, OpenRouter, tool hook, filesystem, and JSON

@@ -97,11 +97,11 @@ Draft creation becomes harness-shaped when the system may progress into the
 consequential act of sending.
 
 ```text
-draft child Run
+draft transition
 → independently read draft
-→ review child Run
+→ review transition
 → approve | revise | reject
-→ guarded send child Run
+→ guarded send transition
 → independently observe sent message
 → parent Receipt
 ```
@@ -123,7 +123,7 @@ read sent message
 The parent harness owns:
 
 - the outcome Intent;
-- which child Run occurs next;
+- which bounded transition occurs next;
 - revision and attempt budgets;
 - the reviewed draft identity;
 - authority to send that exact draft once;
@@ -156,8 +156,8 @@ verdict must remain explicit.
 
 Scale is determined by where control lives, not by feature count.
 
-The draft-review-send workflow is meso because one bounded parent Harness Run
-composes child Runs and child evidence selects a genuinely different next
+The draft-review-send workflow is meso because one bounded parent control
+system evaluates transition evidence and selects a genuinely different next
 transition:
 
 ```text
@@ -213,7 +213,7 @@ retain a broad provider credential behind a server and expose only explicit
 thread reads and verified unsent draft creation.
 
 The executable [`email-review-send`](../../poc/email-review-send/README.md)
-example demonstrates the draft-review-send meso harness:
+example demonstrates the draft-review-send meso Goal System:
 review evidence authorizes revision, rejection, escalation, or one exact send,
 and independent sent-State Observation determines the parent verdict.
 
