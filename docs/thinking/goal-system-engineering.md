@@ -109,14 +109,64 @@ A Goal System may contain no model. It may use deterministic workers or humans.
 It may also compose several model-harnessed agents. Replacing one worker does
 not change the parent’s control responsibility.
 
+## Orthogonal concerns
+
+Composition, coordination, and governance answer different questions. Treat
+them as orthogonal concerns rather than layers competing for one name:
+
+```text
+meta-harness = composition
+workflow     = coordination
+Goal System  = governance
+```
+
+A **vanilla harness** supplies the generic model-execution substrate: model
+invocation, tool protocol, Context transport, and lifecycle hooks.
+
+A **meta-harness** installs a domain-pluggable composition atop that substrate:
+guides, sensors, skills, tools, Context strategy, model selection, and domain
+defaults. It still regulates model or agent execution.
+
+A **workflow** coordinates executions. It may sequence model harnesses, humans,
+MCP mechanisms, deterministic functions, and child Goal Systems. A fixed
+workflow can remain pure orchestration.
+
+A **Goal System** governs progression toward an outcome. It decides which
+workflow transition should occur, which authority permits it, whether evidence
+advances Intent, and when the pursuit terminates.
+
+```text
+vanilla harness
+  generic execution substrate
+
+meta-harness
+  domain-pluggable composition
+
+workflow
+  inter-harness and heterogeneous-worker coordination
+
+Goal System
+  intent-conditioned governance of consequential transitions
+```
+
+A Goal System may govern one workflow, several workflows, or direct
+Capabilities. Workflow count does not define it. Evidence-driven authority,
+Reaction, and terminality do.
+
 The email example exposes the distinction:
 
 ```text
 draft-only MCP
   supplies narrow read and draft mechanisms
 
-drafter model harness
-  guides one model to produce a candidate reply
+vanilla harness
+  supplies generic OpenRouter execution
+
+email drafter and reviewer meta-harnesses
+  install domain prompts, schemas, Context, and model policy
+
+workflow
+  coordinates draft → review → send
 
 review-and-send Goal System
   uses review evidence to revise, reject, escalate, or authorize one exact send
@@ -187,10 +237,17 @@ topology:
 ```text
 Intent semantics ───────────────┐
                                ▼
-model → model harness → worker → Goal System
-                               │
-                               ├─ composes child Goal Systems
-                               └─ may constitute a domain factory
+model → vanilla harness → meta-harness → worker
+                                         │
+human / MCP / deterministic worker ──────┤
+                                         ▼
+                                      workflow
+                                         │
+                                         ▼
+                                     Goal System
+                                         │
+                                         ├─ composes child Goal Systems
+                                         └─ may constitute a domain factory
 
 Receipts → separate optimizer → new versioned Intent, Policy, or composition
 ```
@@ -247,8 +304,19 @@ Use this vocabulary provisionally:
 model harness
   model-local guides, sensors, Context, tools, and permissions
 
+vanilla harness
+  generic model-execution substrate
+
+meta-harness
+  domain-pluggable composition of guides, sensors, tools, skills, Context
+  strategy, and model policy atop a vanilla harness
+
 Executor
   a worker that interprets Intent or delegated Context and emits Proposals
+
+workflow
+  coordination across harness executions, humans, mechanisms, and child Goal
+  Systems
 
 Goal System
   the outcome-local control system governing a bounded pursuit
@@ -265,9 +333,6 @@ Goal System optimizer
   Goal System versions
 ```
 
-Retire **meta harness** except when discussing optimization of an actual
-model-local harness.
-
 ## Decision deferred
 
 This terminology fits the repository’s current executable evidence, but a
@@ -278,7 +343,8 @@ Before refactoring:
 
 1. test the terms against every existing example;
 2. identify which current “Harness Run” uses actually mean “Goal System Run”;
-3. preserve “model harness” where the model-local meaning applies;
+3. distinguish vanilla harness, domain meta-harness, workflow, and Goal System
+   responsibilities in each example;
 4. decide whether the seven factors govern all Goal Systems or only
    model-mediated ones;
 5. check for established conflicting uses of “goal system”; and

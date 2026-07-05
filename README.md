@@ -32,10 +32,10 @@ Intent → Proposal → Guard → Capability → Effect
        → Observation → Evaluator → Reaction → Receipt
 ```
 
-The dependency-upgrade chapter composes verification, exact upgrade, and
-bounded adapter-remediation children. The email chapter separates narrow MCP
-mechanisms from harness control, then composes draft, review, and guarded
-mock-send children. Both use child evidence to select the next transition.
+The dependency-upgrade chapter coordinates verification, exact upgrade, and
+bounded adapter remediation. The email chapter separates narrow MCP
+mechanisms, model meta-harnesses, workflow coordination, and Goal System
+governance. Both use transition evidence to select what happens next.
 
 ## Status
 

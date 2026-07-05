@@ -3,6 +3,11 @@
 > Status: working hypothesis. The micro examples support this lens; later
 > executable examples must test it.
 
+> Terminology note: [Goal-System Engineering](./goal-system-engineering.md)
+> provisionally names this outcome-local topology a Goal System. It treats
+> model harness composition, workflow coordination, and Goal System governance
+> as orthogonal concerns.
+
 Goal harness topology appears scale-invariant. The implementation does not
 repeat unchanged. The control shape does:
 
@@ -63,10 +68,10 @@ request
 → feedback
 ```
 
-Each stage may itself be a Harness Run. Composition remains tractable only when
-a child exposes a stable parent-facing result: its Intent, Receipt, artifacts,
-and verdict. The parent should not need the child's private execution history
-to steer its own next transition.
+Each stage may itself be a Goal System, but composition does not require that
+claim. A bounded transition must expose a stable parent-facing result: its
+Intent, Receipt, artifacts, and verdict. The parent should not need the
+worker's private execution history to steer its own next transition.
 
 This gives a fractal nesting:
 

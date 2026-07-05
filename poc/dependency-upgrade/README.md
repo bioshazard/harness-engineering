@@ -1,12 +1,25 @@
-# Meso Harness: Bounded Adapter Surgery
+# Dependency Upgrade Meso Control
 
-This chapter tests one claim: bounded Harness Runs compose when child evidence
-changes a parent's next transition.
+This chapter tests one claim: a parent can govern bounded workflow transitions
+when transition evidence changes what happens next.
 
 The fixture is a TypeScript file-selection service behind a stable dependency
 adapter. It begins at `minimatch@3.1.2`. An exact upgrade to `9.0.9` breaks the
 adapter's default import with `TS2613`; the consumer and behavior remain behind
 the adapter seam.
+
+## Layer map
+
+```text
+npm, filesystem, compiler       → mechanisms
+Pi runtime                      → vanilla model harness
+adapter-remediation composition → domain meta-harness
+verify → upgrade → remediate    → workflow
+parent phase/authority control  → meso Goal System
+```
+
+Verification and upgrade transitions emit Receipts without claiming that each
+is independently a complete Goal System.
 
 ## Pressure
 
@@ -14,7 +27,7 @@ A version-bump script can install the package. One free-running Executor can
 attempt the entire migration. Neither preserves who may mutate what, who judges
 the result, or why remediation became authorized.
 
-The parent instead composes three child Harness Run interfaces:
+The parent instead composes three bounded transition interfaces:
 
 ```text
 verify(workspace, label) → Verify Receipt
@@ -77,13 +90,13 @@ Rejected workspaces are discarded.
 
 ## Receipts
 
-Every child Receipt has a content-derived identity independent of artifact
+Every transition Receipt has a content-derived identity independent of artifact
 storage location. Artifact locations do not affect identity; artifact SHA-256
 hashes do. The parent Receipt binds:
 
 - fixture and Intent identity;
 - ordered phases, Observations, and Reactions;
-- child Receipt identities and verdicts;
+- transition Receipt identities and verdicts;
 - remediation authority decision and Executor identity;
 - independently observed final changed files;
 - terminal declared and installed dependency identities;
@@ -102,11 +115,12 @@ The deterministic scenarios establish:
 1. localized failure selects one valid remediation, reverification, acceptance;
 2. a protected-file Proposal is blocked and rejected;
 3. an allowed but ineffective replacement is reverified and rejected; and
-4. an independently observed protected mutation overrides a dishonest child.
+4. an independently observed protected mutation overrides a dishonest
+   transition report.
 
-Therefore a child Receipt can serve as parent Observation, Reaction can select
-a subsequent bounded transition, and Harness Runs can compose recursively
-without sharing one implementation.
+Therefore a transition Receipt can serve as parent Observation and Reaction can
+select a subsequent bounded transition. The example does not need to claim
+that every transition is independently a complete Harness Run.
 
 ## Non-claims
 

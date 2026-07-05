@@ -1,22 +1,23 @@
-# Micro, Meso, and Macro Harnesses
+# Micro, Meso, and Macro Goal-System Control
 
 > Status: operational layer model. This note concretizes the recursion proposed
 > in [Goal Harness Scale Invariance](./scale-invariance.md). It does not add
-> ontology terms.
+> ontology terms. [Goal-System Engineering](./goal-system-engineering.md)
+> supplies its provisional terminology.
 
 Micro, meso, and macro describe where Intent, authority, Evaluation, steering,
 and terminality are located. They do not describe repository size, model size,
 agent count, runtime duration, or organizational importance.
 
-The same harness questions recur at each layer. What changes is the unit being
-steered, the evidence available to steer it, and the trust required to accept
-its result.
+The same Goal-System questions recur at each layer. What changes is the unit
+being steered, the evidence available to steer it, and the trust required to
+accept its result.
 
 ## The layers
 
 ### Micro: one bounded transition
 
-A micro harness governs one narrow State transition through one or a few
+A micro Goal System governs one narrow State transition through one or a few
 tightly related Capabilities.
 
 ```text
@@ -38,37 +39,39 @@ with success or failure.
 Examples include a guarded file write, an authorized API call, or one isolated
 code transformation with deterministic checks.
 
-A micro harness is not merely a function call. It must separate Proposal,
+A micro Goal System is not merely a function call. It must separate Proposal,
 authority, Effect, Observation, Evaluation, and evidence.
 
-### Meso: evidence-driven composition
+### Meso: evidence-driven workflow governance
 
-A meso harness governs progression across multiple bounded child Harness Runs
-toward one workflow outcome.
+A meso control system governs progression across multiple bounded transitions
+toward one workflow outcome. A transition may invoke a model harness, human,
+mechanism module, or complete child Goal System.
 
 ```text
 parent Intent
 → select child Intent
-→ child Harness Run
-→ child Receipt and artifacts
+→ bounded transition
+→ transition Receipt and artifacts
 → parent Observation
 → parent Evaluation
 → parent Reaction
 → next child / retry / reframe / stop / escalate
 ```
 
-Its State includes workflow progress, child outcomes, and produced artifacts.
-Its Capabilities include invoking bounded children. Its defining pressure is
-steering: evidence from one child changes which transition is attempted next.
+Its State includes workflow progress, transition outcomes, and produced
+artifacts. Its Capabilities include invoking bounded workers and child Goal
+Systems. Its defining pressure is steering: evidence from one transition
+changes which transition is attempted next.
 
-Running several micro harnesses in a fixed sequence is not enough. Without a
+Running several micro Goal Systems in a fixed sequence is not enough. Without a
 parent Intent, parent Evaluation, and evidence-driven Reaction, the result is a
-script or pipeline rather than a demonstrated meso harness.
+script or pipeline rather than a demonstrated meso Goal System.
 
 ### Macro: durable production and promotion
 
-A macro harness governs a durable value-production system composed from meso
-harnesses. It owns promotion across consequential trust boundaries.
+A macro Goal System governs a durable value-production system composed from
+meso Goal Systems. It owns promotion across consequential trust boundaries.
 
 ```text
 request
@@ -95,7 +98,7 @@ requests, releases, segments, and checkpoints.
 
 | Property | Micro | Meso | Macro |
 | --- | --- | --- | --- |
-| Unit steered | one Effect | child Harness Runs | workflows, releases, and feedback cycles |
+| Unit steered | one Effect | bounded workflow transitions | workflows, releases, and feedback cycles |
 | Intent | local State condition | workflow outcome | durable value or production mandate |
 | State | local resources | progress, Receipts, artifacts | lineage, releases, custody, operations |
 | Capability | direct operation | invoke bounded child | compose, promote, roll back, deprecate |
@@ -108,37 +111,37 @@ requests, releases, segments, and checkpoints.
 
 The critical seam is:
 
-> A child Receipt and its referenced artifacts constitute parent Observation.
+> A bounded transition's Receipt and referenced artifacts constitute parent
+> Observation.
 
 The parent should steer from this stable interface:
 
 ```text
-child Intent
-child composition identity
-child verdict
-child Receipt
+transition Intent
+worker or composition identity
+transition verdict
+transition Receipt
 referenced artifacts
 ```
 
-The parent should not need the child's private prompt history, internal control
-flow, or implementation details. If those internals are required to decide
-whether the child succeeded, the child interface is too weak or its Receipt is
-incomplete.
+The parent should not need the worker's private prompt history, internal
+control flow, or implementation details. If those internals are required to
+decide whether the transition succeeded, its interface is too weak or its
+Receipt is incomplete.
 
 Composition does not erase authority. The parent must be authorized to invoke
-the child, and the child independently authorizes its own Proposals. Likewise,
-the parent Evaluator judges whether the child outcome advances the parent
-Intent; it does not replace the child's Evaluator.
+the transition. A transition that is itself a Goal System independently
+authorizes its own Proposals. The parent Evaluator judges whether the
+transition outcome advances parent Intent; it does not manufacture a child
+Goal System where none exists.
 
 This creates nested, not flattened, control:
 
 ```text
 parent Guard
-  → child Harness Run
-      → child Guard
-      → child Effect
-      → child Evaluator
-      → child Receipt
+  → bounded transition
+      → worker, mechanism, or child Goal System
+      → transition Receipt
   → parent Evaluator
   → parent Reaction
 ```
@@ -175,12 +178,12 @@ layers should share one universal harness implementation.
 
 ### Meso is demonstrated when
 
-- each child transition preserves the control boundaries earned at the micro
+- each bounded transition preserves the relevant control boundaries earned at the micro
   layer, without requiring reuse of a prior lab's implementation;
 - the parent has its own Intent, State, Evaluation, Reaction, and Receipt;
-- child evidence changes the parent's next transition;
-- child failure cannot be silently rewritten as parent success; and
-- the parent consumes a stable child interface rather than child internals.
+- transition evidence changes the parent's next transition;
+- transition failure cannot be silently rewritten as parent success; and
+- the parent consumes stable interfaces rather than worker internals.
 
 ### Macro is demonstrated when
 
@@ -208,7 +211,7 @@ layers should share one universal harness implementation.
 - denied Effects and preserved State are observable.
 
 Both remain micro. Their Reaction terminates rather than selecting a meaningful
-next child transition.
+next bounded transition.
 
 Two executable examples now demonstrate meso control.
 
@@ -217,7 +220,7 @@ Two executable examples now demonstrate meso control.
 > Status: executable evidence.
 
 Use a pinned `minimatch` `3.1.2` to `9.0.9` upgrade to break one pre-existing
-dependency adapter. The parent should steer from child evidence:
+dependency adapter. The parent should steer from transition evidence:
 
 ```mermaid
 flowchart TD
@@ -245,7 +248,7 @@ the one-attempt budget remains. Acceptance requires exact dependency identity,
 green typecheck and behavioral tests, and an independently observed workspace
 diff within the allowed mutation set.
 
-The parent Receipt should bind ordered transitions, child Receipt identities
+The parent Receipt should bind ordered transitions, transition Receipt identities
 and verdicts, authority decisions, Reactions, terminal verdict, artifact
 references, and Executor identity. Full compiler output, diffs, dependency
 graph deltas, and optional model traces remain referenced artifacts.
@@ -269,8 +272,8 @@ Git promotion, multi-agent execution, and production isolation.
 
 `email-review-send` demonstrates meso control:
 
-- narrow MCP interfaces supply mechanisms without becoming Harness Runs;
-- draft, review, and send children retain micro authority and Evaluation;
+- narrow MCP interfaces supply mechanisms without becoming Goal Systems;
+- draft, review, and send transitions expose bounded evidence;
 - the parent consumes Review Receipts as Observation;
 - review evidence selects send, one bounded revision, rejection, or escalation;
 - send authority binds one trusted review identity and exact draft hash; and
