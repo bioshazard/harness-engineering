@@ -19,7 +19,7 @@ The ontology records only what the examples have earned.
 2. Read [Harness Engineering: Hello World](./poc/hello-world/README.md).
 3. Run the [hello-1 lab](./poc/hello-world/examples/hello-1/README.md).
 4. Inspect the [current ontology](./poc/hello-world/docs/ontology.md).
-5. Read the [draft-only email chapter](./poc/email-draft-only/README.md).
+5. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
 
 ## Current scope
 
@@ -31,10 +31,9 @@ Intent → Proposal → Guard → Capability → Effect
        → Observation → Evaluator → Reaction → Receipt
 ```
 
-The draft-only email chapter applies those boundaries to a broad provider
-credential, proving that selected Context and one projected Capability can
-protect unrelated sensitive State. Retries, orchestration, durable history,
-and sending remain deliberately deferred.
+The email chapter separates narrow MCP mechanism design from harness control,
+then composes draft, review, and guarded mock-send child Runs. Review evidence
+selects revision, rejection, escalation, or one exact send.
 
 ## Status
 

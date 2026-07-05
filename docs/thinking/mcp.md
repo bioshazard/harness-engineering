@@ -212,7 +212,8 @@ The draft-only email idea, as currently stated, is an MCP design problem:
 retain a broad provider credential behind a server and expose only explicit
 thread reads and verified unsent draft creation.
 
-The draft-review-send idea is a candidate meso harness:
+The executable [`email-review-send`](../../poc/email-review-send/README.md)
+example demonstrates the draft-review-send meso harness:
 review evidence authorizes revision, rejection, escalation, or one exact send,
 and independent sent-State Observation determines the parent verdict.
 

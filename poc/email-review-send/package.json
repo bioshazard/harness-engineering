@@ -1,10 +1,11 @@
 {
-  "name": "harness-engineering-email-draft-only",
+  "name": "harness-engineering-email-review-send",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --import tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "integration": "node --env-file-if-exists=../../.env --import tsx src/integration.ts --allow-external-model"
   },
   "devDependencies": {
     "@types/node": "24.0.15",
