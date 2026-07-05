@@ -50,7 +50,8 @@ review child binds its verdict to the observed draft hash. The send child
 rereads the draft and allows Effect only when:
 
 - the Review Receipt says `approve`;
-- reviewer identity is trusted by immutable Policy; and
+- immutable, pre-review Policy trusts the requested reviewer composition;
+- the Review Receipt binds the exact versioned criteria Policy; and
 - the current draft hash equals the reviewed draft hash.
 
 Authority covers one exact reviewed artifact, not “permission to send email.”
@@ -68,6 +69,9 @@ The parent owns one revision budget and terminality:
 
 An LLM judge may review the draft, but it does not implicitly own authority.
 The integration's explicit mock Policy trusts its configured reviewer identity.
+Requested composition identity remains the authority input; actual routed
+response-model identity is recorded separately as evidence and cannot expand
+Policy.
 No model verdict in this example can authorize a live email Effect.
 
 ## Independent verification
@@ -100,7 +104,7 @@ Executor Context ≠ durable Receipt content
 
 ## Evidence
 
-Deterministic conformance covers the narrow MCP contract and nine parent
+Deterministic conformance covers the narrow MCP contract and eleven parent
 control paths. The optional integration uses OpenRouter for both drafting and
 review against the mock provider. It requires an explicit external-model flag
 and has no live mailbox capability.

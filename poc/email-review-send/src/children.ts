@@ -4,6 +4,7 @@ import type {
   DraftMcp,
   Identity,
   ReviewExecutor,
+  ReviewPolicy,
   ReviewVerdict,
   SendMcp,
 } from "./types.js";
@@ -27,6 +28,8 @@ export type ReviewReceipt = {
   draftId: string;
   draftHash: string;
   feedbackHash: string;
+  policyId: string;
+  policyHash: string;
   reviewer: Identity;
 };
 
@@ -76,7 +79,7 @@ export async function runDraftChild(input: {
     draftHash: draftHash(observed),
     bodyHash: hash(body),
     verifiedUnsent: passed,
-    executor: input.executor.identity,
+    executor: { ...input.executor.identity },
   };
   return { ...partial, id: receiptId(partial) };
 }
@@ -86,19 +89,26 @@ export async function runReviewChild(input: {
   draftId: string;
   mcp: DraftMcp;
   reviewer: ReviewExecutor;
+  policy: ReviewPolicy;
 }): Promise<{ receipt: ReviewReceipt; feedback: string }> {
   const [thread, draft] = await Promise.all([
     input.mcp.readThread(input.threadId),
     input.mcp.readDraft(input.draftId),
   ]);
-  const review = await input.reviewer.review({ thread, draft });
+  const review = await input.reviewer.review({
+    thread,
+    draft,
+    policy: { id: input.policy.id, criteria: input.policy.criteria },
+  });
   const partial = {
     kind: "review" as const,
     verdict: review.verdict,
     draftId: draft.id,
     draftHash: draftHash(draft),
     feedbackHash: hash(review.feedback),
-    reviewer: input.reviewer.identity,
+    policyId: input.policy.id,
+    policyHash: hash(input.policy),
+    reviewer: { ...input.reviewer.identity },
   };
   return {
     receipt: { ...partial, id: receiptId(partial) },
@@ -109,11 +119,11 @@ export async function runReviewChild(input: {
 export async function runSendChild(input: {
   approval: ReviewReceipt;
   mcp: SendMcp;
-  trustedReviewers: Identity[];
+  policy: ReviewPolicy;
 }): Promise<SendReceipt> {
   const draft = await input.mcp.readDraft(input.approval.draftId);
   const observedDraftHash = draftHash(draft);
-  const trusted = input.trustedReviewers.some(
+  const trusted = input.policy.trustedReviewers.some(
     (identity) =>
       identity.provider === input.approval.reviewer.provider &&
       identity.model === input.approval.reviewer.model,
@@ -121,6 +131,9 @@ export async function runSendChild(input: {
   const reason =
     input.approval.verdict !== "approve"
       ? "review did not approve"
+      : input.approval.policyId !== input.policy.id ||
+          input.approval.policyHash !== hash(input.policy)
+        ? "review Policy identity mismatch"
       : !trusted
         ? "reviewer not trusted by Policy"
         : observedDraftHash !== input.approval.draftHash

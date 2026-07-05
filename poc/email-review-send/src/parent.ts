@@ -10,9 +10,9 @@ import { hash } from "./evidence.js";
 import type {
   DraftExecutor,
   DraftMcp,
-  Identity,
   MailboxObserver,
   ReviewExecutor,
+  ReviewPolicy,
   SendMcp,
 } from "./types.js";
 
@@ -21,6 +21,8 @@ export type ParentReceipt = {
     action: "reviewed_reply_send";
     threadHash: string;
     revisionLimit: 1;
+    reviewPolicyId: string;
+    reviewPolicyHash: string;
   };
   transitions: {
     phase: "draft" | "review" | "send";
@@ -46,8 +48,17 @@ export async function runEmailMeso(input: {
   observation: MailboxObserver;
   drafter: DraftExecutor;
   reviewer: ReviewExecutor;
-  trustedReviewers: Identity[];
+  reviewPolicy: ReviewPolicy;
 }): Promise<ParentReceipt> {
+  const reviewPolicy: ReviewPolicy = Object.freeze({
+    id: input.reviewPolicy.id,
+    criteria: Object.freeze([...input.reviewPolicy.criteria]),
+    trustedReviewers: Object.freeze(
+      input.reviewPolicy.trustedReviewers.map((identity) =>
+        Object.freeze({ ...identity }),
+      ),
+    ),
+  });
   const before = input.observation.snapshot();
   const transitions: ParentReceipt["transitions"] = [];
   const childReceipts: ParentReceipt["childReceipts"] = [];
@@ -86,6 +97,7 @@ export async function runEmailMeso(input: {
       draftId: draft.draftId,
       mcp: input.draftMcp,
       reviewer: input.reviewer,
+      policy: reviewPolicy,
     });
     const review = reviewResult.receipt;
     childReceipts.push(review);
@@ -132,7 +144,7 @@ export async function runEmailMeso(input: {
     const send = await runSendChild({
       approval: review,
       mcp: input.sendMcp,
-      trustedReviewers: input.trustedReviewers,
+      policy: reviewPolicy,
     });
     childReceipts.push(send);
     if (send.verdict === "pass") {
@@ -188,6 +200,8 @@ export async function runEmailMeso(input: {
       action: "reviewed_reply_send",
       threadHash: hash(input.threadId),
       revisionLimit: 1,
+      reviewPolicyId: reviewPolicy.id,
+      reviewPolicyHash: hash(reviewPolicy),
     },
     transitions,
     childReceipts,

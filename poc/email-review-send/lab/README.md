@@ -10,7 +10,7 @@ npm test
 ```
 
 No provider, credential, network, or model is required. Expected result:
-twelve passing tests across the MCP contract and meso control paths.
+fourteen passing tests across the MCP contract and meso control paths.
 
 ## Model-backed mock integration
 
