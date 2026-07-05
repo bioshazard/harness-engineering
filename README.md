@@ -19,11 +19,12 @@ The ontology records only what the examples have earned.
 2. Read [Harness Engineering: Hello World](./poc/hello-world/README.md).
 3. Run the [hello-1 lab](./poc/hello-world/examples/hello-1/README.md).
 4. Inspect the [current ontology](./poc/hello-world/docs/ontology.md).
-5. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
+5. Read the [meso adapter-surgery chapter](./poc/dependency-upgrade/README.md).
+6. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
 
 ## Current scope
 
-The first chapter derives the irreducible boundaries around one guarded file
+The micro chapter derives the irreducible boundaries around one guarded file
 write:
 
 ```text
@@ -31,9 +32,10 @@ Intent → Proposal → Guard → Capability → Effect
        → Observation → Evaluator → Reaction → Receipt
 ```
 
-The email chapter separates narrow MCP mechanism design from harness control,
-then composes draft, review, and guarded mock-send child Runs. Review evidence
-selects revision, rejection, escalation, or one exact send.
+The dependency-upgrade chapter composes verification, exact upgrade, and
+bounded adapter-remediation children. The email chapter separates narrow MCP
+mechanisms from harness control, then composes draft, review, and guarded
+mock-send children. Both use child evidence to select the next transition.
 
 ## Status
 

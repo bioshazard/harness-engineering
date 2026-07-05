@@ -1,0 +1,23 @@
+{
+  "name": "harness-engineering-dependency-upgrade",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "integration": "node --env-file-if-exists=../../.env --import tsx src/cli.ts --allow-external-model",
+    "integration:deterministic": "DETERMINISTIC_REMEDIATION=1 node --import tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.80.2",
+    "typebox": "1.0.63"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.15",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

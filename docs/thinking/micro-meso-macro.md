@@ -210,6 +210,63 @@ layers should share one universal harness implementation.
 Both remain micro. Their Reaction terminates rather than selecting a meaningful
 next child transition.
 
+Two executable examples now demonstrate meso control.
+
+## Dependency-upgrade meso experiment
+
+> Status: executable evidence.
+
+Use a pinned `minimatch` `3.1.2` to `9.0.9` upgrade to break one pre-existing
+dependency adapter. The parent should steer from child evidence:
+
+```mermaid
+flowchart TD
+  B["Verify baseline"] --> U["Exact upgrade"]
+  U --> V["Verify candidate"]
+  V -->|green| A["Accept"]
+  V -->|localized adapter diagnostics| R["Authorize one adapter surgery"]
+  V -->|other failure| X["Reject"]
+  R --> V2["Reverify"]
+  V2 -->|green| A
+  V2 -->|failure| X
+  X --> D["Discard isolated workspace"]
+```
+
+The model-driven Executor participates only in remediation. It receives
+compiler diagnostics, installed declarations, the adapter source, and the
+remediation Intent. Its sole mutating Capability is one bounded whole-file
+replacement of the adapter. Manifest, lockfile, tests, configuration, and
+consumer code are protected after the deterministic upgrade transition.
+
+The parent may authorize remediation only when the baseline passed, the exact
+upgrade remained contained, every compiler diagnostic identifies the adapter,
+the diagnostic context fits its budget, no install script was introduced, and
+the one-attempt budget remains. Acceptance requires exact dependency identity,
+green typecheck and behavioral tests, and an independently observed workspace
+diff within the allowed mutation set.
+
+The parent Receipt should bind ordered transitions, child Receipt identities
+and verdicts, authority decisions, Reactions, terminal verdict, artifact
+references, and Executor identity. Full compiler output, diffs, dependency
+graph deltas, and optional model traces remain referenced artifacts.
+
+Deterministic scenario chains should verify three control paths:
+
+- valid adapter remediation is accepted;
+- a protected-file Proposal is blocked and rejected; and
+- an allowed but ineffective remediation fails reverification and is rejected.
+
+These are conformance tests of harness structure. Cross-run evaluation of
+model-backed traces may later tune a new harness version, but that learning
+loop is outside this meso experiment.
+
+The experiment deliberately defers version discovery, external research,
+vulnerability and license Policy, AST analysis, arbitrary repository support,
+general retry and planning, rollback of authoritative State, durable resume,
+Git promotion, multi-agent execution, and production isolation.
+
+## Email review-and-send meso experiment
+
 `email-review-send` demonstrates meso control:
 
 - narrow MCP interfaces supply mechanisms without becoming Harness Runs;
