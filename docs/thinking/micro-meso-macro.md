@@ -175,7 +175,8 @@ layers should share one universal harness implementation.
 
 ### Meso is demonstrated when
 
-- at least one frozen micro harness is composed as a child;
+- each child transition preserves the control boundaries earned at the micro
+  layer, without requiring reuse of a prior lab's implementation;
 - the parent has its own Intent, State, Evaluation, Reaction, and Receipt;
 - child evidence changes the parent's next transition;
 - child failure cannot be silently rewritten as parent success; and
@@ -207,13 +208,21 @@ layers should share one universal harness implementation.
 - denied Effects and preserved State are observable.
 
 Both remain micro. Their Reaction terminates rather than selecting a meaningful
-next child transition. They provide no parent Intent, child composition,
-workflow checkpoint, durable lineage, or promotion boundary.
+next child transition.
 
-Meso therefore remains a hypothesis to test. The next example should compose a
-frozen micro harness, consume its Receipt as parent evidence, and choose a
-genuinely different next transition from Evaluation. It should add no macro
-machinery until that composition law works.
+`email-review-send` demonstrates meso control:
+
+- narrow MCP interfaces supply mechanisms without becoming Harness Runs;
+- draft, review, and send children retain micro authority and Evaluation;
+- the parent consumes Review Receipts as Observation;
+- review evidence selects send, one bounded revision, rejection, or escalation;
+- send authority binds one trusted review identity and exact draft hash; and
+- terminal mailbox Observation may override otherwise successful children.
+
+The child transitions depend typologically on the micro layer rather than
+importing a prior frozen lab. Meso is therefore executable evidence rather than
+only a hypothesis. Workflow checkpoints, durable lineage, promotion, and macro
+operation remain deferred.
 
 ## Relationship to 7FH
 
