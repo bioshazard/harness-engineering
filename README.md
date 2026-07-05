@@ -19,10 +19,11 @@ The ontology records only what the examples have earned.
 2. Read [Harness Engineering: Hello World](./poc/hello-world/README.md).
 3. Run the [hello-1 lab](./poc/hello-world/examples/hello-1/README.md).
 4. Inspect the [current ontology](./poc/hello-world/docs/ontology.md).
+5. Read the [meso adapter-surgery chapter](./poc/dependency-upgrade/README.md).
 
 ## Current scope
 
-The first chapter derives the irreducible boundaries around one guarded file
+The micro chapter derives the irreducible boundaries around one guarded file
 write:
 
 ```text
@@ -30,11 +31,11 @@ Intent → Proposal → Guard → Capability → Effect
        → Observation → Evaluator → Reaction → Receipt
 ```
 
-Retries, orchestration, durable history, multiple capabilities, and richer
-evaluation remain deliberately deferred. Later examples should introduce them
-only when their necessity can be demonstrated.
+The meso chapter composes bounded child Harness Runs and demonstrates that a
+child Receipt can steer the parent's next transition. Durable orchestration,
+promotion, rollback, and generalized planning remain deliberately deferred.
 
 ## Status
 
-Early and intentionally narrow. The first executable chapter is complete; the
-broader model will emerge incrementally.
+Early and intentionally narrow. Executable micro and meso chapters are
+complete; the broader model will emerge incrementally.

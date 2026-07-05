@@ -36,8 +36,8 @@ Evidence about State obtained independently of the Executor's claim.
 A post-effect judgment comparing Observation with Intent.
 
 **Reaction**  
-The harness response to a Guard or Evaluator verdict. In `hello-1`, it only
-terminates.
+The harness response to a Guard or Evaluator verdict. It may terminate a
+Harness Run or select its next bounded child Harness Run.
 
 **Receipt**  
 Structured evidence of the Proposal, authority decision, Effect, Observation,
@@ -54,6 +54,9 @@ Permission for one Principal to use one Capability on one State resource.
 **Policy**
 
 The immutable set of Grants consulted during a Harness Run.
+
+No new noun is required for meso composition. A child Harness Run's Receipt may
+serve as Observation for its parent, and Harness Runs may compose recursively.
 
 ## Relationships
 
@@ -74,6 +77,8 @@ flowchart LR
   I --> E
   E --> R["Reaction"]
   R --> Q["Receipt"]
+  Q -. "parent Observation" .-> O
+  R -. "next child Harness Run" .-> H
 ```
 
 Implementation names such as Pi, OpenRouter, tool hook, filesystem, and JSON
