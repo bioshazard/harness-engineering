@@ -75,7 +75,7 @@ export function modelDrafter(input: {
           revisionFeedback,
         }),
       });
-      identity.model = result.model;
+      identity.responseModel = result.model;
       if (typeof result.value.body !== "string") {
         throw new Error("drafter response missing body");
       }
@@ -91,7 +91,7 @@ export function modelReviewer(input: {
   const identity: Identity = { provider: "openrouter", model: input.model };
   return {
     identity,
-    async review({ thread, draft }) {
+    async review({ thread, draft, policy }) {
       const result = await complete({
         ...input,
         system:
@@ -107,9 +107,10 @@ export function modelReviewer(input: {
             subject: draft.subject,
             body: draft.body,
           },
+          reviewPolicy: policy,
         }),
       });
-      identity.model = result.model;
+      identity.responseModel = result.model;
       const verdicts: ReviewVerdict[] = [
         "approve",
         "revise",

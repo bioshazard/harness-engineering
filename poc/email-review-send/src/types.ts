@@ -1,4 +1,14 @@
-export type Identity = { provider: string; model: string };
+export type Identity = {
+  provider: string;
+  model: string;
+  responseModel?: string;
+};
+
+export type ReviewPolicy = {
+  id: string;
+  criteria: readonly string[];
+  trustedReviewers: readonly { provider: string; model: string }[];
+};
 
 export type Message = {
   id: string;
@@ -75,5 +85,6 @@ export type ReviewExecutor = {
   review(input: {
     thread: Message;
     draft: Draft;
+    policy: { id: string; criteria: readonly string[] };
   }): Promise<{ verdict: ReviewVerdict; feedback: string }>;
 };

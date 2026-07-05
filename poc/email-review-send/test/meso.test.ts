@@ -8,6 +8,7 @@ import {
   drafter,
   fixture,
   REVIEWER,
+  REVIEW_POLICY,
   reviewer,
   SOURCE_BODY,
   THREAD,
@@ -31,7 +32,7 @@ function input(
       observation: box.provider,
       drafter: drafter(options.bodies),
       reviewer: options.reviewExecutor ?? reviewer(verdicts),
-      trustedReviewers: [REVIEWER],
+      reviewPolicy: REVIEW_POLICY,
     },
   };
 }
@@ -101,7 +102,7 @@ test("draft changed after review is blocked before send Effect", async () => {
     observation: box.provider,
     drafter: drafter(),
     reviewer: reviewer(["approve"]),
-    trustedReviewers: [REVIEWER],
+    reviewPolicy: REVIEW_POLICY,
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(box.provider.snapshot().sent.length, 0);
@@ -112,6 +113,38 @@ test("untrusted reviewer approval cannot grant send authority", async () => {
   const untrusted = reviewer(["approve"]);
   untrusted.identity = { provider: "test", model: "untrusted" };
   const { box, run } = input([], { reviewExecutor: untrusted });
+  const receipt = await runEmailMeso(run);
+  assert.equal(receipt.terminalVerdict, "reject");
+  assert.equal(box.provider.snapshot().sent.length, 0);
+});
+
+test("actual response model is evidence, not ambient reviewer authority", async () => {
+  const routed = reviewer(["approve"]);
+  routed.identity.responseModel = "provider/routed-model";
+  const { run } = input([], { reviewExecutor: routed });
+  const receipt = await runEmailMeso(run);
+  assert.equal(receipt.terminalVerdict, "accept");
+  const review = receipt.childReceipts.find(
+    (child) => child.kind === "review",
+  );
+  assert.equal(
+    review?.kind === "review" ? review.reviewer.model : null,
+    "trusted-reviewer",
+  );
+  assert.equal(
+    review?.kind === "review" ? review.reviewer.responseModel : null,
+    "provider/routed-model",
+  );
+});
+
+test("review Policy is snapshotted before reviewer identity can mutate", async () => {
+  const mutating = reviewer(["approve"]);
+  const originalReview = mutating.review;
+  mutating.review = async (reviewInput) => {
+    mutating.identity.model = "swapped-after-snapshot";
+    return originalReview(reviewInput);
+  };
+  const { box, run } = input([], { reviewExecutor: mutating });
   const receipt = await runEmailMeso(run);
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(box.provider.snapshot().sent.length, 0);
@@ -134,7 +167,7 @@ test("provider sent-State mismatch rejects after Effect", async () => {
     observation: box.provider,
     drafter: drafter(),
     reviewer: reviewer(["approve"]),
-    trustedReviewers: [REVIEWER],
+    reviewPolicy: REVIEW_POLICY,
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(receipt.terminalObservation.sentDelta, 1);
@@ -159,7 +192,7 @@ test("hidden unrelated mutation overrides otherwise valid children", async () =>
     observation: box.provider,
     drafter: drafter(),
     reviewer: reviewer(["approve"]),
-    trustedReviewers: [REVIEWER],
+    reviewPolicy: REVIEW_POLICY,
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(receipt.terminalObservation.unrelatedMessagesUnchanged, false);

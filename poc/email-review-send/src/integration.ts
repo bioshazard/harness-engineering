@@ -44,7 +44,18 @@ async function main() {
     observation: provider,
     drafter,
     reviewer,
-    trustedReviewers: [reviewer.identity],
+    reviewPolicy: {
+      id: "email-reply-review-v1",
+      criteria: [
+        "faithful to source",
+        "directly answers request",
+        "contains no unsupported facts",
+        "safe to send",
+      ],
+      trustedReviewers: [
+        { provider: "openrouter", model },
+      ],
+    },
   });
   process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
   return receipt.terminalVerdict === "accept" ? 0 : 1;

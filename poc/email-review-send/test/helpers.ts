@@ -14,6 +14,16 @@ export const THREAD = "thread-selected";
 export const SOURCE_BODY = "Can you confirm the launch date?";
 export const APPROVED_BODY = "The launch date is Tuesday.";
 export const REVIEWER = { provider: "test", model: "trusted-reviewer" };
+export const REVIEW_POLICY = {
+  id: "email-reply-review-v1",
+  criteria: [
+    "faithful to source",
+    "directly answers request",
+    "contains no unsupported facts",
+    "safe to send",
+  ],
+  trustedReviewers: [REVIEWER],
+};
 
 export function state(): MailboxSnapshot {
   return {
