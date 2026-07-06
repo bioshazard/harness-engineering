@@ -23,6 +23,7 @@ import { sha256 } from "../../dependency-upgrade/src/evidence.js";
 import { modelRemediationChild } from "../../dependency-upgrade/src/model-executor.js";
 import { runMesoHarness } from "../../dependency-upgrade/src/parent.js";
 import { proposalRemediationChild } from "../../dependency-upgrade/src/remediation.js";
+import { DEFAULT_OPENROUTER_MODEL } from "./config.js";
 
 const execFileAsync = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -173,7 +174,7 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
               artifactRoot: artifacts,
               configRoot: resolve(frozenRoot, "config"),
               apiKey: process.env.OPENROUTER_API_KEY,
-              modelId: process.env.OPENROUTER_MODEL ?? "openrouter/free",
+              modelId: process.env.OPENROUTER_MODEL ?? DEFAULT_OPENROUTER_MODEL,
               systemPrompt: systemPrompt
                 ? `${systemPrompt}\nEmit exactly one replace_adapter tool call. Do not use markdown fences.`
                 : undefined,

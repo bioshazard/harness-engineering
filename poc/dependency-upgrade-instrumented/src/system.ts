@@ -10,6 +10,7 @@ import {
   dependencyUpgradeWorkflow,
   type UpgradeIntent,
 } from "./workflow.js";
+import { DEFAULT_OPENROUTER_MODEL } from "./config.js";
 
 export async function dependencyUpgradeSystem(options: {
   live: boolean;
@@ -35,7 +36,7 @@ export async function dependencyUpgradeSystem(options: {
         exact(
           "remediation-model",
           options.allowExternalModel
-            ? `openrouter:${process.env.OPENROUTER_MODEL ?? "openrouter/free"}`
+            ? `openrouter:${process.env.OPENROUTER_MODEL ?? DEFAULT_OPENROUTER_MODEL}`
             : "deterministic:known-valid-proposal@1",
         ),
       ],

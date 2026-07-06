@@ -32,6 +32,11 @@ Receipt and typecheck/test verdicts. The root span records terminal verdict,
 content-addressed Receipt ID, and evidence counts. Proposal and authority
 events contain identity metadata, not source or prompt content.
 
+The default request model is the static
+`nvidia/nemotron-3-super-120b-a12b:free` identifier. `OPENROUTER_MODEL`
+overrides it; the returned provider model remains execution evidence rather
+than promotion authority.
+
 The ordinary client surface is intentionally small:
 
 ```ts

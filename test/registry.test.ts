@@ -16,6 +16,7 @@ import {
   type Telemetry,
 } from "../src/registry/index.js";
 import { phoenixPrompt } from "../src/registry/phoenix.js";
+import { DEFAULT_OPENROUTER_MODEL } from "../poc/dependency-upgrade-instrumented/src/config.js";
 
 test("Phoenix prompt can bind a remote name to a local composition slot", () => {
   const declaration = phoenixPrompt(
@@ -28,6 +29,19 @@ test("Phoenix prompt can bind a remote name to a local composition slot", () => 
     type: "phoenix-prompt",
     name: "dependency-upgrade-remediator",
   });
+});
+
+test("live model default is a registered static free model", async () => {
+  assert.notEqual(DEFAULT_OPENROUTER_MODEL, "openrouter/free");
+  assert.match(DEFAULT_OPENROUTER_MODEL, /^nvidia\/nemotron-.+:free$/);
+  const config = JSON.parse(
+    await readFile("poc/dependency-upgrade/config/models.json", "utf8"),
+  ) as { providers: { openrouter: { models: Array<{ id: string }> } } };
+  assert.ok(
+    config.providers.openrouter.models.some(
+      ({ id }) => id === DEFAULT_OPENROUTER_MODEL,
+    ),
+  );
 });
 
 async function fixture() {
