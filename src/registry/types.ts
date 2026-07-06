@@ -81,11 +81,21 @@ export type ResolutionFailure = {
 
 export type TerminalVerdict = "accept" | "reject";
 
+export type EvaluationEvidence = {
+  name: string;
+  evaluatorId: string;
+  subjectId: string;
+  label: string;
+  score?: number;
+  explanation?: string;
+};
+
 export type WorkflowResult<T extends Json = Json> = {
   terminalVerdict: TerminalVerdict;
   domain: T;
   authorityDecisions?: Json[];
   evaluatorIdentities?: string[];
+  evaluations?: EvaluationEvidence[];
   artifacts?: Array<{ name: string; sha256: string; path?: string }>;
 };
 
@@ -104,6 +114,7 @@ export type Receipt<T extends Json = Json> = {
     digest: string;
   }>;
   evaluatorIdentities: string[];
+  evaluations: EvaluationEvidence[];
   authorityDecisions: Json[];
   artifacts: Array<{ name: string; sha256: string; path?: string }>;
   domain: T;

@@ -32,10 +32,22 @@ Receipt and typecheck/test verdicts. The root span records terminal verdict,
 content-addressed Receipt ID, and evidence counts. Proposal and authority
 events contain identity metadata, not source or prompt content.
 
+After the trace is flushed, evaluator evidence from the terminal Receipt is
+mirrored into Phoenix trace annotations. Annotation metadata binds Receipt,
+Composition, evaluator, and evaluated child Receipt identities and explicitly
+marks the annotation `observation-only`; Phoenix does not choose Reaction or
+terminal acceptance.
+
 The default request model is the static
 `nvidia/nemotron-3-super-120b-a12b:free` identifier. `OPENROUTER_MODEL`
 overrides it; the returned provider model remains execution evidence rather
 than promotion authority.
+
+The OpenRouter invocation is a nested OpenInference `LLM` span under the
+Goal-System remediation transition. It records structured input/output
+messages, the `replace_adapter` tool schema and call, requested and returned
+model identities, provider response ID, finish reason, token usage, and cost.
+The parent transition retains policy, Proposal, and authority evidence.
 
 The ordinary client surface is intentionally small:
 

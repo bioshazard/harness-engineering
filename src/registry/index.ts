@@ -386,6 +386,7 @@ export async function compose<TIntent, TDomain extends Json>(
             evaluatorIdentities: lock.components
               .filter((component) => component.category === "evaluators")
               .map((component) => component.immutableId),
+            evaluations: [],
             authorityDecisions: [],
             artifacts: [],
             domain: {
@@ -434,6 +435,7 @@ export async function compose<TIntent, TDomain extends Json>(
               lock.components
                 .filter((component) => component.category === "evaluators")
                 .map((component) => component.immutableId),
+            evaluations: result.evaluations ?? [],
             authorityDecisions: result.authorityDecisions ?? [],
             artifacts: result.artifacts ?? [],
             domain: result.domain,
