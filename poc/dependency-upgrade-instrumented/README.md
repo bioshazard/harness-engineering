@@ -6,9 +6,9 @@ verifies them before execution, emits root/transition spans to Phoenix, and
 wraps the existing Parent Receipt in a portable Receipt envelope.
 
 ```bash
-npm run example:seed
-npm run example:live
-npm run example:live:model
+bun run example:seed
+bun run example:live
+bun run example:live:model
 px trace get <trace-id> --project "harness eng"
 ```
 

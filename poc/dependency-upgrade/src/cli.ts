@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { realUpgradeChild, realVerifyChild } from "./children.js";
-import { ADAPTER_PATH } from "./contracts.js";
+import { ADAPTER_PATH, LOCKFILE_PATH } from "./contracts.js";
 import { sha256 } from "./evidence.js";
 import { modelRemediationChild } from "./model-executor.js";
 import { runMesoHarness } from "./parent.js";
@@ -35,12 +35,12 @@ async function main() {
       recursive: true,
       filter: (source) => !source.includes("node_modules"),
     });
-    await execFileAsync("npm", ["ci", "--ignore-scripts"], {
+    await execFileAsync("bun", ["install", "--frozen-lockfile", "--ignore-scripts"], {
       cwd: workspace,
       maxBuffer: 4 * 1024 * 1024,
     });
-    const npm = (await execFileAsync("npm", ["--version"])).stdout.trim();
-    const lock = await readFile(join(workspace, "package-lock.json"));
+    const bun = (await execFileAsync("bun", ["--version"])).stdout.trim();
+    const lock = await readFile(join(workspace, LOCKFILE_PATH));
     const receipt = await runMesoHarness({
       workspace,
       fixtureIdentity: `fixture-lock-sha256:${sha256(lock)}`,
@@ -62,7 +62,7 @@ async function main() {
             apiKey: apiKey!,
             modelId: process.env.OPENROUTER_MODEL ?? "openrouter/free",
           }),
-      npmVersion: npm,
+      bunVersion: bun,
     });
     const receiptPath = join(runRoot, "parent-receipt.json");
     await writeFile(

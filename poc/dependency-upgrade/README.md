@@ -11,7 +11,7 @@ the adapter seam.
 ## Layer map
 
 ```text
-npm, filesystem, compiler       → mechanisms
+bun, filesystem, compiler       → mechanisms
 Pi runtime                      → vanilla model harness
 adapter-remediation composition → domain meta-harness
 verify → upgrade → remediate    → workflow
@@ -101,7 +101,7 @@ hashes do. The parent Receipt binds:
 - independently observed final changed files;
 - terminal declared and installed dependency identities;
 - terminal verdict and reason; and
-- Node/npm identities and artifact references.
+- Bun identity and artifact references.
 
 Full compiler, test, install, dependency-delta, model-context, and Proposal
 evidence remains in referenced artifacts. Each integration creates one

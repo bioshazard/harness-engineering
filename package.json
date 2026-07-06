@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --import tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit",
-    "example:seed": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
-    "example": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/cli.ts",
-    "example:live": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/cli.ts --live",
-    "example:live:model": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model"
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit",
+    "example:seed": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
+    "example": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts",
+    "example:live": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live",
+    "example:live:model": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model"
   },
   "dependencies": {
     "@arizeai/phoenix-client": "6.12.0",
@@ -22,10 +22,9 @@
   },
   "devDependencies": {
     "@types/node": "24.0.15",
-    "tsx": "4.20.3",
     "typescript": "5.8.3"
   },
   "engines": {
-    "node": ">=22.19.0"
+    "bun": ">=1.2.17"
   }
 }

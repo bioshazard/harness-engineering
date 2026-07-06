@@ -1,6 +1,6 @@
 export const ADAPTER_PATH = "src/minimatch-adapter.ts";
 export const MANIFEST_PATH = "package.json";
-export const LOCKFILE_PATH = "package-lock.json";
+export const LOCKFILE_PATH = "bun.lock";
 export const TARGET_DEPENDENCY = "minimatch@9.0.9";
 
 export type Verdict = "pass" | "fail";
@@ -108,5 +108,5 @@ export type ParentReceipt = {
   };
   artifacts: Artifact[];
   executor?: { provider: string; model: string };
-  runtime: { node: string; npm?: string };
+  runtime: { bun: string };
 };

@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import {
@@ -56,8 +56,8 @@ export function realVerifyChild(artifactRoot: string): VerifyChild {
   return {
     async run({ workspace, label }): Promise<VerifyReceipt> {
       const [typecheck, tests] = await Promise.all([
-        run("npm", ["run", "--silent", "typecheck"], workspace),
-        run("npm", ["test", "--", "--test-reporter=spec"], workspace),
+        run("bun", ["run", "typecheck"], workspace),
+        run("bun", ["test"], workspace),
       ]);
       const artifacts = [
         await writeArtifact(
@@ -84,12 +84,47 @@ export function realVerifyChild(artifactRoot: string): VerifyChild {
   };
 }
 
-type Lockfile = {
-  packages?: Record<string, { hasInstallScript?: boolean }>;
+type InstalledPackage = {
+  name?: string;
+  version?: string;
+  scripts?: Record<string, string>;
 };
 
-function packageSet(lock: Lockfile) {
-  return new Set(Object.keys(lock.packages ?? {}).filter(Boolean));
+async function installedPackages(workspace: string) {
+  const root = join(workspace, "node_modules");
+  const packages = new Map<string, InstalledPackage>();
+  async function visit(directory: string) {
+    let entries;
+    try {
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === ".bin") continue;
+      const path = join(directory, entry.name);
+      if (entry.name.startsWith("@")) {
+        await visit(path);
+        continue;
+      }
+      try {
+        const manifest = JSON.parse(
+          await readFile(join(path, "package.json"), "utf8"),
+        ) as InstalledPackage;
+        if (manifest.name) packages.set(manifest.name, manifest);
+      } catch {
+        // Ignore non-package directories in node_modules.
+      }
+    }
+  }
+  await visit(root);
+  return packages;
+}
+
+function hasInstallScript(pkg: InstalledPackage | undefined) {
+  return ["preinstall", "install", "postinstall"].some(
+    (name) => pkg?.scripts?.[name] !== undefined,
+  );
 }
 
 export function realUpgradeChild(artifactRoot: string): UpgradeChild {
@@ -99,38 +134,32 @@ export function realUpgradeChild(artifactRoot: string): UpgradeChild {
       const beforeManifest = JSON.parse(
         await readFile(join(workspace, MANIFEST_PATH), "utf8"),
       ) as { dependencies?: Record<string, string> };
-      const beforeLock = JSON.parse(
-        await readFile(join(workspace, LOCKFILE_PATH), "utf8"),
-      ) as Lockfile;
+      const beforePackages = await installedPackages(workspace);
       const install = await run(
-        "npm",
-        ["install", "--ignore-scripts", "--save-exact", TARGET_DEPENDENCY],
+        "bun",
+        ["add", "--exact", "--ignore-scripts", TARGET_DEPENDENCY],
         workspace,
       );
-      const afterLock = JSON.parse(
-        await readFile(join(workspace, LOCKFILE_PATH), "utf8"),
-      ) as Lockfile;
+      const afterPackages = await installedPackages(workspace);
       const installed = JSON.parse(
         await readFile(
           join(workspace, "node_modules", "minimatch", "package.json"),
           "utf8",
         ),
       ) as { name: string; version: string };
-      const beforePackages = packageSet(beforeLock);
-      const afterPackages = packageSet(afterLock);
-      const added = [...afterPackages].filter(
+      const added = [...afterPackages.keys()].filter(
         (name) => !beforePackages.has(name),
       );
-      const removed = [...beforePackages].filter(
+      const removed = [...beforePackages.keys()].filter(
         (name) => !afterPackages.has(name),
       );
-      const installScriptsAdded = [...afterPackages].filter(
+      const installScriptsAdded = [...afterPackages.keys()].filter(
         (name) =>
-          afterLock.packages?.[name]?.hasInstallScript === true &&
-          beforeLock.packages?.[name]?.hasInstallScript !== true,
+          hasInstallScript(afterPackages.get(name)) &&
+          !hasInstallScript(beforePackages.get(name)),
       ).length;
       const artifacts = [
-        await writeArtifact(artifactRoot, "npm-install.txt", install.output),
+        await writeArtifact(artifactRoot, "bun-install.txt", install.output),
         await writeArtifact(
           artifactRoot,
           "dependency-delta.json",

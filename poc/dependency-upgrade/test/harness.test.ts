@@ -25,8 +25,8 @@ async function fixture() {
     `${JSON.stringify({ dependencies: { minimatch: "3.1.2" } })}\n`,
   );
   await writeFile(
-    join(root, "package-lock.json"),
-    `${JSON.stringify({ lockfileVersion: 3, packages: {} })}\n`,
+    join(root, "bun.lock"),
+    "# mock bun lock\n",
   );
   await writeFile(
     join(root, ADAPTER_PATH),
@@ -80,8 +80,8 @@ function exactUpgrade(): UpgradeChild {
         `${JSON.stringify({ dependencies: { minimatch: "9.0.9" } })}\n`,
       );
       await writeFile(
-        join(workspace, "package-lock.json"),
-        `${JSON.stringify({ lockfileVersion: 3, packages: { "node_modules/minimatch": { version: "9.0.9" } } })}\n`,
+        join(workspace, "bun.lock"),
+        "# mock bun lock with minimatch 9.0.9\n",
       );
       await writeFile(
         join(workspace, "node_modules", "minimatch", "package.json"),
@@ -92,7 +92,7 @@ function exactUpgrade(): UpgradeChild {
         verdict: "pass" as const,
         before: "minimatch@3.1.2",
         after: "minimatch@9.0.9",
-        changedFiles: ["package-lock.json", "package.json"],
+        changedFiles: ["bun.lock", "package.json"],
         dependencyDelta: {
           added: 0,
           removed: 3,
@@ -121,6 +121,7 @@ test("child failure steers to one valid adapter remediation and acceptance", asy
       },
       join(workspace, ".artifacts"),
     ),
+    bunVersion: "1.2.17",
   });
   assert.equal(receipt.terminalVerdict, "accept");
   assert.deepEqual(
@@ -129,7 +130,7 @@ test("child failure steers to one valid adapter remediation and acceptance", asy
   );
   assert.equal(receipt.authorityDecisions[0]?.verdict, "allow");
   assert.deepEqual(receipt.changedFiles, [
-    "package-lock.json",
+    "bun.lock",
     "package.json",
     ADAPTER_PATH,
   ]);
@@ -152,6 +153,7 @@ test("protected-file Proposal is blocked and rejected", async (t) => {
       { path: "package.json", content: "{}\n" },
       join(workspace, ".artifacts"),
     ),
+    bunVersion: "1.2.17",
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(receipt.authorityDecisions[0]?.verdict, "block");
@@ -171,6 +173,7 @@ test("allowed but ineffective remediation reverifies then rejects", async (t) =>
       { path: ADAPTER_PATH, content },
       join(workspace, ".artifacts"),
     ),
+    bunVersion: "1.2.17",
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(receipt.transitions.at(-1)?.phase, "reverify");
@@ -213,6 +216,7 @@ test("independent final diff rejects a child receipt that hides protected mutati
       { path: ADAPTER_PATH, content: "unused\n" },
       join(workspace, ".artifacts"),
     ),
+    bunVersion: "1.2.17",
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.match(receipt.reason, /workspace diff/);
@@ -267,6 +271,7 @@ test("terminal Observation rejects a lying installed dependency identity", async
       { path: ADAPTER_PATH, content: "unused\n" },
       join(workspace, ".artifacts"),
     ),
+    bunVersion: "1.2.17",
   });
   assert.equal(receipt.terminalVerdict, "reject");
   assert.equal(

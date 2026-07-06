@@ -24,7 +24,7 @@ export async function runMesoHarness(input: {
   verify: VerifyChild;
   upgrade: UpgradeChild;
   remediate: RemediateChild;
-  npmVersion?: string;
+  bunVersion: string;
 }): Promise<ParentReceipt> {
   const initial = await snapshot(input.workspace);
   const childReceipts: ChildReceipt[] = [];
@@ -242,7 +242,7 @@ export async function runMesoHarness(input: {
       ...(remediation?.kind === "remediate"
         ? { executor: remediation.executor }
         : {}),
-      runtime: { node: process.version, npm: input.npmVersion },
+      runtime: { bun: input.bunVersion },
     };
   }
 }

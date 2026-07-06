@@ -34,7 +34,7 @@ function requestedIntent(): IntentName | null {
 async function main(): Promise<number> {
   const intent = requestedIntent();
   if (!intent) {
-    console.error("usage: npm run allowed | npm run forbidden");
+    console.error("usage: bun run allowed | bun run forbidden");
     return 2;
   }
   const apiKey = process.env.OPENROUTER_API_KEY;

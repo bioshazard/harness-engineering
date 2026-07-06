@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node --env-file-if-exists=../../../../.env --import tsx src/index.ts",
-    "test": "node --import tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "start": "bun --env-file=../../../../.env src/index.ts",
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "0.80.2",
@@ -13,10 +13,9 @@
   },
   "devDependencies": {
     "@types/node": "24.0.15",
-    "tsx": "4.20.3",
     "typescript": "5.8.3"
   },
   "engines": {
-    "node": ">=22.19.0"
+    "bun": ">=1.2.17"
   }
 }

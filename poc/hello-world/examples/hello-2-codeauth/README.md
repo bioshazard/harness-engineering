@@ -5,8 +5,8 @@ This lab copies `sandbox/input.txt` through guarded `read_file` and
 requested Capability, and normalized State resource.
 
 ```sh
-npm run allowed
-npm run forbidden
+bun run allowed
+bun run forbidden
 ```
 
 `allowed` copies to `sandbox/output.txt` and exits 0. `forbidden` reads the
@@ -35,14 +35,14 @@ determine success.
 
 ## Verify
 
-Requires Node 22.19+ and `OPENROUTER_API_KEY` in repository-root `.env`.
+Requires Bun 1.2.17+ and `OPENROUTER_API_KEY` in repository-root `.env`.
 
 ```sh
-npm install
-npm test
-npm run typecheck
-npm run allowed
-npm run forbidden
+bun install --frozen-lockfile --ignore-scripts
+bun test
+bun run typecheck
+bun run allowed
+bun run forbidden
 ```
 
 ## Deferred

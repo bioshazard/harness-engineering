@@ -4,9 +4,9 @@
 
 ```bash
 cd poc/email-review-send
-npm ci --ignore-scripts
-npm run typecheck
-npm test
+bun install --frozen-lockfile --ignore-scripts
+bun run typecheck
+bun test
 ```
 
 No provider, credential, network, or model is required. Expected result:
@@ -17,7 +17,7 @@ fourteen passing tests across the MCP contract and meso control paths.
 Root `.env` must contain `OPENROUTER_API_KEY`.
 
 ```bash
-npm run integration
+bun run integration
 ```
 
 The script supplies `--allow-external-model`, explicitly approving disclosure

@@ -34,13 +34,13 @@ provisional.
 
 ## Run
 
-Requires Node 22.19 or newer and an OpenRouter API key.
+Requires Bun 1.2.17+ and an OpenRouter API key.
 
 ```sh
 cp .env.example ../../../../.env
 # Set OPENROUTER_API_KEY in the repository-root .env
-npm install
-npm run --silent start
+bun install --frozen-lockfile --ignore-scripts
+bun run start
 ```
 
 `OPENROUTER_MODEL` defaults to `openrouter/free`.
@@ -68,8 +68,8 @@ Stdout contains only the Receipt. Diagnostics use stderr.
 ## Verify
 
 ```sh
-npm test
-npm run typecheck
+bun test
+bun run typecheck
 ```
 
 The tests establish three distinct outcomes:

@@ -41,7 +41,7 @@ export async function dependencyUpgradeSystem(options: {
         ),
       ],
       capabilities: [
-        exact("npm-capability", "npm:ci-and-install@10", {
+        exact("bun-capability", "bun:install-and-add@1.2", {
           contract: "goal-system.capability/v1",
         }),
       ],
@@ -61,7 +61,7 @@ export async function dependencyUpgradeSystem(options: {
         }),
       ],
       runtime: [
-        exact("node-runtime", `node:${process.version}`, {
+        exact("bun-runtime", `bun:${(process.versions as { bun?: string }).bun ?? "unknown"}`, {
           contract: "goal-system.runtime/v1",
         }),
       ],

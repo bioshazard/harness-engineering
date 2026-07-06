@@ -63,7 +63,7 @@ function tracedUpgrade(
     run(input) {
       return context.transition(
         "upgrade",
-        ["workflow", "npm-capability", "upgrade-policy"],
+        ["workflow", "bun-capability", "upgrade-policy"],
         async () => {
           const receipt = await child.run(input);
           context.annotate({
@@ -154,16 +154,16 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
       });
       await context.transition(
         "prepare-workspace",
-        ["workflow", "npm-capability"],
+        ["workflow", "bun-capability"],
         async () => {
-          await execFileAsync("npm", ["ci", "--ignore-scripts"], {
+          await execFileAsync("bun", ["install", "--frozen-lockfile", "--ignore-scripts"], {
             cwd: workspace,
             maxBuffer: 4 * 1024 * 1024,
           });
         },
       );
-      const npmVersion = (await execFileAsync("npm", ["--version"])).stdout.trim();
-      const fixtureLock = await readFile(join(workspace, "package-lock.json"));
+      const bunVersion = (await execFileAsync("bun", ["--version"])).stdout.trim();
+      const fixtureLock = await readFile(join(workspace, "bun.lock"));
       const verify = tracedVerify(context, realVerifyChild(artifacts));
       const upgrade = tracedUpgrade(context, realUpgradeChild(artifacts));
       const remediation = tracedRemediation(
@@ -196,7 +196,7 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
         verify,
         upgrade,
         remediate: remediation,
-        npmVersion,
+        bunVersion,
       });
       accepted = parent.terminalVerdict === "accept";
       const evaluatorId = context.components.find(
