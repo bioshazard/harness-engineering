@@ -20,6 +20,41 @@ import {
 import { receiptId, writeArtifact } from "./evidence.js";
 import { authorizeAndReplace, remediationContext } from "./remediation.js";
 
+export type ModelInvocation = {
+  provider: string;
+  requestedModel: string;
+  systemPrompt: string;
+  userPrompt: string;
+};
+
+export type ModelInvocationResult = {
+  responseModel: string;
+  responseId?: string;
+  stopReason?: string;
+  content: Array<
+    | { type: "text"; text: string }
+    | {
+        type: "toolCall";
+        id: string;
+        name: string;
+        arguments: Record<string, unknown>;
+      }
+  >;
+  usage?: {
+    input: number;
+    output: number;
+    totalTokens: number;
+    cost: { total: number };
+  };
+};
+
+export type ModelInvocationObserver = {
+  run(
+    input: ModelInvocation,
+    invoke: () => Promise<ModelInvocationResult>,
+  ): Promise<ModelInvocationResult>;
+};
+
 function replacementExtension(
   workspace: string,
   proposals: Proposal[],
@@ -64,6 +99,7 @@ export function modelRemediationChild(input: {
   modelId: string;
   systemPrompt?: string;
   promptVersion?: string;
+  observer?: ModelInvocationObserver;
 }): RemediateChild {
   return {
     async run({ workspace, intent, diagnostics }): Promise<RemediateReceipt> {
@@ -76,6 +112,9 @@ export function modelRemediationChild(input: {
       const modelRegistry = ModelRegistry.create(authStorage, modelsPath);
       const model = modelRegistry.find("openrouter", input.modelId);
       if (!model) throw new Error(`OpenRouter model not found: ${input.modelId}`);
+      const systemPrompt =
+        input.systemPrompt ??
+        "You repair one TypeScript dependency adapter. Emit exactly one replace_adapter call. Preserve the exported interface. Do not use markdown fences.";
       const resourceLoader = new DefaultResourceLoader({
         cwd: workspace,
         agentDir: input.configRoot,
@@ -87,9 +126,7 @@ export function modelRemediationChild(input: {
         noPromptTemplates: true,
         noThemes: true,
         noContextFiles: true,
-        systemPrompt:
-          input.systemPrompt ??
-          "You repair one TypeScript dependency adapter. Emit exactly one replace_adapter call. Preserve the exported interface. Do not use markdown fences.",
+        systemPrompt,
       });
       await resourceLoader.reload();
       const { session } = await createAgentSession({
@@ -104,8 +141,7 @@ export function modelRemediationChild(input: {
         settingsManager: SettingsManager.inMemory(),
       });
       let responseModel = model.id;
-      try {
-        await session.prompt(`${intent}
+      const userPrompt = `${intent}
 
 Compiler diagnostics:
 ${JSON.stringify(diagnostics)}
@@ -114,7 +150,61 @@ Current adapter:
 ${context.adapter}
 
 Installed minimatch declarations:
-${context.declarations}`);
+${context.declarations}`;
+      const invoke = async (): Promise<ModelInvocationResult> => {
+        await session.prompt(userPrompt);
+        const assistants = session.messages.filter(
+          (message) => message.role === "assistant",
+        );
+        const assistant = [...assistants]
+          .reverse()
+          .find((message) => message.content.length > 0) ?? assistants.at(-1);
+        if (!assistant || assistant.role !== "assistant") {
+          throw new Error("model returned no assistant message");
+        }
+        const content: ModelInvocationResult["content"] = [];
+        for (const message of assistants) {
+          for (const item of message.content) {
+            if (item.type === "text") {
+              content.push({ type: "text", text: item.text });
+            } else if (item.type === "toolCall") {
+              content.push({
+                type: "toolCall",
+                id: item.id,
+                name: item.name,
+                arguments: item.arguments,
+              });
+            }
+          }
+        }
+        const usage = assistants.reduce(
+          (total, message) => ({
+            input: total.input + message.usage.input,
+            output: total.output + message.usage.output,
+            totalTokens: total.totalTokens + message.usage.totalTokens,
+            cost: { total: total.cost.total + message.usage.cost.total },
+          }),
+          { input: 0, output: 0, totalTokens: 0, cost: { total: 0 } },
+        );
+        return {
+          responseModel: assistant.responseModel ?? assistant.model,
+          responseId: assistant.responseId,
+          stopReason: assistant.stopReason,
+          content,
+          usage,
+        };
+      };
+      try {
+        const invocation = {
+          provider: "openrouter",
+          requestedModel: input.modelId,
+          systemPrompt,
+          userPrompt,
+        };
+        const result = input.observer
+          ? await input.observer.run(invocation, invoke)
+          : await invoke();
+        responseModel = result.responseModel;
       } catch (error) {
         if (!decisions.some((result) => result.authority.verdict === "block")) {
           throw error;

@@ -24,6 +24,7 @@ import { modelRemediationChild } from "../../dependency-upgrade/src/model-execut
 import { runMesoHarness } from "../../dependency-upgrade/src/parent.js";
 import { proposalRemediationChild } from "../../dependency-upgrade/src/remediation.js";
 import { DEFAULT_OPENROUTER_MODEL } from "./config.js";
+import { openInferenceModelObserver } from "./openinference.js";
 
 const execFileAsync = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -100,10 +101,8 @@ function tracedRemediation(
             (model.source as { id?: string }).id ?? model.immutableId
           ).replace(/^openrouter:/, "");
           context.annotate({
-            "gen_ai.operation.name": "chat",
-            "gen_ai.provider.name": receipt.executor.provider,
-            "gen_ai.request.model": requestedModel,
-            "gen_ai.response.model": receipt.executor.model,
+            "goal.model.requested.id": requestedModel,
+            "goal.model.response.id": receipt.executor.model,
             "goal.prompt.version.id": context.prompt("remediation-prompt")
               .immutableId,
             "goal.authority.verdict": receipt.authority.verdict,
@@ -179,6 +178,7 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
                 ? `${systemPrompt}\nEmit exactly one replace_adapter tool call. Do not use markdown fences.`
                 : undefined,
               promptVersion: prompt.immutableId,
+              observer: openInferenceModelObserver(),
             })
           : proposalRemediationChild(
               {

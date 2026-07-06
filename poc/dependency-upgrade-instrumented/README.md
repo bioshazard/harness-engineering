@@ -43,6 +43,12 @@ The default request model is the static
 overrides it; the returned provider model remains execution evidence rather
 than promotion authority.
 
+The OpenRouter invocation is a nested OpenInference `LLM` span under the
+Goal-System remediation transition. It records structured input/output
+messages, the `replace_adapter` tool schema and call, requested and returned
+model identities, provider response ID, finish reason, token usage, and cost.
+The parent transition retains policy, Proposal, and authority evidence.
+
 The ordinary client surface is intentionally small:
 
 ```ts

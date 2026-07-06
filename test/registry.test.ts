@@ -20,6 +20,7 @@ import {
   publishPhoenixEvaluations,
 } from "../src/registry/phoenix.js";
 import { DEFAULT_OPENROUTER_MODEL } from "../poc/dependency-upgrade-instrumented/src/config.js";
+import { modelOutputAttributes } from "../poc/dependency-upgrade-instrumented/src/openinference.js";
 
 test("Phoenix prompt can bind a remote name to a local composition slot", () => {
   const declaration = phoenixPrompt(
@@ -72,6 +73,32 @@ test("Phoenix evaluations mirror Receipt evidence without authority", async () =
   assert.equal(requests.length, 1);
   assert.match(JSON.stringify(requests[0]), /observation-only/);
   assert.doesNotMatch(JSON.stringify(requests[0]), /reaction|terminalVerdict/);
+});
+
+test("OpenInference model evidence includes usage and tool calls", () => {
+  const attributes = modelOutputAttributes({
+    responseModel: "nvidia/nemotron-static",
+    responseId: "response-1",
+    stopReason: "toolUse",
+    content: [{
+      type: "toolCall",
+      id: "tool-1",
+      name: "replace_adapter",
+      arguments: { path: "src/minimatch-adapter.ts", content: "replacement" },
+    }],
+    usage: {
+      input: 10,
+      output: 5,
+      totalTokens: 15,
+      cost: { total: 0 },
+    },
+  }) as Record<string, unknown>;
+  assert.equal(attributes["llm.model_name"], "nvidia/nemotron-static");
+  assert.equal(attributes["llm.token_count.total"], 15);
+  assert.equal(attributes["llm.response.id"], "response-1");
+  assert.ok(
+    Object.keys(attributes).some((key) => key.includes("tool_calls")),
+  );
 });
 
 async function fixture() {
