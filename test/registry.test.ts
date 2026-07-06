@@ -21,6 +21,10 @@ import {
 } from "../src/registry/phoenix.js";
 import { DEFAULT_OPENROUTER_MODEL } from "../poc/dependency-upgrade-instrumented/src/config.js";
 import { modelOutputAttributes } from "../poc/dependency-upgrade-instrumented/src/openinference.js";
+import {
+  ExternalCallTimeout,
+  runExternal,
+} from "../src/registry/effect.js";
 
 test("Phoenix prompt can bind a remote name to a local composition slot", () => {
   const declaration = phoenixPrompt(
@@ -98,6 +102,39 @@ test("OpenInference model evidence includes usage and tool calls", () => {
   assert.equal(attributes["llm.response.id"], "response-1");
   assert.ok(
     Object.keys(attributes).some((key) => key.includes("tool_calls")),
+  );
+});
+
+test("Effect external calls retry idempotent failures", async () => {
+  let attempts = 0;
+  const result = await runExternal({
+    operation: "test-idempotent",
+    retries: 2,
+    run: async () => {
+      attempts += 1;
+      if (attempts < 3) throw new Error("temporary");
+      return "ok";
+    },
+  });
+  assert.equal(result, "ok");
+  assert.equal(attempts, 3);
+});
+
+test("Effect external calls abort on typed timeout", async () => {
+  await assert.rejects(
+    runExternal({
+      operation: "test-timeout",
+      timeoutMs: 5,
+      run: (signal) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener(
+            "abort",
+            () => reject(new Error("aborted")),
+            { once: true },
+          );
+        }),
+    }),
+    (error) => error instanceof ExternalCallTimeout,
   );
 });
 

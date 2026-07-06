@@ -4,12 +4,13 @@ import type {
   ModelInvocationObserver,
   ModelInvocationResult,
 } from "../../dependency-upgrade/src/model-executor.js";
+import { runExternal } from "../../../src/registry/effect.js";
 
 export function openInferenceModelObserver(): ModelInvocationObserver {
   return {
     run(input, invoke) {
       const traced = traceLLM(
-        async (_input: ModelInvocation) => invoke(),
+        async (_input: ModelInvocation, signal: AbortSignal) => invoke(signal),
         {
           name: "openrouter.chat",
           processInput: (invocation) =>
@@ -49,7 +50,12 @@ export function openInferenceModelObserver(): ModelInvocationObserver {
           processOutput: modelOutputAttributes,
         },
       );
-      return traced(input);
+      return runExternal({
+        operation: "model-invocation",
+        timeoutMs: 60_000,
+        retries: 0,
+        run: (signal) => traced(input, signal),
+      });
     },
   };
 }
