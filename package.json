@@ -1,0 +1,25 @@
+{
+  "name": "goal-system-composition",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "example:seed": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
+    "example": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/cli.ts",
+    "example:live": "node --env-file-if-exists=.env --import tsx poc/dependency-upgrade-instrumented/src/cli.ts --live"
+  },
+  "dependencies": {
+    "@arizeai/phoenix-client": "6.12.0",
+    "@arizeai/phoenix-otel": "1.0.2",
+    "canonicalize": "3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.15",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

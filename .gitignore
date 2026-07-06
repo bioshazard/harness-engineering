@@ -1,2 +1,4 @@
 .env
 .env.admin
+.goal-systems/
+node_modules/
