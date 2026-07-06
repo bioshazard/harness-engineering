@@ -11,10 +11,13 @@ import {
   type UpgradeIntent,
 } from "./workflow.js";
 
-export async function dependencyUpgradeSystem(options: { live: boolean }) {
+export async function dependencyUpgradeSystem(options: {
+  live: boolean;
+  allowExternalModel?: boolean;
+}) {
   return compose<UpgradeIntent, Json>({
     name: "dependency-upgrade-instrumented",
-    workflow: dependencyUpgradeWorkflow,
+    workflow: dependencyUpgradeWorkflow(options.allowExternalModel),
     prompt:
       options.live && process.env.PHOENIX_PROMPT_NAME
         ? phoenixPrompt(
@@ -29,7 +32,12 @@ export async function dependencyUpgradeSystem(options: { live: boolean }) {
           ),
     profile: {
       model: [
-        exact("remediation-model", "deterministic:known-valid-proposal@1"),
+        exact(
+          "remediation-model",
+          options.allowExternalModel
+            ? `openrouter:${process.env.OPENROUTER_MODEL ?? "openrouter/free"}`
+            : "deterministic:known-valid-proposal@1",
+        ),
       ],
       capabilities: [
         exact("npm-capability", "npm:ci-and-install@10", {

@@ -91,6 +91,7 @@ export type WorkflowResult<T extends Json = Json> = {
 
 export type Receipt<T extends Json = Json> = {
   schemaVersion: 1;
+  id: string;
   runId: string;
   compositionId: string;
   manifestVersionId: string;
@@ -122,6 +123,11 @@ export type LockedContext = {
   traceId: string;
   components: ReadonlyArray<ResolvedComponent>;
   prompt(name: string): ResolvedComponent;
+  annotate(attributes: Record<string, string | number | boolean>): void;
+  event(
+    name: string,
+    attributes?: Record<string, string | number | boolean>,
+  ): void;
   transition: Transition;
 };
 
@@ -138,7 +144,12 @@ export type Telemetry = {
       manifestVersionId: string;
       components: ResolvedComponent[];
     },
-    execute: (traceId: string, transition: Transition) => Promise<T>,
+    execute: (
+      traceId: string,
+      transition: Transition,
+      annotate: LockedContext["annotate"],
+      event: LockedContext["event"],
+    ) => Promise<T>,
   ): Promise<T>;
 };
 

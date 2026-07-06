@@ -115,12 +115,15 @@ test("compose hides lifecycle and correlates Receipt with trace", async () => {
   const root = await mkdtemp(join(tmpdir(), "composition-client-"));
   await writeFile(join(root, "workflow.ts"), "export {};\n");
   const seen: string[] = [];
+  const attributes: Record<string, string | number | boolean> = {};
   const telemetry: Telemetry = {
     run(input, execute) {
       seen.push(input.compositionId);
       return execute(
         "0123456789abcdef0123456789abcdef",
         async (_id, _components, run) => run(),
+        (values) => Object.assign(attributes, values),
+        () => {},
       );
     },
   };
@@ -139,6 +142,9 @@ test("compose hides lifecycle and correlates Receipt with trace", async () => {
   assert.equal(receipt.traceId, "0123456789abcdef0123456789abcdef");
   assert.deepEqual(seen, [system.compositionId]);
   assert.equal(receipt.terminalVerdict, "accept");
+  assert.match(receipt.id, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(attributes["goal.terminal.verdict"], "accept");
+  assert.equal(attributes["goal.receipt.id"], receipt.id);
   const persisted = JSON.parse(
     await readFile(
       join(root, "registry/locks", `${system.compositionId.slice(7)}.json`),

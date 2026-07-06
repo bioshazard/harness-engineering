@@ -87,7 +87,12 @@ export function inMemoryTelemetry(): Telemetry {
   return {
     run(input, execute) {
       const traceId = digest(`${input.runId}:${input.compositionId}`).slice(7, 39);
-      return execute(traceId, async (_id, _components, run) => run());
+      return execute(
+        traceId,
+        async (_id, _components, run) => run(),
+        () => {},
+        () => {},
+      );
     },
   };
 }
@@ -353,8 +358,24 @@ export async function compose<TIntent, TDomain extends Json>(
           manifestVersionId: version.id,
           components: lock.components,
         },
-        async (traceId, transition) => {
-          const reject = (error: unknown): Receipt<TDomain> => ({
+        async (traceId, transition, annotate, event) => {
+          const finalize = (
+            partial: Omit<Receipt<TDomain>, "id">,
+          ): Receipt<TDomain> => {
+            const receipt = {
+              ...partial,
+              id: digest(partial as unknown as Json),
+            };
+            annotate({
+              "goal.terminal.verdict": receipt.terminalVerdict,
+              "goal.receipt.id": receipt.id,
+              "goal.receipt.artifact.count": receipt.artifacts.length,
+              "goal.receipt.authority_decision.count":
+                receipt.authorityDecisions.length,
+            });
+            return receipt;
+          };
+          const reject = (error: unknown): Receipt<TDomain> => finalize({
             schemaVersion: 1,
             runId,
             compositionId: resolution.compositionId,
@@ -390,6 +411,8 @@ export async function compose<TIntent, TDomain extends Json>(
               if (!component) throw new Error(`locked prompt not found: ${name}`);
               return component;
             },
+            annotate,
+            event,
             transition,
           };
           let result;
@@ -398,7 +421,7 @@ export async function compose<TIntent, TDomain extends Json>(
           } catch (error) {
             return reject(error);
           }
-          return {
+          return finalize({
             schemaVersion: 1,
             runId,
             compositionId: resolution.compositionId,
@@ -414,7 +437,7 @@ export async function compose<TIntent, TDomain extends Json>(
             authorityDecisions: result.authorityDecisions ?? [],
             artifacts: result.artifacts ?? [],
             domain: result.domain,
-          };
+          });
         },
       );
     },

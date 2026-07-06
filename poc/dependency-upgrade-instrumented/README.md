@@ -8,6 +8,7 @@ wraps the existing Parent Receipt in a portable Receipt envelope.
 ```bash
 npm run example:seed
 npm run example:live
+npm run example:live:model
 px trace get <trace-id> --project "harness eng"
 ```
 
@@ -21,6 +22,15 @@ Live mode reads:
 - `PHOENIX_API_KEY`
 - `PHOENIX_PROJECT_NAME` defaulting to `harness eng`
 - `PHOENIX_ENDPOINT` defaulting to `https://phoenix.talos.bios.dev`
+
+`example:live:model` invokes the locked OpenRouter model with the locked
+Phoenix system prompt. It explicitly opts into sending fixture adapter code,
+compiler diagnostics, and dependency declarations to OpenRouter. The active
+Phoenix transition records requested/response model IDs, prompt version, and
+the host-owned authority verdict. Verification spans record their child
+Receipt and typecheck/test verdicts. The root span records terminal verdict,
+content-addressed Receipt ID, and evidence counts. Proposal and authority
+events contain identity metadata, not source or prompt content.
 
 The ordinary client surface is intentionally small:
 
