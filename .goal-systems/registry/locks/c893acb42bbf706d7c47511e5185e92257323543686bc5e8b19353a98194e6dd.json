@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "manifestVersionId": "sha256:096423ff1af65a16ed6533065f7ffa2026eeb18473d0cf96d3c4a8c4281d44ae",
+  "manifestName": "dependency-upgrade-instrumented",
+  "profile": "default/v1",
+  "components": [
+    {
+      "category": "artifacts",
+      "name": "artifacts:none",
+      "provider": "none",
+      "contract": "goal-system.none/v1",
+      "immutableId": "none:artifacts",
+      "digest": "sha256:2913865ca9ef4f4ff8f218b184aadd99e06c6efc2f8012829743a092d210b580",
+      "source": {
+        "type": "none"
+      }
+    },
+    {
+      "category": "capabilities",
+      "name": "npm-capability",
+      "provider": "declared",
+      "contract": "goal-system.capability/v1",
+      "immutableId": "npm:ci-and-install@10",
+      "digest": "sha256:139abe928f97be76868d3cd41493737f7ce7fd748c09967a0667e464b8489912",
+      "source": {
+        "type": "exact",
+        "id": "npm:ci-and-install@10"
+      }
+    },
+    {
+      "category": "evaluators",
+      "name": "independent-verifier",
+      "provider": "declared",
+      "contract": "goal-system.evaluator/v1",
+      "immutableId": "dependency-upgrade:tsc-and-tests@1",
+      "digest": "sha256:60fb5bc5cf8435c5edab342309d795c70fddb52e265d1ec4380081d911bb6f11",
+      "source": {
+        "type": "exact",
+        "id": "dependency-upgrade:tsc-and-tests@1"
+      }
+    },
+    {
+      "category": "model",
+      "name": "remediation-model",
+      "provider": "declared",
+      "contract": "goal-system.exact/v1",
+      "immutableId": "deterministic:known-valid-proposal@1",
+      "digest": "sha256:d76411f7d2663c3a30203596a62f553c2510e03e843a4e6b5b7cf0abe6477c19",
+      "source": {
+        "type": "exact",
+        "id": "deterministic:known-valid-proposal@1"
+      }
+    },
+    {
+      "category": "policy",
+      "name": "mutation-policy",
+      "provider": "declared",
+      "contract": "goal-system.policy/v1",
+      "immutableId": "dependency-upgrade:adapter-only@1",
+      "digest": "sha256:df93e2a7677df9d4dbd931c8bf0e3fb834c8dc3c7f58945fe43b32b600a0a3f6",
+      "source": {
+        "type": "exact",
+        "id": "dependency-upgrade:adapter-only@1"
+      }
+    },
+    {
+      "category": "policy",
+      "name": "upgrade-policy",
+      "provider": "local-file",
+      "contract": "goal-system.policy/v1",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/policy.md:sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178",
+      "digest": "sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178",
+      "source": {
+        "type": "local",
+        "path": "poc/dependency-upgrade-instrumented/policy.md"
+      }
+    },
+    {
+      "category": "prompts",
+      "name": "remediation-prompt",
+      "provider": "local-file",
+      "contract": "goal-system.prompt/v1",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/remediation-prompt.md:sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6",
+      "digest": "sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6",
+      "source": {
+        "type": "local",
+        "path": "poc/dependency-upgrade-instrumented/remediation-prompt.md"
+      }
+    },
+    {
+      "category": "runtime",
+      "name": "node-runtime",
+      "provider": "declared",
+      "contract": "goal-system.runtime/v1",
+      "immutableId": "node:v22.17.0",
+      "digest": "sha256:c5a7ef4e44031127a6888233ea3c741cf57ad19798d9a83b5e421a01ae92b5ac",
+      "source": {
+        "type": "exact",
+        "id": "node:v22.17.0"
+      }
+    },
+    {
+      "category": "schemas",
+      "name": "receipt-schema",
+      "provider": "local-file",
+      "contract": "goal-system.schema/v1",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/receipt.schema.json:sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e",
+      "digest": "sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e",
+      "source": {
+        "type": "local",
+        "path": "poc/dependency-upgrade-instrumented/receipt.schema.json"
+      }
+    },
+    {
+      "category": "telemetry",
+      "name": "phoenix",
+      "provider": "declared",
+      "contract": "goal-system.telemetry/v1",
+      "immutableId": "phoenix:otel-http@1",
+      "digest": "sha256:709a1b75e3333780b0829f2b43be33defc5f468d971e22d9ce7af08dd1077571",
+      "source": {
+        "type": "exact",
+        "id": "phoenix:otel-http@1"
+      }
+    },
+    {
+      "category": "workflow",
+      "name": "workflow",
+      "provider": "local-file",
+      "contract": "goal-system.workflow/v1",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/src/workflow.ts:sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393",
+      "digest": "sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393",
+      "source": {
+        "type": "local",
+        "path": "poc/dependency-upgrade-instrumented/src/workflow.ts"
+      }
+    }
+  ]
+}

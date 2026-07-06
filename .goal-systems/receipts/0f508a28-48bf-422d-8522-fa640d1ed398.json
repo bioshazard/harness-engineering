@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "runId": "0f508a28-48bf-422d-8522-fa640d1ed398",
+  "compositionId": "sha256:c893acb42bbf706d7c47511e5185e92257323543686bc5e8b19353a98194e6dd",
+  "manifestVersionId": "sha256:096423ff1af65a16ed6533065f7ffa2026eeb18473d0cf96d3c4a8c4281d44ae",
+  "traceId": "866890d51ba5324a1920d70923198a43",
+  "terminalVerdict": "accept",
+  "components": [
+    {
+      "category": "artifacts",
+      "name": "artifacts:none",
+      "immutableId": "none:artifacts",
+      "digest": "sha256:2913865ca9ef4f4ff8f218b184aadd99e06c6efc2f8012829743a092d210b580"
+    },
+    {
+      "category": "capabilities",
+      "name": "npm-capability",
+      "immutableId": "npm:ci-and-install@10",
+      "digest": "sha256:139abe928f97be76868d3cd41493737f7ce7fd748c09967a0667e464b8489912"
+    },
+    {
+      "category": "evaluators",
+      "name": "independent-verifier",
+      "immutableId": "dependency-upgrade:tsc-and-tests@1",
+      "digest": "sha256:60fb5bc5cf8435c5edab342309d795c70fddb52e265d1ec4380081d911bb6f11"
+    },
+    {
+      "category": "model",
+      "name": "remediation-model",
+      "immutableId": "deterministic:known-valid-proposal@1",
+      "digest": "sha256:d76411f7d2663c3a30203596a62f553c2510e03e843a4e6b5b7cf0abe6477c19"
+    },
+    {
+      "category": "policy",
+      "name": "mutation-policy",
+      "immutableId": "dependency-upgrade:adapter-only@1",
+      "digest": "sha256:df93e2a7677df9d4dbd931c8bf0e3fb834c8dc3c7f58945fe43b32b600a0a3f6"
+    },
+    {
+      "category": "policy",
+      "name": "upgrade-policy",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/policy.md:sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178",
+      "digest": "sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178"
+    },
+    {
+      "category": "prompts",
+      "name": "remediation-prompt",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/remediation-prompt.md:sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6",
+      "digest": "sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6"
+    },
+    {
+      "category": "runtime",
+      "name": "node-runtime",
+      "immutableId": "node:v22.17.0",
+      "digest": "sha256:c5a7ef4e44031127a6888233ea3c741cf57ad19798d9a83b5e421a01ae92b5ac"
+    },
+    {
+      "category": "schemas",
+      "name": "receipt-schema",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/receipt.schema.json:sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e",
+      "digest": "sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e"
+    },
+    {
+      "category": "telemetry",
+      "name": "phoenix",
+      "immutableId": "phoenix:otel-http@1",
+      "digest": "sha256:709a1b75e3333780b0829f2b43be33defc5f468d971e22d9ce7af08dd1077571"
+    },
+    {
+      "category": "workflow",
+      "name": "workflow",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/src/workflow.ts:sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393",
+      "digest": "sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393"
+    }
+  ],
+  "evaluatorIdentities": [
+    "dependency-upgrade:tsc-and-tests@1"
+  ],
+  "authorityDecisions": [
+    {
+      "verdict": "allow",
+      "path": "src/minimatch-adapter.ts"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "baseline-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/3693488d-591a-4099-80a6-1e1944e62c99-baseline-typecheck.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "baseline-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/7c34dcf2-2fe0-4bf5-bd1b-ff4a9ba6cbc8-baseline-tests.txt",
+      "sha256": "f27a60f39f694ea49226c1b61f73e60293bc0e0b7bbb1775a1a7e671feeca0fe"
+    },
+    {
+      "name": "npm-install.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/0321b663-6d41-4c3e-a71d-f95d4f693d03-npm-install.txt",
+      "sha256": "cfd7dfbcb6ff97bebf8ca029137c9ced42718005d0e96605449a657831043fa7"
+    },
+    {
+      "name": "dependency-delta.json",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b77496f9-4120-4b5a-a84e-45ebeac95da6-dependency-delta.json",
+      "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+    },
+    {
+      "name": "candidate-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/42ca1649-637b-4115-8a42-9d4a2da77037-candidate-typecheck.txt",
+      "sha256": "c190d5e855808bd13aa48945d8dbab9731accec933ff2885c09db32966887e76"
+    },
+    {
+      "name": "candidate-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/66fcfc6f-1678-43cb-b1d7-a946c5ec1998-candidate-tests.txt",
+      "sha256": "73cdc2db18d6bf7cdd2f8f9c1a6eb74777629932e958b29071f6aa87df1af485"
+    },
+    {
+      "name": "remediation-context.json",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/379711f0-55ef-4107-8968-30a4ca74c483-remediation-context.json",
+      "sha256": "a930b1e202752a786827ef9d85fbb55cb69d6f74331fae4f7d43f535902e03b0"
+    },
+    {
+      "name": "reverify-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/dcb5e9d4-0a81-4ff0-bf55-6fd8ef485256-reverify-typecheck.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "reverify-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b3d0b472-01cb-4ac8-9382-b6636d31dfeb-reverify-tests.txt",
+      "sha256": "d9efd1f9ee5a79c89f2f0f41672b6a709145560870b1883cbc7d00a3b5e6bab4"
+    }
+  ],
+  "domain": {
+    "intent": {
+      "dependency": "minimatch@9.0.9",
+      "fixture": "fixture-lock-sha256:435d9ccb97c6f1843335c8eafafe913d77ccb2ccac3b493795c2177e2f4b2e0e",
+      "allowedMutations": [
+        "package-lock.json",
+        "package.json",
+        "src/minimatch-adapter.ts"
+      ]
+    },
+    "transitions": [
+      {
+        "phase": "verify_baseline",
+        "childReceiptId": "d43ec9f95b951388ddb1",
+        "observation": "baseline passed",
+        "reaction": "upgrade"
+      },
+      {
+        "phase": "upgrade",
+        "childReceiptId": "9b11359e68d06f93d3b5",
+        "observation": "exact minimatch@9.0.9; contained",
+        "reaction": "verify_candidate"
+      },
+      {
+        "phase": "verify_candidate",
+        "childReceiptId": "6f5bbc1764ef616b353a",
+        "observation": "all diagnostics localized to adapter",
+        "reaction": "authorize_remediation"
+      },
+      {
+        "phase": "authorize_remediation",
+        "childReceiptId": "bc3ca6899f17b444b45d",
+        "observation": "one adapter replacement authorized",
+        "reaction": "reverify"
+      },
+      {
+        "phase": "reverify",
+        "childReceiptId": "c8c684dd9a0dbb5d22e8",
+        "observation": "remediated candidate passed",
+        "reaction": "accept"
+      }
+    ],
+    "childReceipts": [
+      {
+        "kind": "verify",
+        "verdict": "pass",
+        "typecheck": "pass",
+        "tests": "pass",
+        "diagnostics": [],
+        "artifacts": [
+          {
+            "name": "baseline-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/3693488d-591a-4099-80a6-1e1944e62c99-baseline-typecheck.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "baseline-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/7c34dcf2-2fe0-4bf5-bd1b-ff4a9ba6cbc8-baseline-tests.txt",
+            "sha256": "f27a60f39f694ea49226c1b61f73e60293bc0e0b7bbb1775a1a7e671feeca0fe"
+          }
+        ],
+        "id": "d43ec9f95b951388ddb1"
+      },
+      {
+        "kind": "upgrade",
+        "verdict": "pass",
+        "before": "minimatch@3.1.2",
+        "after": "minimatch@9.0.9",
+        "changedFiles": [
+          "package-lock.json",
+          "package.json"
+        ],
+        "dependencyDelta": {
+          "added": 0,
+          "removed": 1,
+          "installScriptsAdded": 0
+        },
+        "artifacts": [
+          {
+            "name": "npm-install.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/0321b663-6d41-4c3e-a71d-f95d4f693d03-npm-install.txt",
+            "sha256": "cfd7dfbcb6ff97bebf8ca029137c9ced42718005d0e96605449a657831043fa7"
+          },
+          {
+            "name": "dependency-delta.json",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b77496f9-4120-4b5a-a84e-45ebeac95da6-dependency-delta.json",
+            "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+          }
+        ],
+        "id": "9b11359e68d06f93d3b5"
+      },
+      {
+        "kind": "verify",
+        "verdict": "fail",
+        "typecheck": "fail",
+        "tests": "fail",
+        "diagnostics": [
+          {
+            "file": "src/minimatch-adapter.ts",
+            "code": "TS2613",
+            "message": "Module '\"/private/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/candidate/node_modules/minimatch/dist/esm/index\"' has no default export. Did you mean to use 'import { minimatch } from \"/private/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/candidate/node_modules/minimatch/dist/esm/index\"' instead?"
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "candidate-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/42ca1649-637b-4115-8a42-9d4a2da77037-candidate-typecheck.txt",
+            "sha256": "c190d5e855808bd13aa48945d8dbab9731accec933ff2885c09db32966887e76"
+          },
+          {
+            "name": "candidate-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/66fcfc6f-1678-43cb-b1d7-a946c5ec1998-candidate-tests.txt",
+            "sha256": "73cdc2db18d6bf7cdd2f8f9c1a6eb74777629932e958b29071f6aa87df1af485"
+          }
+        ],
+        "id": "6f5bbc1764ef616b353a"
+      },
+      {
+        "kind": "remediate",
+        "verdict": "pass",
+        "proposal": {
+          "path": "src/minimatch-adapter.ts",
+          "content": "import { minimatch } from \"minimatch\";\n\nexport function matchesSelection(path: string, pattern: string): boolean {\n  return minimatch(path, pattern);\n}\n"
+        },
+        "authority": {
+          "verdict": "allow",
+          "path": "src/minimatch-adapter.ts"
+        },
+        "effect": "replaced",
+        "executor": {
+          "provider": "test",
+          "model": "local-file:poc/dependency-upgrade-instrumented/remediation-prompt.md:sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6"
+        },
+        "artifacts": [
+          {
+            "name": "remediation-context.json",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/379711f0-55ef-4107-8968-30a4ca74c483-remediation-context.json",
+            "sha256": "a930b1e202752a786827ef9d85fbb55cb69d6f74331fae4f7d43f535902e03b0"
+          }
+        ],
+        "id": "bc3ca6899f17b444b45d"
+      },
+      {
+        "kind": "verify",
+        "verdict": "pass",
+        "typecheck": "pass",
+        "tests": "pass",
+        "diagnostics": [],
+        "artifacts": [
+          {
+            "name": "reverify-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/dcb5e9d4-0a81-4ff0-bf55-6fd8ef485256-reverify-typecheck.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "reverify-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b3d0b472-01cb-4ac8-9382-b6636d31dfeb-reverify-tests.txt",
+            "sha256": "d9efd1f9ee5a79c89f2f0f41672b6a709145560870b1883cbc7d00a3b5e6bab4"
+          }
+        ],
+        "id": "c8c684dd9a0dbb5d22e8"
+      }
+    ],
+    "authorityDecisions": [
+      {
+        "verdict": "allow",
+        "path": "src/minimatch-adapter.ts"
+      }
+    ],
+    "terminalVerdict": "accept",
+    "reason": "bounded adapter remediation passed independent verification",
+    "changedFiles": [
+      "package-lock.json",
+      "package.json",
+      "src/minimatch-adapter.ts"
+    ],
+    "terminalObservation": {
+      "declaredDependency": "9.0.9",
+      "installedDependency": "minimatch@9.0.9",
+      "changedFiles": [
+        "package-lock.json",
+        "package.json",
+        "src/minimatch-adapter.ts"
+      ],
+      "withinAllowedMutations": true
+    },
+    "artifacts": [
+      {
+        "name": "baseline-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/3693488d-591a-4099-80a6-1e1944e62c99-baseline-typecheck.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "baseline-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/7c34dcf2-2fe0-4bf5-bd1b-ff4a9ba6cbc8-baseline-tests.txt",
+        "sha256": "f27a60f39f694ea49226c1b61f73e60293bc0e0b7bbb1775a1a7e671feeca0fe"
+      },
+      {
+        "name": "npm-install.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/0321b663-6d41-4c3e-a71d-f95d4f693d03-npm-install.txt",
+        "sha256": "cfd7dfbcb6ff97bebf8ca029137c9ced42718005d0e96605449a657831043fa7"
+      },
+      {
+        "name": "dependency-delta.json",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b77496f9-4120-4b5a-a84e-45ebeac95da6-dependency-delta.json",
+        "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+      },
+      {
+        "name": "candidate-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/42ca1649-637b-4115-8a42-9d4a2da77037-candidate-typecheck.txt",
+        "sha256": "c190d5e855808bd13aa48945d8dbab9731accec933ff2885c09db32966887e76"
+      },
+      {
+        "name": "candidate-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/66fcfc6f-1678-43cb-b1d7-a946c5ec1998-candidate-tests.txt",
+        "sha256": "73cdc2db18d6bf7cdd2f8f9c1a6eb74777629932e958b29071f6aa87df1af485"
+      },
+      {
+        "name": "remediation-context.json",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/379711f0-55ef-4107-8968-30a4ca74c483-remediation-context.json",
+        "sha256": "a930b1e202752a786827ef9d85fbb55cb69d6f74331fae4f7d43f535902e03b0"
+      },
+      {
+        "name": "reverify-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/dcb5e9d4-0a81-4ff0-bf55-6fd8ef485256-reverify-typecheck.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "reverify-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT/artifacts/b3d0b472-01cb-4ac8-9382-b6636d31dfeb-reverify-tests.txt",
+        "sha256": "d9efd1f9ee5a79c89f2f0f41672b6a709145560870b1883cbc7d00a3b5e6bab4"
+      }
+    ],
+    "executor": {
+      "provider": "test",
+      "model": "local-file:poc/dependency-upgrade-instrumented/remediation-prompt.md:sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6"
+    },
+    "runtime": {
+      "node": "v22.17.0",
+      "npm": "10.9.2"
+    },
+    "runRoot": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-FfxRyT",
+    "lockedPromptVersion": "local-file:poc/dependency-upgrade-instrumented/remediation-prompt.md:sha256:7c0fb011da8ea51393fd86ef9d956b2cc24d636d00e76b3769e91bfc3edd92f6"
+  }
+}

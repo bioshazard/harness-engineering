@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "name": "dependency-upgrade-instrumented",
+  "profile": "default/v1",
+  "components": {
+    "workflow": [
+      {
+        "name": "workflow",
+        "provider": "local-file",
+        "contract": "goal-system.workflow/v1",
+        "selector": {
+          "type": "local",
+          "path": "poc/dependency-upgrade-instrumented/src/workflow.ts"
+        }
+      }
+    ],
+    "prompts": [
+      {
+        "name": "remediation-prompt",
+        "provider": "local-file",
+        "contract": "goal-system.prompt/v1",
+        "selector": {
+          "type": "local",
+          "path": "poc/dependency-upgrade-instrumented/remediation-prompt.md"
+        }
+      }
+    ],
+    "model": [
+      {
+        "name": "remediation-model",
+        "provider": "declared",
+        "contract": "goal-system.exact/v1",
+        "selector": {
+          "type": "exact",
+          "id": "deterministic:known-valid-proposal@1"
+        }
+      }
+    ],
+    "capabilities": [
+      {
+        "name": "npm-capability",
+        "provider": "declared",
+        "contract": "goal-system.capability/v1",
+        "selector": {
+          "type": "exact",
+          "id": "npm:ci-and-install@10"
+        }
+      }
+    ],
+    "policy": [
+      {
+        "name": "upgrade-policy",
+        "provider": "local-file",
+        "contract": "goal-system.policy/v1",
+        "selector": {
+          "type": "local",
+          "path": "poc/dependency-upgrade-instrumented/policy.md"
+        }
+      },
+      {
+        "name": "mutation-policy",
+        "provider": "declared",
+        "contract": "goal-system.policy/v1",
+        "selector": {
+          "type": "exact",
+          "id": "dependency-upgrade:adapter-only@1"
+        }
+      }
+    ],
+    "evaluators": [
+      {
+        "name": "independent-verifier",
+        "provider": "declared",
+        "contract": "goal-system.evaluator/v1",
+        "selector": {
+          "type": "exact",
+          "id": "dependency-upgrade:tsc-and-tests@1"
+        }
+      }
+    ],
+    "runtime": [
+      {
+        "name": "node-runtime",
+        "provider": "declared",
+        "contract": "goal-system.runtime/v1",
+        "selector": {
+          "type": "exact",
+          "id": "node:v22.17.0"
+        }
+      }
+    ],
+    "schemas": [
+      {
+        "name": "receipt-schema",
+        "provider": "local-file",
+        "contract": "goal-system.schema/v1",
+        "selector": {
+          "type": "local",
+          "path": "poc/dependency-upgrade-instrumented/receipt.schema.json"
+        }
+      }
+    ],
+    "telemetry": [
+      {
+        "name": "phoenix",
+        "provider": "declared",
+        "contract": "goal-system.telemetry/v1",
+        "selector": {
+          "type": "exact",
+          "id": "phoenix:otel-http@1"
+        }
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "artifacts:none",
+        "provider": "none",
+        "contract": "goal-system.none/v1",
+        "selector": {
+          "type": "none"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Goal System Receipt",
+  "type": "object",
+  "required": [
+    "runId",
+    "compositionId",
+    "manifestVersionId",
+    "traceId",
+    "terminalVerdict",
+    "components",
+    "domain"
+  ]
+}

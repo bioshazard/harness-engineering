@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "runId": "4b470afd-3b03-4323-8e12-b772ea84c7b3",
+  "compositionId": "sha256:6fa57e00ce474f40b44438b1f1f99317111f0986839ce8b0d52f88ffbefe9547",
+  "manifestVersionId": "sha256:5b17d23aa4ffb21346623368d6af2a03f20117764dd1f6fe62e82cb6323bb28a",
+  "traceId": "461ad26cca9c21b2af92e39b3d7d3fda",
+  "terminalVerdict": "accept",
+  "components": [
+    {
+      "category": "artifacts",
+      "name": "artifacts:none",
+      "immutableId": "none:artifacts",
+      "digest": "sha256:2913865ca9ef4f4ff8f218b184aadd99e06c6efc2f8012829743a092d210b580"
+    },
+    {
+      "category": "capabilities",
+      "name": "npm-capability",
+      "immutableId": "npm:ci-and-install@10",
+      "digest": "sha256:139abe928f97be76868d3cd41493737f7ce7fd748c09967a0667e464b8489912"
+    },
+    {
+      "category": "evaluators",
+      "name": "independent-verifier",
+      "immutableId": "dependency-upgrade:tsc-and-tests@1",
+      "digest": "sha256:60fb5bc5cf8435c5edab342309d795c70fddb52e265d1ec4380081d911bb6f11"
+    },
+    {
+      "category": "model",
+      "name": "remediation-model",
+      "immutableId": "deterministic:known-valid-proposal@1",
+      "digest": "sha256:d76411f7d2663c3a30203596a62f553c2510e03e843a4e6b5b7cf0abe6477c19"
+    },
+    {
+      "category": "policy",
+      "name": "mutation-policy",
+      "immutableId": "dependency-upgrade:adapter-only@1",
+      "digest": "sha256:df93e2a7677df9d4dbd931c8bf0e3fb834c8dc3c7f58945fe43b32b600a0a3f6"
+    },
+    {
+      "category": "policy",
+      "name": "upgrade-policy",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/policy.md:sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178",
+      "digest": "sha256:a23de0f3058eb97cf8ea670e10fecec1b31bf4b2b2ddb72f3eb5af57a5da8178"
+    },
+    {
+      "category": "prompts",
+      "name": "remediation-prompt",
+      "immutableId": "prompt:deterministic-remediator@1",
+      "digest": "sha256:76ed6e6d821f39555f43b8038d5394afadebee08b94890a31149953171b87f3d"
+    },
+    {
+      "category": "runtime",
+      "name": "node-runtime",
+      "immutableId": "node:v22.17.0",
+      "digest": "sha256:c5a7ef4e44031127a6888233ea3c741cf57ad19798d9a83b5e421a01ae92b5ac"
+    },
+    {
+      "category": "schemas",
+      "name": "receipt-schema",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/receipt.schema.json:sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e",
+      "digest": "sha256:b0211fd86862f3afe3302945aa468907f4cabfc63507a97e5074a6fe0670812e"
+    },
+    {
+      "category": "telemetry",
+      "name": "phoenix",
+      "immutableId": "phoenix:otel-http@1",
+      "digest": "sha256:709a1b75e3333780b0829f2b43be33defc5f468d971e22d9ce7af08dd1077571"
+    },
+    {
+      "category": "workflow",
+      "name": "workflow",
+      "immutableId": "local-file:poc/dependency-upgrade-instrumented/src/workflow.ts:sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393",
+      "digest": "sha256:81f7dc49e5a21bbb1474d6d8a33cadeee30b71c55cca5b039a843b9a87172393"
+    }
+  ],
+  "evaluatorIdentities": [
+    "dependency-upgrade:tsc-and-tests@1"
+  ],
+  "authorityDecisions": [
+    {
+      "verdict": "allow",
+      "path": "src/minimatch-adapter.ts"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "baseline-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/1e08959c-152a-49a7-a9ac-ee3fe2c15b04-baseline-typecheck.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "baseline-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fd79fc72-4155-4304-a5dc-c3e473ee7240-baseline-tests.txt",
+      "sha256": "e20b637dd9e9263036d5f97296b11e71eb814e3cdec1e7d87483c77ef5398969"
+    },
+    {
+      "name": "npm-install.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/b31ea2d5-28c0-48ff-b178-211ae11c49ce-npm-install.txt",
+      "sha256": "a74faf8f894f1cf20d09b9d21babeb82289aa8a1ff7ea62aac1755e6f49bf619"
+    },
+    {
+      "name": "dependency-delta.json",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fe359293-3377-4d96-ba3d-aa95fcdb94e8-dependency-delta.json",
+      "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+    },
+    {
+      "name": "candidate-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/4f63b43a-cd8b-42d8-83d2-4e505838fb77-candidate-typecheck.txt",
+      "sha256": "7d9215e45c687c7b1903b0b7f6d622264b62065a15fe7f029081e2f85d560bcf"
+    },
+    {
+      "name": "candidate-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/03c78380-b45b-4357-be16-2adfb2e200d2-candidate-tests.txt",
+      "sha256": "c81ee466b32c1ae72dc2d312f0ded90e224293edd892f1e018ddf70f9a0d678b"
+    },
+    {
+      "name": "remediation-context.json",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/8269cbcb-ff02-423f-b748-13ebf12d5954-remediation-context.json",
+      "sha256": "b7e52fe14c83d32da71db539f7ee1a7593785a6e83c90713c983a2806f6c4b26"
+    },
+    {
+      "name": "reverify-typecheck.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/c7d270ed-2292-4ecb-8db5-f91e5da9cd2a-reverify-typecheck.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "reverify-tests.txt",
+      "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/9d843cbc-2509-4876-a8af-ea2eb9963bea-reverify-tests.txt",
+      "sha256": "399087ba9c61e0fad9da8ab1fab6764487f9229bed8d125187c07a90e631170b"
+    }
+  ],
+  "domain": {
+    "intent": {
+      "dependency": "minimatch@9.0.9",
+      "fixture": "fixture-lock-sha256:435d9ccb97c6f1843335c8eafafe913d77ccb2ccac3b493795c2177e2f4b2e0e",
+      "allowedMutations": [
+        "package-lock.json",
+        "package.json",
+        "src/minimatch-adapter.ts"
+      ]
+    },
+    "transitions": [
+      {
+        "phase": "verify_baseline",
+        "childReceiptId": "184bfb044877579fd973",
+        "observation": "baseline passed",
+        "reaction": "upgrade"
+      },
+      {
+        "phase": "upgrade",
+        "childReceiptId": "193bdab6ca9aa71718bc",
+        "observation": "exact minimatch@9.0.9; contained",
+        "reaction": "verify_candidate"
+      },
+      {
+        "phase": "verify_candidate",
+        "childReceiptId": "2bfb4108311e231af018",
+        "observation": "all diagnostics localized to adapter",
+        "reaction": "authorize_remediation"
+      },
+      {
+        "phase": "authorize_remediation",
+        "childReceiptId": "d0bd7dbef03b2ec97277",
+        "observation": "one adapter replacement authorized",
+        "reaction": "reverify"
+      },
+      {
+        "phase": "reverify",
+        "childReceiptId": "f37f20f0184fe385af3a",
+        "observation": "remediated candidate passed",
+        "reaction": "accept"
+      }
+    ],
+    "childReceipts": [
+      {
+        "kind": "verify",
+        "verdict": "pass",
+        "typecheck": "pass",
+        "tests": "pass",
+        "diagnostics": [],
+        "artifacts": [
+          {
+            "name": "baseline-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/1e08959c-152a-49a7-a9ac-ee3fe2c15b04-baseline-typecheck.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "baseline-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fd79fc72-4155-4304-a5dc-c3e473ee7240-baseline-tests.txt",
+            "sha256": "e20b637dd9e9263036d5f97296b11e71eb814e3cdec1e7d87483c77ef5398969"
+          }
+        ],
+        "id": "184bfb044877579fd973"
+      },
+      {
+        "kind": "upgrade",
+        "verdict": "pass",
+        "before": "minimatch@3.1.2",
+        "after": "minimatch@9.0.9",
+        "changedFiles": [
+          "package-lock.json",
+          "package.json"
+        ],
+        "dependencyDelta": {
+          "added": 0,
+          "removed": 1,
+          "installScriptsAdded": 0
+        },
+        "artifacts": [
+          {
+            "name": "npm-install.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/b31ea2d5-28c0-48ff-b178-211ae11c49ce-npm-install.txt",
+            "sha256": "a74faf8f894f1cf20d09b9d21babeb82289aa8a1ff7ea62aac1755e6f49bf619"
+          },
+          {
+            "name": "dependency-delta.json",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fe359293-3377-4d96-ba3d-aa95fcdb94e8-dependency-delta.json",
+            "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+          }
+        ],
+        "id": "193bdab6ca9aa71718bc"
+      },
+      {
+        "kind": "verify",
+        "verdict": "fail",
+        "typecheck": "fail",
+        "tests": "fail",
+        "diagnostics": [
+          {
+            "file": "src/minimatch-adapter.ts",
+            "code": "TS2613",
+            "message": "Module '\"/private/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/candidate/node_modules/minimatch/dist/esm/index\"' has no default export. Did you mean to use 'import { minimatch } from \"/private/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/candidate/node_modules/minimatch/dist/esm/index\"' instead?"
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "candidate-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/4f63b43a-cd8b-42d8-83d2-4e505838fb77-candidate-typecheck.txt",
+            "sha256": "7d9215e45c687c7b1903b0b7f6d622264b62065a15fe7f029081e2f85d560bcf"
+          },
+          {
+            "name": "candidate-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/03c78380-b45b-4357-be16-2adfb2e200d2-candidate-tests.txt",
+            "sha256": "c81ee466b32c1ae72dc2d312f0ded90e224293edd892f1e018ddf70f9a0d678b"
+          }
+        ],
+        "id": "2bfb4108311e231af018"
+      },
+      {
+        "kind": "remediate",
+        "verdict": "pass",
+        "proposal": {
+          "path": "src/minimatch-adapter.ts",
+          "content": "import { minimatch } from \"minimatch\";\n\nexport function matchesSelection(path: string, pattern: string): boolean {\n  return minimatch(path, pattern);\n}\n"
+        },
+        "authority": {
+          "verdict": "allow",
+          "path": "src/minimatch-adapter.ts"
+        },
+        "effect": "replaced",
+        "executor": {
+          "provider": "test",
+          "model": "prompt:deterministic-remediator@1"
+        },
+        "artifacts": [
+          {
+            "name": "remediation-context.json",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/8269cbcb-ff02-423f-b748-13ebf12d5954-remediation-context.json",
+            "sha256": "b7e52fe14c83d32da71db539f7ee1a7593785a6e83c90713c983a2806f6c4b26"
+          }
+        ],
+        "id": "d0bd7dbef03b2ec97277"
+      },
+      {
+        "kind": "verify",
+        "verdict": "pass",
+        "typecheck": "pass",
+        "tests": "pass",
+        "diagnostics": [],
+        "artifacts": [
+          {
+            "name": "reverify-typecheck.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/c7d270ed-2292-4ecb-8db5-f91e5da9cd2a-reverify-typecheck.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "reverify-tests.txt",
+            "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/9d843cbc-2509-4876-a8af-ea2eb9963bea-reverify-tests.txt",
+            "sha256": "399087ba9c61e0fad9da8ab1fab6764487f9229bed8d125187c07a90e631170b"
+          }
+        ],
+        "id": "f37f20f0184fe385af3a"
+      }
+    ],
+    "authorityDecisions": [
+      {
+        "verdict": "allow",
+        "path": "src/minimatch-adapter.ts"
+      }
+    ],
+    "terminalVerdict": "accept",
+    "reason": "bounded adapter remediation passed independent verification",
+    "changedFiles": [
+      "package-lock.json",
+      "package.json",
+      "src/minimatch-adapter.ts"
+    ],
+    "terminalObservation": {
+      "declaredDependency": "9.0.9",
+      "installedDependency": "minimatch@9.0.9",
+      "changedFiles": [
+        "package-lock.json",
+        "package.json",
+        "src/minimatch-adapter.ts"
+      ],
+      "withinAllowedMutations": true
+    },
+    "artifacts": [
+      {
+        "name": "baseline-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/1e08959c-152a-49a7-a9ac-ee3fe2c15b04-baseline-typecheck.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "baseline-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fd79fc72-4155-4304-a5dc-c3e473ee7240-baseline-tests.txt",
+        "sha256": "e20b637dd9e9263036d5f97296b11e71eb814e3cdec1e7d87483c77ef5398969"
+      },
+      {
+        "name": "npm-install.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/b31ea2d5-28c0-48ff-b178-211ae11c49ce-npm-install.txt",
+        "sha256": "a74faf8f894f1cf20d09b9d21babeb82289aa8a1ff7ea62aac1755e6f49bf619"
+      },
+      {
+        "name": "dependency-delta.json",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/fe359293-3377-4d96-ba3d-aa95fcdb94e8-dependency-delta.json",
+        "sha256": "30ff7d45262b79896f654d734ed988c9941ca8ebffd7170c7d808330553c7378"
+      },
+      {
+        "name": "candidate-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/4f63b43a-cd8b-42d8-83d2-4e505838fb77-candidate-typecheck.txt",
+        "sha256": "7d9215e45c687c7b1903b0b7f6d622264b62065a15fe7f029081e2f85d560bcf"
+      },
+      {
+        "name": "candidate-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/03c78380-b45b-4357-be16-2adfb2e200d2-candidate-tests.txt",
+        "sha256": "c81ee466b32c1ae72dc2d312f0ded90e224293edd892f1e018ddf70f9a0d678b"
+      },
+      {
+        "name": "remediation-context.json",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/8269cbcb-ff02-423f-b748-13ebf12d5954-remediation-context.json",
+        "sha256": "b7e52fe14c83d32da71db539f7ee1a7593785a6e83c90713c983a2806f6c4b26"
+      },
+      {
+        "name": "reverify-typecheck.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/c7d270ed-2292-4ecb-8db5-f91e5da9cd2a-reverify-typecheck.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "reverify-tests.txt",
+        "path": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr/artifacts/9d843cbc-2509-4876-a8af-ea2eb9963bea-reverify-tests.txt",
+        "sha256": "399087ba9c61e0fad9da8ab1fab6764487f9229bed8d125187c07a90e631170b"
+      }
+    ],
+    "executor": {
+      "provider": "test",
+      "model": "prompt:deterministic-remediator@1"
+    },
+    "runtime": {
+      "node": "v22.17.0",
+      "npm": "10.9.2"
+    },
+    "runRoot": "/var/folders/3w/_vcph3l10gq749q0n377g0lc0000gp/T/composed-dependency-upgrade-BUrrAr",
+    "lockedPromptVersion": "prompt:deterministic-remediator@1"
+  }
+}
