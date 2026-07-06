@@ -51,7 +51,7 @@ export type ModelInvocationResult = {
 export type ModelInvocationObserver = {
   run(
     input: ModelInvocation,
-    invoke: () => Promise<ModelInvocationResult>,
+    invoke: (signal?: AbortSignal) => Promise<ModelInvocationResult>,
   ): Promise<ModelInvocationResult>;
 };
 
@@ -151,8 +151,16 @@ ${context.adapter}
 
 Installed minimatch declarations:
 ${context.declarations}`;
-      const invoke = async (): Promise<ModelInvocationResult> => {
-        await session.prompt(userPrompt);
+      const invoke = async (
+        signal?: AbortSignal,
+      ): Promise<ModelInvocationResult> => {
+        const abort = () => void session.abort();
+        signal?.addEventListener("abort", abort, { once: true });
+        try {
+          await session.prompt(userPrompt);
+        } finally {
+          signal?.removeEventListener("abort", abort);
+        }
         const assistants = session.messages.filter(
           (message) => message.role === "assistant",
         );

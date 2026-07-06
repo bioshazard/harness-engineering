@@ -7,6 +7,7 @@ import {
   trace,
   type NodeTracerProvider,
 } from "@arizeai/phoenix-otel";
+import type { SpanContext } from "@opentelemetry/api";
 import type {
   ComponentDeclaration,
   ResolvedComponent,
@@ -14,6 +15,7 @@ import type {
   Transition,
 } from "./types.js";
 import { digest } from "./canonical.js";
+import { runExternal } from "./effect.js";
 
 export function phoenixPrompt(
   name: string,
@@ -87,8 +89,10 @@ export function phoenixTelemetry(input: {
       });
       const tracer = trace.getTracer("goal-system-composition");
       let traceId = "";
+      let rootSpanContext: SpanContext | undefined;
       const result = await tracer.startActiveSpan("goal-system.run", async (root) => {
         traceId = root.spanContext().traceId;
+        rootSpanContext = root.spanContext();
         root.setAttributes({
           "goal.run.id": runInput.runId,
           "goal.composition.id": runInput.compositionId,
@@ -163,6 +167,7 @@ export function phoenixTelemetry(input: {
         phoenixClient(input.endpoint, input.apiKey),
         traceId,
         result,
+        rootSpanContext,
       );
       return result;
     },
@@ -173,6 +178,7 @@ export async function publishPhoenixEvaluations(
   client: ReturnType<typeof phoenixClient>,
   traceId: string,
   value: unknown,
+  parentSpanContext?: SpanContext,
 ): Promise<void> {
   if (!value || typeof value !== "object") return;
   const receipt = value as {
@@ -190,25 +196,32 @@ export async function publishPhoenixEvaluations(
   if (!receipt.id || !receipt.evaluations?.length) return;
   await Promise.all(
     receipt.evaluations.map((evaluation) =>
-      addTraceAnnotation({
-        client,
-        sync: true,
-        traceAnnotation: {
-          traceId,
-          name: evaluation.name,
-          label: evaluation.label,
-          score: evaluation.score,
-          explanation: evaluation.explanation,
-          annotatorKind: "CODE",
-          identifier: `${receipt.id}:${evaluation.subjectId}`,
-          metadata: {
-            receiptId: receipt.id,
-            compositionId: receipt.compositionId,
-            evaluatorId: evaluation.evaluatorId,
-            subjectId: evaluation.subjectId,
-            authority: "observation-only",
-          },
-        },
+      runExternal({
+        operation: "phoenix-annotation",
+        timeoutMs: 5_000,
+        retries: 2,
+        parentSpanContext,
+        run: () =>
+          addTraceAnnotation({
+            client,
+            sync: true,
+            traceAnnotation: {
+              traceId,
+              name: evaluation.name,
+              label: evaluation.label,
+              score: evaluation.score,
+              explanation: evaluation.explanation,
+              annotatorKind: "CODE",
+              identifier: `${receipt.id}:${evaluation.subjectId}`,
+              metadata: {
+                receiptId: receipt.id,
+                compositionId: receipt.compositionId,
+                evaluatorId: evaluation.evaluatorId,
+                subjectId: evaluation.subjectId,
+                authority: "observation-only",
+              },
+            },
+          }),
       }),
     ),
   );

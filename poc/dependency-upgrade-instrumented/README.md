@@ -49,6 +49,13 @@ messages, the `replace_adapter` tool schema and call, requested and returned
 model identities, provider response ID, finish reason, token usage, and cost.
 The parent transition retains policy, Proposal, and authority evidence.
 
+Effect owns the operational semantics at the two true external seams. Model
+invocation has a typed 60-second timeout with Pi session abortion and no retry
+because a tool side effect may already have occurred. Phoenix annotation upserts
+have typed five-second timeouts and two bounded retries because their stable
+identifiers make repetition safe. Effect operational spans nest around the
+OpenInference/Phoenix calls; Goal-System domain values remain plain JSON.
+
 The ordinary client surface is intentionally small:
 
 ```ts
