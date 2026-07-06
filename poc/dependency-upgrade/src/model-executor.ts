@@ -62,6 +62,8 @@ export function modelRemediationChild(input: {
   configRoot: string;
   apiKey: string;
   modelId: string;
+  systemPrompt?: string;
+  promptVersion?: string;
 }): RemediateChild {
   return {
     async run({ workspace, intent, diagnostics }): Promise<RemediateReceipt> {
@@ -86,6 +88,7 @@ export function modelRemediationChild(input: {
         noThemes: true,
         noContextFiles: true,
         systemPrompt:
+          input.systemPrompt ??
           "You repair one TypeScript dependency adapter. Emit exactly one replace_adapter call. Preserve the exported interface. Do not use markdown fences.",
       });
       await resourceLoader.reload();
@@ -144,6 +147,7 @@ ${context.declarations}`);
               intent,
               diagnostics,
               adapter: context.adapter,
+              promptVersion: input.promptVersion,
               declarationsSha256: (
                 await import("./evidence.js")
               ).sha256(context.declarations),

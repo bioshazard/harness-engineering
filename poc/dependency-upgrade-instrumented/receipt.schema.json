@@ -3,6 +3,7 @@
   "title": "Goal System Receipt",
   "type": "object",
   "required": [
+    "id",
     "runId",
     "compositionId",
     "manifestVersionId",

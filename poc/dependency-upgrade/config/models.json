@@ -6,6 +6,20 @@
       "apiKey": "OPENROUTER_API_KEY",
       "models": [
         {
+          "id": "nvidia/nemotron-3-super-120b-a12b:free",
+          "name": "NVIDIA Nemotron 3 Super 120B A12B (free)",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 8192,
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          }
+        },
+        {
           "id": "openrouter/free",
           "name": "OpenRouter Free",
           "reasoning": false,

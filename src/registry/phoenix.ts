@@ -64,6 +64,8 @@ export async function resolvePhoenixPrompt(
       endpoint,
       name: selector.name,
       versionId: prompt.id,
+      modelName: prompt.model_name,
+      template: prompt.template as never,
     },
   };
 }
@@ -119,7 +121,9 @@ export function phoenixTelemetry(input: {
               }
             }
             try {
-              return await run();
+              const result = await run();
+              span.setStatus({ code: SpanStatusCode.OK });
+              return result;
             } catch (error) {
               span.recordException(error as Error);
               span.setStatus({
@@ -132,7 +136,13 @@ export function phoenixTelemetry(input: {
             }
           });
         try {
-          const result = await execute(traceId, transition);
+          const result = await execute(
+            traceId,
+            transition,
+            (attributes) => trace.getActiveSpan()?.setAttributes(attributes),
+            (name, attributes) =>
+              trace.getActiveSpan()?.addEvent(name, attributes),
+          );
           root.setStatus({ code: SpanStatusCode.OK });
           return result;
         } catch (error) {
