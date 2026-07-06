@@ -17,9 +17,10 @@ import { digest } from "./canonical.js";
 export function phoenixPrompt(
   name: string,
   selector: { tag?: string; versionId?: string } = {},
+  localName = name,
 ): ComponentDeclaration {
   return {
-    name,
+    name: localName,
     provider: "phoenix",
     contract: "phoenix.prompt/v1",
     selector: { type: "phoenix-prompt", name, ...selector },

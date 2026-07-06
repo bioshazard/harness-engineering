@@ -15,6 +15,20 @@ import {
   type Json,
   type Telemetry,
 } from "../src/registry/index.js";
+import { phoenixPrompt } from "../src/registry/phoenix.js";
+
+test("Phoenix prompt can bind a remote name to a local composition slot", () => {
+  const declaration = phoenixPrompt(
+    "dependency-upgrade-remediator",
+    {},
+    "remediation-prompt",
+  );
+  assert.equal(declaration.name, "remediation-prompt");
+  assert.deepEqual(declaration.selector, {
+    type: "phoenix-prompt",
+    name: "dependency-upgrade-remediator",
+  });
+});
 
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "composition-registry-"));

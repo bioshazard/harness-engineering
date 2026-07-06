@@ -17,7 +17,11 @@ export async function dependencyUpgradeSystem(options: { live: boolean }) {
     workflow: dependencyUpgradeWorkflow,
     prompt:
       options.live && process.env.PHOENIX_PROMPT_NAME
-        ? phoenixPrompt(process.env.PHOENIX_PROMPT_NAME)
+        ? phoenixPrompt(
+            process.env.PHOENIX_PROMPT_NAME,
+            {},
+            "remediation-prompt",
+          )
         : local(
             "remediation-prompt",
             "poc/dependency-upgrade-instrumented/remediation-prompt.md",
