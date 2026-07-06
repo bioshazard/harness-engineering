@@ -15,7 +15,10 @@ import {
   type Json,
   type Telemetry,
 } from "../src/registry/index.js";
-import { phoenixPrompt } from "../src/registry/phoenix.js";
+import {
+  phoenixPrompt,
+  publishPhoenixEvaluations,
+} from "../src/registry/phoenix.js";
 import { DEFAULT_OPENROUTER_MODEL } from "../poc/dependency-upgrade-instrumented/src/config.js";
 
 test("Phoenix prompt can bind a remote name to a local composition slot", () => {
@@ -42,6 +45,33 @@ test("live model default is a registered static free model", async () => {
       ({ id }) => id === DEFAULT_OPENROUTER_MODEL,
     ),
   );
+});
+
+test("Phoenix evaluations mirror Receipt evidence without authority", async () => {
+  const requests: unknown[] = [];
+  const client = {
+    POST(path: string, request: unknown) {
+      requests.push({ path, request });
+      return Promise.resolve({ data: { data: [{ id: "annotation:1" }] } });
+    },
+  };
+  await publishPhoenixEvaluations(client as never, "trace-1", {
+    id: "receipt-1",
+    compositionId: "composition-1",
+    evaluations: [
+      {
+        name: "goal-system.verification",
+        evaluatorId: "verifier-1",
+        subjectId: "subject-1",
+        label: "pass",
+        score: 1,
+        explanation: "reverify",
+      },
+    ],
+  });
+  assert.equal(requests.length, 1);
+  assert.match(JSON.stringify(requests[0]), /observation-only/);
+  assert.doesNotMatch(JSON.stringify(requests[0]), /reaction|terminalVerdict/);
 });
 
 async function fixture() {

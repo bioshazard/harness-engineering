@@ -199,6 +199,22 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
         npmVersion,
       });
       accepted = parent.terminalVerdict === "accept";
+      const evaluatorId = context.components.find(
+        (component) => component.name === "independent-verifier",
+      )!.immutableId;
+      const evaluations = parent.childReceipts
+        .filter((receipt) => receipt.kind === "verify")
+        .map((receipt) => ({
+          name: "goal-system.verification",
+          evaluatorId,
+          subjectId: receipt.id,
+          label: receipt.verdict,
+          score: receipt.verdict === "pass" ? 1 : 0,
+          explanation:
+            parent.transitions.find(
+              (transition) => transition.childReceiptId === receipt.id,
+            )?.phase ?? "verify",
+        }));
       return {
         terminalVerdict: parent.terminalVerdict,
         domain: {
@@ -210,6 +226,7 @@ export function dependencyUpgradeWorkflow(useExternalModel = false) {
         evaluatorIdentities: context.components
           .filter((component) => component.category === "evaluators")
           .map((component) => component.immutableId),
+        evaluations,
         artifacts: parent.artifacts,
       };
     } finally {

@@ -1,5 +1,6 @@
 import { createClient } from "@arizeai/phoenix-client";
 import { getPrompt } from "@arizeai/phoenix-client/prompts";
+import { addTraceAnnotation } from "@arizeai/phoenix-client/traces";
 import {
   register,
   SpanStatusCode,
@@ -85,8 +86,9 @@ export function phoenixTelemetry(input: {
         batch: false,
       });
       const tracer = trace.getTracer("goal-system-composition");
-      return tracer.startActiveSpan("goal-system.run", async (root) => {
-        const traceId = root.spanContext().traceId;
+      let traceId = "";
+      const result = await tracer.startActiveSpan("goal-system.run", async (root) => {
+        traceId = root.spanContext().traceId;
         root.setAttributes({
           "goal.run.id": runInput.runId,
           "goal.composition.id": runInput.compositionId,
@@ -157,6 +159,57 @@ export function phoenixTelemetry(input: {
           await provider!.forceFlush();
         }
       });
+      await publishPhoenixEvaluations(
+        phoenixClient(input.endpoint, input.apiKey),
+        traceId,
+        result,
+      );
+      return result;
     },
   };
+}
+
+export async function publishPhoenixEvaluations(
+  client: ReturnType<typeof phoenixClient>,
+  traceId: string,
+  value: unknown,
+): Promise<void> {
+  if (!value || typeof value !== "object") return;
+  const receipt = value as {
+    id?: string;
+    compositionId?: string;
+    evaluations?: Array<{
+      name: string;
+      evaluatorId: string;
+      subjectId: string;
+      label: string;
+      score?: number;
+      explanation?: string;
+    }>;
+  };
+  if (!receipt.id || !receipt.evaluations?.length) return;
+  await Promise.all(
+    receipt.evaluations.map((evaluation) =>
+      addTraceAnnotation({
+        client,
+        sync: true,
+        traceAnnotation: {
+          traceId,
+          name: evaluation.name,
+          label: evaluation.label,
+          score: evaluation.score,
+          explanation: evaluation.explanation,
+          annotatorKind: "CODE",
+          identifier: `${receipt.id}:${evaluation.subjectId}`,
+          metadata: {
+            receiptId: receipt.id,
+            compositionId: receipt.compositionId,
+            evaluatorId: evaluation.evaluatorId,
+            subjectId: evaluation.subjectId,
+            authority: "observation-only",
+          },
+        },
+      }),
+    ),
+  );
 }
