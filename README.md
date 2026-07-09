@@ -22,6 +22,12 @@ The ontology records only what the examples have earned.
 5. Read the [meso adapter-surgery chapter](./poc/dependency-upgrade/README.md).
 6. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
 
+## Install the skill
+
+```bash
+npx skills@latest add https://github.com/bioshazard/harness-engineering/tree/main/skills/harness-engineering
+```
+
 ## Current scope
 
 The micro chapter derives the irreducible boundaries around one guarded file

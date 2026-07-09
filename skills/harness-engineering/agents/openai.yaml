@@ -1,0 +1,7 @@
+interface:
+  display_name: "Harness Engineering"
+  short_description: "Design accountable goal harnesses"
+  default_prompt: "Use $harness-engineering to review this workflow as a goal harness."
+
+policy:
+  allow_implicit_invocation: false
