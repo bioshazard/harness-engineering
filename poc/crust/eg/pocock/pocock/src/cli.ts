@@ -23,8 +23,9 @@ if (args.includes("--help") || (!arg("--idea") && !resume)) {
 }
 
 const store = new FileRunStore<PocockRun>(runDirectory);
-const lockedSkills = await resolveAllSkills();
-const workflow = new PocockWorkflow(resume ? await store.load(resume) : PocockWorkflow.create({
+const stored = resume ? await store.load(resume) : undefined;
+const lockedSkills = stored ? await resolveLockedSkills(stored) : await resolveAllSkills();
+const workflow = new PocockWorkflow(stored ?? PocockWorkflow.create({
   id: `pocock-${randomUUID()}`,
   intent: arg("--idea")!,
   questions: questions.length ? questions : [{ id: "design", prompt: "What material design decision must be resolved?", required: true }],
@@ -68,6 +69,12 @@ async function resolveAllSkills(): Promise<Record<ActivePhase, ResolvedSkill>> {
   return Object.fromEntries(await Promise.all(ACTIVE_PHASES.map(async (phase) => {
     const name = skillFor(phase); const path = resolve(arg(`--${phase.toLowerCase()}-skill`) ?? join(homedir(), ".agents", "skills", name, "SKILL.md"));
     return [phase, await resolveSkill(path, name)];
+  }))) as Record<ActivePhase, ResolvedSkill>;
+}
+async function resolveLockedSkills(run: PocockRun): Promise<Record<ActivePhase, ResolvedSkill>> {
+  return Object.fromEntries(await Promise.all(ACTIVE_PHASES.map(async (phase) => {
+    const lock = run.compositions[phase];
+    return [phase, await resolveSkill(lock.source, lock.skill)];
   }))) as Record<ActivePhase, ResolvedSkill>;
 }
 function question(raw: string) { const split = raw.indexOf(":"); if (split < 1 || split === raw.length - 1) throw new Error(`invalid --question ${raw}; expected id:prompt`); return { id: raw.slice(0, split), prompt: raw.slice(split + 1), required: true }; }

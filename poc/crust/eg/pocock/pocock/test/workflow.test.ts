@@ -59,7 +59,8 @@ test("only an independently shape-validated spec admits SPECIFYING to SLICING", 
 test("slicing requires stable IDs and a ready frontier", () => {
   const workflow = toSlicing();
   assert.throws(() => workflow.proposeSlices([{ id: "", title: "Broken", blockedBy: [] }]), /stable ID/);
-  assert.throws(() => workflow.proposeSlices([{ id: "blocked", title: "Blocked", blockedBy: ["missing"] }]), /ready ticket/);
+  assert.throws(() => workflow.proposeSlices([{ id: "blocked", title: "Blocked", blockedBy: ["missing"] }]), /unknown blocker/);
+  assert.throws(() => workflow.proposeSlices([{ id: "a", title: "A", blockedBy: ["b"] }, { id: "b", title: "B", blockedBy: ["a"] }]), /acyclic/);
 
   const slices = workflow.proposeSlices([
     { id: "foundation", title: "Foundation", blockedBy: [] },

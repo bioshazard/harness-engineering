@@ -91,6 +91,19 @@ export class PocockWorkflow {
       if (!ticket.title.trim()) throw new Error(`ticket ${ticket.id} needs a title`);
       ids.add(ticket.id);
     }
+    for (const ticket of tickets) for (const blocker of ticket.blockedBy) {
+      if (!ids.has(blocker)) throw new Error(`ticket ${ticket.id} has unknown blocker ${blocker}`);
+      if (blocker === ticket.id) throw new Error(`ticket ${ticket.id} cannot block itself`);
+    }
+    const visiting = new Set<string>();
+    const visited = new Set<string>();
+    const byId = new Map(tickets.map((ticket) => [ticket.id, ticket]));
+    const visit = (ticket: Pick<Ticket, "id" | "title" | "blockedBy">): void => {
+      if (visiting.has(ticket.id)) throw new Error("ticket blockers must be acyclic");
+      if (visited.has(ticket.id)) return;
+      visiting.add(ticket.id); ticket.blockedBy.forEach((blocker) => visit(byId.get(blocker)!)); visiting.delete(ticket.id); visited.add(ticket.id);
+    };
+    tickets.forEach(visit);
     const ready = tickets.filter((ticket) => ticket.blockedBy.length === 0);
     if (!ready.length) throw new Error("at least one ready ticket is required");
     const proposal: SliceProposal = { id: id("slices"), tickets, status: "proposed", proposedAt: now() };
