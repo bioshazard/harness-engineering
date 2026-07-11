@@ -1,13 +1,11 @@
-import { defineTool, type InlineExtension } from "@earendil-works/pi-coding-agent";
+import { defineTool, type ExtensionFactory } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 
 import { FileRunStore } from "./store.js";
 import { GrillingWorkflow } from "./workflow.js";
 
-export function crustGrillingExtension(workflow: GrillingWorkflow, store: FileRunStore): InlineExtension {
-  return {
-    name: "crust-grill-me",
-    factory: (pi) => {
+export function crustGrillingExtension(workflow: GrillingWorkflow, store: FileRunStore): ExtensionFactory {
+  return (pi) => {
       pi.registerTool(defineTool({
         name: "propose_decision",
         label: "Propose decision",
@@ -67,6 +65,5 @@ export function crustGrillingExtension(workflow: GrillingWorkflow, store: FileRu
       pi.on("session_start", (_event, ctx) => {
         ctx.ui.setStatus("crust", `Crust: ${workflow.state.state} · ${workflow.state.id}`);
       });
-    },
   };
 }
