@@ -48,3 +48,24 @@ headings before admitting the proposal.
 
 Runs persist below `.crust/runs/`; every resume verifies each referenced skill
 lock before launching its phase-specific Pi child.
+
+## Exercises
+
+The ordinary test suite drives the same operator authority seam as the TUI,
+without a model:
+
+```bash
+bun run test:crust
+```
+
+For an opt-in live exercise using the configured Codex OAuth session:
+
+```bash
+bun poc/crust/eg/pocock/pocock/test/live-grill-exercise.ts
+```
+
+It runs real `gpt-5.5` grilling turns, supplies scripted operator replies,
+waits for the actual `propose_decision` tool call, approves it through the same
+operator adapter as `/crust`, and advances the persisted run to `SPECIFYING`.
+It is intentionally not part of the default test suite because it consumes a
+live model request.
