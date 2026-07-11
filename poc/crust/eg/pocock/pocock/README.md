@@ -16,19 +16,35 @@ skill source/content locks. `grill-me` now consumes those same adapters.
 ## Run
 
 Install the five locked skills, including `to-spec` and `to-tickets` from
-[`mattpocock/skills`](https://github.com/mattpocock/skills), then:
+[`mattpocock/skills`](https://github.com/mattpocock/skills), then start Pi:
 
 ```bash
-bun run crust:pocock -- --action start --intent "..." --question authority:"Who advances state?"
-bun run crust:pocock -- --run <id> --action status
+bun run crust:pocock -- --idea "..." --question authority:"Who advances state?"
 ```
 
-Use `--action propose-* --json '<payload>'`, then `approve`, then `advance`.
-For `propose-spec`, `reference` must be a local retrievable Markdown file; the
-controller reads it independently and verifies the six required `to-spec`
+`GRILLING` is an ordinary, many-turn Pi session. The child asks one question at
+a time and calls `propose_decision` only when a branch is settled. You remain in
+the TUI to inspect it and run:
+
+```text
+/crust approve <proposal-id>
+/crust reject <proposal-id> <reason>
+/crust advance
+```
+
+Approval does not advance state. Once the phase Receipt is admissible, Pi tells
+you it is ready; `/crust advance` presents a second confirmation. It persists
+the Receipt and tells you to exit. Resume the same durable run in a **fresh**
+phase Context window:
+
+```bash
+bun run crust:pocock -- --resume <run-id>
+```
+
+Each resumed phase loads only its locked skill and Crust Context projection. In
+`SPECIFYING`, the proposed `reference` must be a local retrievable Markdown
+file; Crust reads it independently and verifies the six required `to-spec`
 headings before admitting the proposal.
 
-`advance` is deliberately a separate operator action: proposal acceptance is
-never itself a transition. Runs persist below `.crust/runs/`; resuming code
-must verify each referenced skill lock before launching a phase-specific Pi
-child. The existing `grill-me` POC remains the reference Pi TUI child adapter.
+Runs persist below `.crust/runs/`; every resume verifies each referenced skill
+lock before launching its phase-specific Pi child.

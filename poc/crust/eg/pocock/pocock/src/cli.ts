@@ -1,64 +1,76 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
+import { AuthStorage, createAgentSessionFromServices, createAgentSessionRuntime, createAgentSessionServices, getAgentDir, InteractiveMode, ModelRegistry, SessionManager, type CreateAgentSessionRuntimeFactory } from "@earendil-works/pi-coding-agent";
+
+import { assertCompositionMatchesSkill, resolveSkill, type ResolvedSkill } from "../../../../lib/skill.js";
 import { FileRunStore } from "../../../../lib/store.js";
-import { assertCompositionMatchesSkill, resolveSkill } from "../../../../lib/skill.js";
+import { crustPocockExtension } from "./pi-extension.js";
 import { ACTIVE_PHASES, PocockWorkflow, type ActivePhase, type PocockRun } from "./workflow.js";
 
-const MODEL = "openai-codex/gpt-5.5";
+const PROVIDER = "openai-codex";
+const MODEL = "gpt-5.5";
 const args = process.argv.slice(2);
-const value = (name: string) => {
-  const index = args.indexOf(name);
-  return index === -1 ? undefined : args[index + 1];
-};
-const values = (name: string) => args.flatMap((arg, index) => args[index - 1] === name ? [arg] : []);
-const action = value("--action") ?? "status";
-const store = new FileRunStore<PocockRun>(resolve(value("--run-dir") ?? ".crust/runs"));
-const runId = value("--run");
+const arg = (name: string) => { const index = args.indexOf(name); return index === -1 ? undefined : args[index + 1]; };
+const questions = args.flatMap((value, index) => args[index - 1] === "--question" ? [question(value)] : []);
+const runDirectory = resolve(arg("--run-dir") ?? ".crust/runs");
+const resume = arg("--resume");
 
-if (args.includes("--help")) {
-  console.log("bun run crust:pocock -- --action start --intent <text> [--question id:prompt] | --run <id> --action status|propose-decision|propose-spec|propose-slices|propose-implementation|propose-review|approve|reject|advance");
+if (args.includes("--help") || (!arg("--idea") && !resume)) {
+  console.log("Usage: bun run crust:pocock -- --idea <text> [--question id:prompt] [--run-dir path] [--resume run-id] [--grilling-skill path] …");
   process.exit(0);
 }
 
-if (action === "start") {
-  const intent = value("--intent");
-  if (!intent) throw new Error("--intent is required when starting a run");
-  const compositions = Object.fromEntries(await Promise.all(ACTIVE_PHASES.map(async (phase) => {
-    const skillName = skillFor(phase);
-    const path = resolve(value(`--${phase.toLowerCase()}-skill`) ?? join(homedir(), ".agents", "skills", skillName, "SKILL.md"));
-    const skill = await resolveSkill(path, skillName);
-    return [phase, { skill: skill.name, version: skill.version, source: skill.path, model: MODEL }];
-  }))) as PocockRun["compositions"];
-  const questions = values("--question").map((raw, index) => {
-    const [id, ...prompt] = raw.split(":");
-    if (!id || !prompt.length) throw new Error(`invalid --question ${raw}; expected id:prompt`);
-    return { id: id || `question-${index + 1}`, prompt: prompt.join(":"), required: true };
-  });
-  const run = PocockWorkflow.create({ id: `pocock-${randomUUID()}`, intent, questions: questions.length ? questions : [{ id: "design", prompt: "What material design decision must be resolved?", required: true }], compositions });
-  await store.save(run); console.log(run.id); process.exit(0);
-}
-
-if (!runId) throw new Error("--run is required (or use --action start)");
-const workflow = new PocockWorkflow(await store.load(runId));
-await Promise.all(ACTIVE_PHASES.map(async (phase) => {
-  const composition = workflow.state.compositions[phase];
-  assertCompositionMatchesSkill(composition, await resolveSkill(composition.source, composition.skill));
+const store = new FileRunStore<PocockRun>(runDirectory);
+const lockedSkills = await resolveAllSkills();
+const workflow = new PocockWorkflow(resume ? await store.load(resume) : PocockWorkflow.create({
+  id: `pocock-${randomUUID()}`,
+  intent: arg("--idea")!,
+  questions: questions.length ? questions : [{ id: "design", prompt: "What material design decision must be resolved?", required: true }],
+  compositions: Object.fromEntries(ACTIVE_PHASES.map((phase) => {
+    const skill = lockedSkills[phase];
+    return [phase, { skill: skill.name, version: skill.version, source: skill.path, model: `${PROVIDER}/${MODEL}` }];
+  })) as PocockRun["compositions"],
 }));
-if (action === "status") console.log(JSON.stringify({ id: workflow.state.id, phase: workflow.state.phase, context: workflow.contextProjection() }, null, 2));
-else if (action === "propose-decision") workflow.proposeDecision(json());
-else if (action === "propose-spec") { const input = json<{ reference: string }>(); workflow.proposeSpec(input.reference, await readFile(resolve(input.reference), "utf8")); }
-else if (action === "propose-slices") workflow.proposeSlices(json());
-else if (action === "propose-implementation") workflow.proposeImplementation(json());
-else if (action === "propose-review") workflow.proposeReview(json());
-else if (action === "approve") workflow.approve(required("--proposal"), required("--operator"));
-else if (action === "reject") workflow.reject(required("--proposal"), required("--operator"), value("--reason"));
-else if (action === "advance") workflow.advance(required("--operator"));
-else throw new Error(`unknown action ${action}`);
-await store.save(workflow.state);
+for (const phase of ACTIVE_PHASES) assertCompositionMatchesSkill(workflow.state.compositions[phase], lockedSkills[phase]);
+if (!resume) await store.save(workflow.state);
+const phase = workflow.state.phase;
+if (phase === "DONE") { console.log(`Crust ${workflow.state.id} is DONE.`); process.exit(0); }
 
-function json<T>(): T { const raw = required("--json"); return JSON.parse(raw) as T; }
-function required(name: string): string { const result = value(name); if (!result) throw new Error(`${name} is required`); return result; }
+const skill = lockedSkills[phase];
+const authStorage = AuthStorage.create();
+const modelRegistry = ModelRegistry.create(authStorage);
+const model = modelRegistry.find(PROVIDER, MODEL);
+if (!model) throw new Error(`Pi does not provide ${PROVIDER}/${MODEL}`);
+if (!modelRegistry.isUsingOAuth(model)) throw new Error("Codex subscription OAuth is not configured. Run Pi, choose /login → OpenAI Codex, then retry.");
+
+const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, agentDir, sessionManager, sessionStartEvent }) => {
+  const services = await createAgentSessionServices({
+    cwd, agentDir, authStorage, modelRegistry,
+    resourceLoaderOptions: {
+      noExtensions: true, noSkills: true, noPromptTemplates: true,
+      appendSystemPrompt: [
+        `<locked-skill name="${skill.name}" source="${skill.path}" version="${skill.version}">\n${skill.content}\n</locked-skill>`,
+        phaseInstruction(phase), workflow.contextProjection(),
+      ],
+      extensionFactories: [crustPocockExtension(workflow, store)],
+    },
+  });
+  return { ...(await createAgentSessionFromServices({ services, sessionManager, sessionStartEvent, model, thinkingLevel: "medium", tools: ["read", "grep", "find", "ls", "propose_decision", "propose_phase_outcome"] })), services, diagnostics: services.diagnostics };
+};
+const cwd = process.cwd();
+const runtime = await createAgentSessionRuntime(createRuntime, { cwd, agentDir: getAgentDir(), sessionManager: SessionManager.create(cwd) });
+const tui = new InteractiveMode(runtime, { migratedProviders: [], modelFallbackMessage: runtime.modelFallbackMessage, initialMessage: initialMessage(phase), initialImages: [], initialMessages: [] });
+await tui.run();
+
+async function resolveAllSkills(): Promise<Record<ActivePhase, ResolvedSkill>> {
+  return Object.fromEntries(await Promise.all(ACTIVE_PHASES.map(async (phase) => {
+    const name = skillFor(phase); const path = resolve(arg(`--${phase.toLowerCase()}-skill`) ?? join(homedir(), ".agents", "skills", name, "SKILL.md"));
+    return [phase, await resolveSkill(path, name)];
+  }))) as Record<ActivePhase, ResolvedSkill>;
+}
+function question(raw: string) { const split = raw.indexOf(":"); if (split < 1 || split === raw.length - 1) throw new Error(`invalid --question ${raw}; expected id:prompt`); return { id: raw.slice(0, split), prompt: raw.slice(split + 1), required: true }; }
 function skillFor(phase: ActivePhase): string { return ({ GRILLING: "grill-me", SPECIFYING: "to-spec", SLICING: "to-tickets", IMPLEMENTING: "implement", REVIEWING: "code-review" })[phase]; }
+function initialMessage(phase: ActivePhase): string { return phase === "GRILLING" ? "Begin the grilling session. Ask one high-leverage unresolved question at a time; do not rush to a decision." : `Begin ${phase}. Work only under the locked skill and propose the phase outcome when it is ready.`; }
+function phaseInstruction(phase: ActivePhase): string { return `You are the bounded ${phase} Pi Crust child. The locked skill governs your work. Crust owns all authority: never claim a transition occurred. Propose only the phase outcome through the Crust tool, then ask the operator to approve it. ${phase === "GRILLING" ? "This is a many-turn interview: ask one question at a time and continue until the required decisions are settled." : ""}`; }
