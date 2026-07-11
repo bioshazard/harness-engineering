@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test",
+    "test": "bun test/verify-file-selection.ts",
     "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {

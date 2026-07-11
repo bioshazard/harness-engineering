@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test",
+    "test": "bun test && bun install --cwd poc/dependency-upgrade/fixture --frozen-lockfile && bun --cwd poc/dependency-upgrade/fixture test",
     "typecheck": "bunx tsc --noEmit",
     "example:seed": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
     "example": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts",
     "example:live": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live",
-    "example:live:model": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model"
+    "example:live:model": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model",
+    "crust:grill-me": "bun poc/crust/eg/pocock/grill-me/src/cli.ts",
+    "test:crust": "bun test poc/crust/eg/pocock/grill-me/test/all.test.ts"
   },
   "dependencies": {
     "@arizeai/phoenix-client": "6.12.0",
