@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test",
+    "test": "bun test && bun install --cwd poc/dependency-upgrade/fixture --frozen-lockfile && bun --cwd poc/dependency-upgrade/fixture test",
     "typecheck": "bunx tsc --noEmit",
     "example:seed": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
     "example": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts",
