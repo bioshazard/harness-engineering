@@ -1,0 +1,26 @@
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { AuthStorage, createAgentSessionFromServices, createAgentSessionServices, getAgentDir, ModelRegistry, SessionManager } from "@earendil-works/pi-coding-agent";
+import { FileRunStore } from "../../../../lib/store.js";
+import { resolveSkill } from "../../../../lib/skill.js";
+import { PocockOperator } from "../src/operator.js";
+import { crustPocockExtension } from "../src/pi-extension.js";
+import { ACTIVE_PHASES, PocockWorkflow, type PocockRun } from "../src/workflow.js";
+
+const source = resolve(process.env.POCOCK_GRILL_SKILL ?? join(process.env.HOME!, ".agents/skills/grill-me/SKILL.md"));
+const grill = await resolveSkill(source, "grill-me");
+const locks = Object.fromEntries(ACTIVE_PHASES.map((phase) => [phase, { skill: phase === "GRILLING" ? grill.name : phase, version: phase === "GRILLING" ? grill.version : "exercise", source: phase === "GRILLING" ? grill.path : source, model: "openai-codex/gpt-5.5" }])) as PocockRun["compositions"];
+const run = PocockWorkflow.create({ id: "live-grill", intent: "Choose whether Crust or the child advances workflow state.", questions: [{ id: "authority", prompt: "Who advances workflow state?", required: true }], compositions: locks });
+const store = new FileRunStore<PocockRun>(join(await mkdtemp(join(tmpdir(), "pocock-live-")), "runs")); await store.save(run);
+const workflow = new PocockWorkflow(run); const auth = AuthStorage.create(); const registry = ModelRegistry.create(auth); const model = registry.find("openai-codex", "gpt-5.5"); if (!model || !registry.isUsingOAuth(model)) throw new Error("Codex OAuth unavailable");
+const services = await createAgentSessionServices({ cwd: process.cwd(), agentDir: getAgentDir(), authStorage: auth, modelRegistry: registry, resourceLoaderOptions: { noExtensions: true, noSkills: true, noPromptTemplates: true, appendSystemPrompt: [`<locked-skill>\n${grill.content}\n</locked-skill>`, "Conduct the grilling. Ask one question, then propose a concrete decision with propose_decision.", workflow.contextProjection()], extensionFactories: [crustPocockExtension(workflow, store)] } });
+const session = await createAgentSessionFromServices({ services, sessionManager: SessionManager.create(process.cwd()), model, thinkingLevel: "medium", tools: ["propose_decision"] });
+if (!session.session.getActiveToolNames().includes("propose_decision")) throw new Error(`propose_decision inactive: ${session.session.getActiveToolNames().join(", ")}`);
+await session.session.prompt("Start now. The operator answer is: Crust advances workflow state, not you. Propose that decision.");
+if (!workflow.state.decisions.some((decision) => decision.status === "proposed")) await session.session.prompt("Yes. That answer is confirmed. Please record the decision now with propose_decision.");
+if (!workflow.state.decisions.some((decision) => decision.status === "proposed")) await session.session.prompt("The deterministic operator now requires a tool result. Call propose_decision with questionId authority, decision 'Crust advances workflow state.', rationale 'Control remains outside the child.', and alternativesRejected ['The child advances workflow state.'].");
+const candidate = workflow.state.decisions.find((decision) => decision.status === "proposed"); if (!candidate) throw new Error("LLM did not propose a decision after two operator turns");
+const operator = new PocockOperator(workflow, store, "live-exercise"); await operator.approve(candidate.id); await operator.advance();
+if (workflow.state.phase !== "SPECIFYING") throw new Error("did not advance"); console.log(JSON.stringify({ phase: workflow.state.phase, decision: candidate.decision, receipt: workflow.state.receipts.at(-1)?.schema }));
+session.session.dispose();
