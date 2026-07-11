@@ -5,10 +5,12 @@ import { defineTool, type ExtensionFactory } from "@earendil-works/pi-coding-age
 import { Type } from "typebox";
 
 import { FileRunStore } from "../../../../lib/store.js";
+import { PocockOperator } from "./operator.js";
 import { PocockWorkflow, type PocockRun } from "./workflow.js";
 
 export function crustPocockExtension(workflow: PocockWorkflow, store: FileRunStore<PocockRun>): ExtensionFactory {
   return (pi) => {
+    const operator = new PocockOperator(workflow, store, "pi-tui-operator");
     pi.registerTool(defineTool({
       name: "propose_decision", label: "Propose decision",
       description: "In GRILLING, record a candidate answer. It never advances the workflow; the operator must approve it.",
@@ -38,16 +40,14 @@ export function crustPocockExtension(workflow: PocockWorkflow, store: FileRunSto
         if (command === "approve" || command === "reject") {
           if (!proposalId) throw new Error(`/crust ${command} requires a proposal ID`);
           if (command === "approve" && !await ctx.ui.confirm("Approve Crust proposal", `Accept ${proposalId}?`)) return;
-          const proposal = command === "approve" ? workflow.approve(proposalId, "pi-tui-operator", reason.join(" ") || undefined) : workflow.reject(proposalId, "pi-tui-operator", reason.join(" ") || undefined);
-          await store.save(workflow.state);
+          const proposal = command === "approve" ? await operator.approve(proposalId, reason.join(" ") || undefined) : await operator.reject(proposalId, reason.join(" ") || undefined);
           const ready = command === "approve" && phaseReady(workflow) ? " Receipt is ready; run /crust advance to request phase transition." : "";
           ctx.ui.notify(`${proposal.id} ${proposal.status}.${ready}`); return;
         }
         if (command === "advance") {
           const phase = workflow.state.phase;
           if (!await ctx.ui.confirm("Advance Crust phase", `Commit ${phase} receipt and advance the workflow?`)) return;
-          const receipt = workflow.advance("pi-tui-operator");
-          await store.save(workflow.state);
+          const receipt = await operator.advance();
           ctx.ui.notify(`${receipt.schema} persisted; phase is now ${workflow.state.phase}. Exit and resume this run for a fresh locked ${workflow.state.phase} Context window.`); return;
         }
         throw new Error(`unknown /crust command: ${command}`);
