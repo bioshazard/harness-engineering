@@ -14,7 +14,7 @@ export function crustPocockExtension(workflow: PocockWorkflow, store: FileRunSto
     pi.registerTool(defineTool({
       name: "propose_decision", label: "Propose decision",
       description: "In GRILLING, record a candidate answer. It never advances the workflow; the operator must approve it.",
-      parameters: Type.Object({ questionId: Type.String(), decision: Type.String(), rationale: Type.String(), alternativesRejected: Type.Array(Type.String()) }),
+      parameters: Type.Object({ questionId: Type.String(), question: Type.Optional(Type.String({ description: "The newly discovered question, required for a new questionId" })), decision: Type.String(), rationale: Type.String(), alternativesRejected: Type.Array(Type.String()) }),
       execute: async (_id, proposal) => {
         const candidate = workflow.proposeDecision(proposal);
         await store.save(workflow.state);

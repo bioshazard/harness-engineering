@@ -19,11 +19,11 @@ Install the five locked skills, including `to-spec` and `to-tickets` from
 [`mattpocock/skills`](https://github.com/mattpocock/skills), then start Pi:
 
 ```bash
-bun run crust:pocock -- --idea "..." --question authority:"Who advances state?"
+bun run crust:pocock -- --idea "..."
 ```
 
-`GRILLING` is an ordinary, many-turn Pi session. The child asks one question at
-a time and calls `propose_decision` only when a branch is settled. You remain in
+`GRILLING` is an ordinary, many-turn Pi session. The child discovers and asks
+one question at a time, then calls `propose_decision` only when a branch is settled. You remain in
 the TUI to inspect it and run:
 
 ```text

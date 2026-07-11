@@ -13,7 +13,6 @@ const PROVIDER = "openai-codex";
 const MODEL = "gpt-5.5";
 const args = process.argv.slice(2);
 const arg = (name: string) => { const index = args.indexOf(name); return index === -1 ? undefined : args[index + 1]; };
-const questions = args.flatMap((value, index) => args[index - 1] === "--question" ? [question(value)] : []);
 const runDirectory = resolve(arg("--run-dir") ?? ".crust/runs");
 const resume = arg("--resume");
 
@@ -28,7 +27,6 @@ const lockedSkills = stored ? await resolveLockedSkills(stored) : await resolveA
 const workflow = new PocockWorkflow(stored ?? PocockWorkflow.create({
   id: `pocock-${randomUUID()}`,
   intent: arg("--idea")!,
-  questions: questions.length ? questions : [{ id: "design", prompt: "What material design decision must be resolved?", required: true }],
   compositions: Object.fromEntries(ACTIVE_PHASES.map((phase) => {
     const skill = lockedSkills[phase];
     return [phase, { skill: skill.name, version: skill.version, source: skill.path, model: `${PROVIDER}/${MODEL}` }];
@@ -77,7 +75,6 @@ async function resolveLockedSkills(run: PocockRun): Promise<Record<ActivePhase, 
     return [phase, await resolveSkill(lock.source, lock.skill)];
   }))) as Record<ActivePhase, ResolvedSkill>;
 }
-function question(raw: string) { const split = raw.indexOf(":"); if (split < 1 || split === raw.length - 1) throw new Error(`invalid --question ${raw}; expected id:prompt`); return { id: raw.slice(0, split), prompt: raw.slice(split + 1), required: true }; }
 function skillFor(phase: ActivePhase): string { return ({ GRILLING: "grill-me", SPECIFYING: "to-spec", SLICING: "to-tickets", IMPLEMENTING: "implement", REVIEWING: "code-review" })[phase]; }
 function initialMessage(phase: ActivePhase): string { return phase === "GRILLING" ? "Begin the grilling session. Ask one high-leverage unresolved question at a time; do not rush to a decision." : `Begin ${phase}. Work only under the locked skill and propose the phase outcome when it is ready.`; }
 function phaseInstruction(phase: ActivePhase): string { return `You are the bounded ${phase} Pi Crust child. The locked skill governs your work. Crust owns all authority: never claim a transition occurred. Propose only the phase outcome through the Crust tool, then ask the operator to approve it. ${phase === "GRILLING" ? "This is a many-turn interview: ask one question at a time and continue until the required decisions are settled." : ""}`; }

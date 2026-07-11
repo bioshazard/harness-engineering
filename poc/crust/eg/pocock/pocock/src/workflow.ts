@@ -39,7 +39,7 @@ export type PocockRun = {
   events: Array<{ type: string; at: string; proposalId?: string }>;
 };
 
-type CreateRun = Pick<PocockRun, "id" | "intent" | "compositions"> & { questions: Array<Omit<Question, "status">> };
+type CreateRun = Pick<PocockRun, "id" | "intent" | "compositions"> & { questions?: Array<Omit<Question, "status">> };
 type Proposal = Decision | SpecProposal | SliceProposal | ImplementationProposal | ReviewProposal;
 
 export class PocockWorkflow {
@@ -52,7 +52,7 @@ export class PocockWorkflow {
       intent: input.intent,
       phase: "GRILLING",
       compositions: input.compositions,
-      questions: input.questions.map((question) => ({ ...question, status: "open" })),
+      questions: (input.questions ?? []).map((question) => ({ ...question, status: "open" })),
       decisions: [], tickets: [], approvals: [], receipts: [], events: [],
     };
   }
@@ -62,9 +62,14 @@ export class PocockWorkflow {
     return this.state.compositions[this.state.phase];
   }
 
-  proposeDecision(input: Omit<Decision, "id" | "status" | "proposedAt">): Decision {
+  proposeDecision(input: Omit<Decision, "id" | "status" | "proposedAt"> & { question?: string }): Decision {
     this.assertPhase("GRILLING");
-    const question = this.question(input.questionId);
+    let question = this.state.questions.find((candidate) => candidate.id === input.questionId);
+    if (!question) {
+      if (!input.question?.trim()) throw new Error(`unknown question ${input.questionId}; a question prompt is required`);
+      question = { id: input.questionId, prompt: input.question, required: true, status: "open" };
+      this.state.questions.push(question); this.event("QUESTION_DISCOVERED");
+    }
     if (question.status !== "open") throw new Error(`question ${question.id} is already resolved`);
     if (!input.decision.trim() || !input.rationale.trim()) throw new Error("decision and rationale are required");
     const proposal: Decision = { ...input, id: id("decision"), status: "proposed", proposedAt: now() };
