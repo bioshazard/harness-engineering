@@ -78,7 +78,7 @@ if (process.argv.includes("--help") || (!idea && !resume)) {
   process.exit(0);
 }
 
-const store = new FileRunStore(runDirectory);
+const store = new FileRunStore<GrillingRun>(runDirectory);
 const skill = await resolveGrillMeSkill(skillPath);
 const workflow = new GrillingWorkflow(resume ? await store.load(resume) : newRun(idea!, questionValues, skill));
 if (resume) assertCompositionMatchesSkill(workflow.state.composition, skill);

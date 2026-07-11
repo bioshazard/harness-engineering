@@ -112,7 +112,7 @@ test("the accepted decision ledger survives a fresh workflow instance", async ()
   workflow.confirmDecision(candidate.id, "operator-1", true);
   workflow.complete();
 
-  const store = new FileRunStore(join(await mkdtemp(join(tmpdir(), "crust-")), "runs"));
+  const store = new FileRunStore<GrillingRun>(join(await mkdtemp(join(tmpdir(), "crust-")), "runs"));
   await store.save(workflow.state);
   const resumed = new GrillingWorkflow(await store.load(workflow.state.id));
 

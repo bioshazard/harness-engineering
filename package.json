@@ -10,7 +10,8 @@
     "example:live": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live",
     "example:live:model": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model",
     "crust:grill-me": "bun poc/crust/eg/pocock/grill-me/src/cli.ts",
-    "test:crust": "bun test poc/crust/eg/pocock/grill-me/test/all.test.ts"
+    "crust:pocock": "bun poc/crust/eg/pocock/pocock/src/cli.ts",
+    "test:crust": "bun test poc/crust/eg/pocock/grill-me/test/all.test.ts && bun test poc/crust/eg/pocock/pocock/test/all.test.ts"
   },
   "dependencies": {
     "@arizeai/phoenix-client": "6.12.0",
