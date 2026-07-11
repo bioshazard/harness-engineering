@@ -11,6 +11,7 @@
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
-    "poc/dependency-upgrade-instrumented/**/*.ts"
+    "poc/dependency-upgrade-instrumented/**/*.ts",
+    "poc/crust/**/*.ts"
   ]
 }
