@@ -76,6 +76,7 @@ record and determines whether the state may finish.
 ```text
 state: GRILLING
 skill: grill-me@<content-hash>
+source: ~/.agents/skills/grill-me/SKILL.md
 model: <pinned model identifier>
 system policy: ask one question; recommend an answer; do not implement
 Context projection: idea + open decisions + accepted ledger + relevant domain docs
@@ -84,7 +85,10 @@ expected Receipt: grilling-receipt/v1
 ```
 
 `grill-me` is therefore an aspect of the pluggable composition, not ambient
-agent lore. Its behavior is reproducible for the run that used it.
+agent lore. On startup Crust reads exactly that file, hashes its contents, and
+injects it into the child Context. On resume it rejects a changed file instead
+of silently changing the in-flight composition. Pass `--skill <SKILL.md>` to
+use an explicitly installed alternate source.
 
 ## State-machine tool boundary
 

@@ -19,6 +19,7 @@ function run(): GrillingRun {
     composition: {
       skill: "grill-me",
       version: "sha256:skill",
+      source: "/skills/grill-me/SKILL.md",
       model: "openai-codex/gpt-5.4",
       contextId: "sha256:context",
     },

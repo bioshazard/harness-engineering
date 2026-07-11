@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import { resolve } from "node:path";
+import { homedir } from "node:os";
+import { join, resolve } from "node:path";
 
 import {
   AuthStorage,
@@ -14,6 +15,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 
 import { crustGrillingExtension } from "./pi-extension.js";
+import { assertCompositionMatchesSkill, resolveGrillMeSkill, type ResolvedGrillMeSkill } from "./skill.js";
 import { FileRunStore } from "./store.js";
 import { GrillingWorkflow, type GrillingRun } from "./workflow.js";
 
@@ -21,7 +23,7 @@ const MODEL_PROVIDER = "openai-codex";
 const MODEL_ID = "gpt-5.5";
 
 function usage(): string {
-  return "Usage: npm run crust:grill-me -- --idea <text> [--question <id:prompt>] [--run-dir <path>] [--resume <run-id>]";
+  return "Usage: npm run crust:grill-me -- --idea <text> [--question <id:prompt>] [--skill <SKILL.md>] [--run-dir <path>] [--resume <run-id>]";
 }
 
 function arg(name: string): string | undefined {
@@ -39,7 +41,7 @@ function questions(values: string[]): GrillingRun["questions"] {
   });
 }
 
-function newRun(idea: string, questionValues: string[]): GrillingRun {
+function newRun(idea: string, questionValues: string[], skill: ResolvedGrillMeSkill): GrillingRun {
   const runId = `grill-${randomUUID()}`;
   const runQuestions = questions(questionValues.length > 0 ? questionValues : ["design:What material design decision must be resolved?"]);
   const contextId = createHash("sha256")
@@ -52,7 +54,8 @@ function newRun(idea: string, questionValues: string[]): GrillingRun {
     intent: idea,
     composition: {
       skill: "grill-me",
-      version: "local:pocock-grill-me/v1",
+      version: skill.version,
+      source: skill.path,
       model: `${MODEL_PROVIDER}/${MODEL_ID}`,
       contextId: `sha256:${contextId}`,
     },
@@ -67,6 +70,7 @@ function newRun(idea: string, questionValues: string[]): GrillingRun {
 const idea = arg("--idea");
 const resume = arg("--resume");
 const runDirectory = resolve(arg("--run-dir") ?? ".crust/runs");
+const skillPath = resolve(arg("--skill") ?? join(homedir(), ".agents", "skills", "grill-me", "SKILL.md"));
 const questionValues = process.argv.flatMap((value, index) => process.argv[index - 1] === "--question" ? [value] : []);
 
 if (process.argv.includes("--help") || (!idea && !resume)) {
@@ -75,7 +79,9 @@ if (process.argv.includes("--help") || (!idea && !resume)) {
 }
 
 const store = new FileRunStore(runDirectory);
-const workflow = new GrillingWorkflow(resume ? await store.load(resume) : newRun(idea!, questionValues));
+const skill = await resolveGrillMeSkill(skillPath);
+const workflow = new GrillingWorkflow(resume ? await store.load(resume) : newRun(idea!, questionValues, skill));
+if (resume) assertCompositionMatchesSkill(workflow.state.composition, skill);
 if (!resume) await store.save(workflow.state);
 
 const authStorage = AuthStorage.create();
@@ -101,7 +107,8 @@ const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd: runtimeCwd
       noSkills: true,
       noPromptTemplates: true,
       appendSystemPrompt: [
-        "You are the bounded grill-me child of Pi Crust. Ask one question at a time. Do not implement code or choose the next workflow state. When a branch is resolved, call propose_decision. The operator alone approves or rejects candidates through /crust.",
+        `<locked-skill name="${skill.name}" source="${skill.path}" version="${skill.version}">\n${skill.content}\n</locked-skill>`,
+        "You are the bounded grill-me child of Pi Crust. The locked skill governs the interview. Crust governs authority: do not implement code or choose the next workflow state. When a branch is resolved, call propose_decision. The operator alone approves or rejects candidates through /crust.",
         workflow.contextProjection(),
       ],
       extensionFactories: [crustGrillingExtension(workflow, store)],

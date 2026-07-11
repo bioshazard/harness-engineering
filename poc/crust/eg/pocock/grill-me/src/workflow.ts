@@ -7,6 +7,7 @@ export type TerminalVerdict = "complete" | "blocked" | "cancelled" | "escalated"
 export type CompositionLock = {
   skill: "grill-me";
   version: string;
+  source: string;
   model: string;
   contextId: string;
 };
