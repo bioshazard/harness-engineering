@@ -56,7 +56,7 @@ const createRuntime: CreateAgentSessionRuntimeFactory = async ({ cwd, agentDir, 
       extensionFactories: [crustPocockExtension(workflow, store)],
     },
   });
-  return { ...(await createAgentSessionFromServices({ services, sessionManager, sessionStartEvent, model, thinkingLevel: "medium", tools: ["read", "grep", "find", "ls", "propose_decision", "propose_phase_outcome"] })), services, diagnostics: services.diagnostics };
+  return { ...(await createAgentSessionFromServices({ services, sessionManager, sessionStartEvent, model, thinkingLevel: "medium", tools: ["read", "grep", "find", "ls", "propose_decision", "propose_phase_outcome", "stage_phase_artifact"] })), services, diagnostics: services.diagnostics };
 };
 const cwd = process.cwd();
 const runtime = await createAgentSessionRuntime(createRuntime, { cwd, agentDir: getAgentDir(), sessionManager: SessionManager.create(cwd) });
@@ -77,4 +77,4 @@ async function resolveLockedSkills(run: PocockRun): Promise<Record<ActivePhase, 
 }
 function skillFor(phase: ActivePhase): string { return ({ GRILLING: "grill-me", SPECIFYING: "to-spec", SLICING: "to-tickets", IMPLEMENTING: "implement", REVIEWING: "code-review" })[phase]; }
 function initialMessage(phase: ActivePhase): string { return phase === "GRILLING" ? "Begin the grilling session. Ask one high-leverage unresolved question at a time; do not rush to a decision." : `Begin ${phase}. Work only under the locked skill and propose the phase outcome when it is ready.`; }
-function phaseInstruction(phase: ActivePhase): string { return `You are the bounded ${phase} Pi Crust child. The locked skill governs your work. Crust owns all authority: never claim a transition occurred. Propose only the phase outcome through the Crust tool, then ask the operator to approve it. ${phase === "GRILLING" ? "This is a many-turn interview: ask one question at a time and continue until the required decisions are settled." : ""}`; }
+function phaseInstruction(phase: ActivePhase): string { return `You are the bounded ${phase} Pi Crust child. The locked skill governs your work. Crust owns all authority: never claim a transition occurred. You may stage one or more phase-local intermediate artifacts through stage_phase_artifact; this records custody only, not semantic approval. Propose only the phase outcome through the Crust tool, then ask the operator to approve it. ${phase === "GRILLING" ? "This is a many-turn interview: ask one question at a time and continue until the required decisions are settled." : ""}`; }

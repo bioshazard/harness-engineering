@@ -11,6 +11,10 @@ export class FileRunStore<Run extends IdentifiedRun = IdentifiedRun> {
     return join(this.directory, `${runId}.json`);
   }
 
+  runDirectory(runId: string): string {
+    return join(this.directory, runId);
+  }
+
   async save(run: Run): Promise<void> {
     await mkdir(this.directory, { recursive: true });
     const path = this.path(run.id);
