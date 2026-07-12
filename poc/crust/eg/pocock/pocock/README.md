@@ -49,6 +49,28 @@ headings before admitting the proposal.
 Runs persist below `.crust/runs/`; every resume verifies each referenced skill
 lock before launching its phase-specific Pi child.
 
+## Intermediate artifacts
+
+A non-grilling child may call `stage_phase_artifact` to write one immutable,
+phase-local intermediate artifact:
+
+```text
+SPECIFYING    -> spec.md
+SLICING       -> slices.json
+IMPLEMENTING  -> implementation.md
+REVIEWING     -> review.md
+```
+
+Crust writes it atomically beneath
+`.crust/runs/<run-id>/artifacts/<phase>/`, enforces a 1 MiB UTF-8 limit, and
+records a `phase-artifact-receipt/v1` with its kind, path, SHA-256, and byte
+count. Later phase Context includes those references and hashes, never the
+artifact body.
+
+This is a custody mechanism, not a semantic gate. Staging does not validate
+content, make a phase proposal, approve it, or advance the workflow; the
+existing self-attested proposal and operator approval remain canonical.
+
 ## Exercises
 
 The ordinary test suite drives the same operator authority seam as the TUI,

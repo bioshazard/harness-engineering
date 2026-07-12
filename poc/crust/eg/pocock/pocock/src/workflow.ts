@@ -8,6 +8,8 @@ export type Question = { id: string; prompt: string; required: boolean; status: 
 export type Decision = { id: string; questionId: string; decision: string; rationale: string; alternativesRejected: string[]; status: "proposed" | "accepted" | "rejected"; proposedAt: string };
 export type Ticket = { id: string; title: string; blockedBy: string[]; status: "pending" | "ready" | "implementing" | "implemented" | "complete" };
 export type Approval = { proposalId: string; operatorId: string; approved: boolean; reason?: string; at: string };
+export type ArtifactKind = "spec.md" | "slices.json" | "implementation.md" | "review.md";
+export type ArtifactReceipt = { schema: "phase-artifact-receipt/v1"; id: string; phase: ActivePhase; kind: ArtifactKind; path: string; sha256: string; bytes: number; createdAt: string };
 export type SpecProposal = { id: string; reference: string; contentHash: string; status: "proposed" | "accepted" | "rejected"; proposedAt: string };
 export type SliceProposal = { id: string; tickets: Array<Pick<Ticket, "id" | "title" | "blockedBy">>; status: "proposed" | "accepted" | "rejected"; proposedAt: string };
 export type ImplementationProposal = { id: string; ticketId: string; commit: string; tests: string[]; typecheck: string; status: "proposed" | "accepted" | "rejected"; proposedAt: string };
@@ -35,6 +37,7 @@ export type PocockRun = {
   tickets: Ticket[];
   activeTicketId?: string;
   approvals: Approval[];
+  artifacts: ArtifactReceipt[];
   receipts: Receipt[];
   events: Array<{ type: string; at: string; proposalId?: string }>;
 };
@@ -43,7 +46,7 @@ type CreateRun = Pick<PocockRun, "id" | "intent" | "compositions"> & { questions
 type Proposal = Decision | SpecProposal | SliceProposal | ImplementationProposal | ReviewProposal;
 
 export class PocockWorkflow {
-  constructor(readonly state: PocockRun) {}
+  constructor(readonly state: PocockRun) { this.state.artifacts ??= []; }
 
   static create(input: CreateRun): PocockRun {
     return {
@@ -53,7 +56,7 @@ export class PocockWorkflow {
       phase: "GRILLING",
       compositions: input.compositions,
       questions: (input.questions ?? []).map((question) => ({ ...question, status: "open" })),
-      decisions: [], tickets: [], approvals: [], receipts: [], events: [],
+      decisions: [], tickets: [], approvals: [], artifacts: [], receipts: [], events: [],
     };
   }
 
@@ -152,6 +155,13 @@ export class PocockWorkflow {
     return proposal;
   }
 
+  /** Records custody only; it does not validate an artifact or alter phase authority. */
+  recordArtifact(receipt: ArtifactReceipt): void {
+    this.assertPhase(receipt.phase);
+    this.state.artifacts.push(receipt);
+    this.event("ARTIFACT_STAGED", receipt.id);
+  }
+
   /** Commits the phase change only after a separate operator approval. */
   advance(operatorId: string): Receipt {
     const receipt = this.receiptForCurrentPhase();
@@ -168,6 +178,8 @@ export class PocockWorkflow {
     lines.push(...(accepted.map((decision) => `- ${decision.questionId}: ${decision.decision}`) || ["- none"]));
     if (this.state.spec?.status === "accepted") lines.push(`Spec: ${this.state.spec.reference}`);
     if (this.state.activeTicketId) lines.push(`Active ticket: ${this.state.activeTicketId}`);
+    const artifacts = this.state.artifacts;
+    if (artifacts.length) lines.push("Staged artifacts:", ...artifacts.map((artifact) => `- ${artifact.kind}: ${artifact.path} (${artifact.sha256})`));
     return lines.join("\n");
   }
 

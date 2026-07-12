@@ -5,12 +5,14 @@ import { defineTool, type ExtensionFactory } from "@earendil-works/pi-coding-age
 import { Type } from "typebox";
 
 import { FileRunStore } from "../../../../lib/store.js";
+import { PhaseArtifactStore } from "./artifact-store.js";
 import { PocockOperator } from "./operator.js";
 import { PocockWorkflow, type PocockRun } from "./workflow.js";
 
 export function crustPocockExtension(workflow: PocockWorkflow, store: FileRunStore<PocockRun>): ExtensionFactory {
   return (pi) => {
     const operator = new PocockOperator(workflow, store, "pi-tui-operator");
+    const artifacts = new PhaseArtifactStore(store.runDirectory(workflow.state.id), workflow);
     pi.registerTool(defineTool({
       name: "propose_decision", label: "Propose decision",
       description: "In GRILLING, record a candidate answer. It never advances the workflow; the operator must approve it.",
@@ -19,6 +21,16 @@ export function crustPocockExtension(workflow: PocockWorkflow, store: FileRunSto
         const candidate = workflow.proposeDecision(proposal);
         await store.save(workflow.state);
         return notice(`Candidate ${candidate.id} recorded. Ask the operator to run /crust approve ${candidate.id}.`, candidate.id);
+      },
+    }));
+    pi.registerTool(defineTool({
+      name: "stage_phase_artifact", label: "Stage phase artifact",
+      description: "Write one immutable, run-local intermediate artifact. This records custody only; it does not propose, validate, approve, or advance a phase.",
+      parameters: Type.Object({ kind: Type.Union([Type.Literal("spec.md"), Type.Literal("slices.json"), Type.Literal("implementation.md"), Type.Literal("review.md")]), content: Type.String() }),
+      execute: async (_id, artifact) => {
+        const receipt = await artifacts.stage(artifact.kind, artifact.content);
+        await store.save(workflow.state);
+        return { content: [{ type: "text" as const, text: `Staged ${receipt.kind}: ${receipt.sha256}` }], details: receipt };
       },
     }));
     pi.registerTool(defineTool({

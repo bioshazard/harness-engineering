@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { FileRunStore } from "../../../../lib/store.js";
+import { PhaseArtifactStore } from "../src/artifact-store.js";
 import { PocockOperator } from "../src/operator.js";
 import { PocockWorkflow, type PocockRun } from "../src/workflow.js";
 
@@ -21,4 +22,11 @@ test("deterministic operator drives the same persisted grilling-to-specifying ha
   assert.equal(resumed.state.phase, "SPECIFYING");
   assert.match(resumed.contextProjection(), /authority: Crust/);
   assert.doesNotMatch(resumed.contextProjection(), /alternativesRejected/);
+
+  const artifactStore = new PhaseArtifactStore(store.runDirectory(run.id), resumed);
+  const artifact = await artifactStore.stage("spec.md", "# Staged spec");
+  await store.save(resumed.state);
+  const reloaded = new PocockWorkflow(await store.load(run.id));
+  assert.deepEqual(reloaded.state.artifacts, [artifact]);
+  assert.match(reloaded.contextProjection(), new RegExp(artifact.sha256));
 });
