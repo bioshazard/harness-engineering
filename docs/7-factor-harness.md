@@ -4,7 +4,7 @@ The 7 Factor Harness is an engineering doctrine for recognizing and reviewing
 goal harnesses. It is deliberately smaller than the ontology: the factors
 preserve the important distinctions without prescribing one architecture.
 
-> Terminology note: [Goal-System Engineering](./thinking/goal-system-engineering.md)
+> Terminology note: [Goal-System Engineering](../incubator/goal-system-engineering/README.md)
 > provisionally calls the governed object below a **Goal System** and reserves
 > model harness for model-local composition. This historical filename and
 > doctrine remain canonical until that migration is accepted.

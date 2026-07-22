@@ -1,34 +1,26 @@
 # Vision
 
-Build an executable textbook of harness engineering.
+Use this repository as a place to think about harness engineering by building
+small, inspectable systems on Pi Agent Core.
 
-The work proceeds one concrete example at a time:
+It exists for its author first: to explore a question through an example, notice
+what works, and keep the ideas worth reaching for again. It is also a map to
+share when someone asks what this work means.
 
-```text
-pressure → distinction → term → implementation → observation → ontology
-```
-
-Each example should be the smallest system that makes one new distinction
-necessary. Its code provides evidence. Its chapter derives the conclusion. Its
-lab makes the conclusion observable. Only then may the ontology name and retain
-it.
-
-The eventual standard model of harness engineering must therefore emerge from
-working examples, not speculative architecture.
+Pi is the chosen substrate. General lessons may emerge, but portability and
+harness agnosticism are not goals.
 
 ## Principles
 
-- Derive before naming.
-- Introduce one conceptual pressure at a time.
-- Require every meso example to compose bounded transitions that preserve the
-  distinctions earned at the micro layer. Prior labs may remain frozen without
-  being reused as modules.
-- Keep examples executable, bounded, and inspectable.
-- Separate intent, authority, execution, observation, evaluation, and evidence.
-- Distinguish domain concepts from implementation mechanisms.
-- Record only conclusions already earned.
-- Defer complexity until an example requires it.
-- Prefer the smallest explanation that preserves the distinction.
+- Begin with a concrete question, not a complete model.
+- Prefer the smallest runnable probe that helps thinking.
+- Treat code and prose as evidence; neither becomes truth automatically.
+- Keep useful explanation beside the work that produced it.
+- Move code into `src/` only when reuse friction earns the abstraction.
+- Move explanation into `docs/` only when it helps across incubator entries.
+- Use formal models when they clarify a real problem, not as advance doctrine.
+- Keep Crust, Pocock, and every other workflow in their place: examples.
+- Add structure only when it makes work easier to find, resume, or explain.
 
-The code is evidence for the text. The text extracts a reusable model from the
-evidence. The ontology is the accumulated result.
+This is an executable research workshop, not a product, package, or promised
+standard model.

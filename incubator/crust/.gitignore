@@ -1,0 +1,6 @@
+node_modules/
+.crust/
+.agents/skills/
+.pi/skills/
+coverage/
+*.log

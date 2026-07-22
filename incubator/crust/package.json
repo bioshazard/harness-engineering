@@ -1,0 +1,25 @@
+{
+  "name": "pi-crust",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "crust": "scripts/crust.mjs" },
+  "engines": { "node": ">=22.19.0" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "crust": "node scripts/crust.mjs",
+    "test:live": "node scripts/live-pi.mjs",
+    "skills:install": "node scripts/install-skills.mjs"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.80.6",
+    "typebox": "1.1.38"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.4",
+    "skills": "1.5.17",
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}

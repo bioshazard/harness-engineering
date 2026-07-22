@@ -1,0 +1,15 @@
+{
+  "source": "https://github.com/mattpocock/skills.git",
+  "revision": "d574778f94cf620fcc8ce741584093bc650a61d3",
+  "skills": [
+    "grill-with-docs",
+    "grilling",
+    "domain-modeling",
+    "to-spec",
+    "codebase-design",
+    "to-tickets",
+    "implement",
+    "tdd",
+    "code-review"
+  ]
+}

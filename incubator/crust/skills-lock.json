@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "4a17d9d3e0fc87ae48544d371a820fac5a4a78f4c05e7e6b3229094fbf8a7e26"
+    },
+    "codebase-design": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "2426dc4accf1a85dedfb560edb3a877ec8828b7375ea08c970df2b6c900a2a22"
+    },
+    "domain-modeling": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "67343881f5def98487d56243155716110afbcbf22ec92421c882d532b941cb17"
+    },
+    "grill-with-docs": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "e7ef25bbee50cda2eb7b3a8ef541db0a0396dad7d369f7d14fb610671dd1864b"
+    },
+    "grilling": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "1de9e777a60b184b29412fadacb7bbde8c14bb7037e5c4d9d086c941281d1742"
+    },
+    "implement": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "0d51255cab5cf937b8fe41252f00213706e0175ca9607fc00409d29562b5b839"
+    },
+    "tdd": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "c9326b88419cfba1d54dd713b7ddb23020e6a93f4b0d13aea58cebba58cda2ee"
+    },
+    "to-spec": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "c5d294a88d00942a38dc589299423e35ea07157cf29eed21434378edb5cfafa4"
+    },
+    "to-tickets": {
+      "source": "https://github.com/mattpocock/skills.git#d574778f94cf620fcc8ce741584093bc650a61d3",
+      "sourceType": "git",
+      "computedHash": "931fb4385e1f3e29bf2ae482166a86d5876e9e6c740609f3de09a6de8f2ba318"
+    }
+  }
+}
