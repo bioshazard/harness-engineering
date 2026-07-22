@@ -1,17 +1,17 @@
 {
-  "name": "goal-system-composition",
+  "name": "harness-engineering-workshop",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test && bun install --cwd poc/dependency-upgrade/fixture --frozen-lockfile && bun --cwd poc/dependency-upgrade/fixture test",
+    "test": "bun run test:bun && bun install --cwd incubator/dependency-upgrade/fixture --frozen-lockfile && bun --cwd incubator/dependency-upgrade/fixture test && bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test",
+    "test:bun": "bun test test/registry.test.ts && bun test incubator/dependency-upgrade/test/ && bun test incubator/email-review-send/test/ && bun test incubator/hello-world/examples/hello-1/test/ && bun test incubator/hello-world/examples/hello-2-codeauth/test/",
     "typecheck": "bunx tsc --noEmit",
-    "example:seed": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/seed-prompt.ts",
-    "example": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts",
-    "example:live": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live",
-    "example:live:model": "bun --env-file=.env poc/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model",
-    "crust:grill-me": "bun poc/crust/eg/pocock/grill-me/src/cli.ts",
-    "crust:pocock": "bun poc/crust/eg/pocock/pocock/src/cli.ts",
-    "test:crust": "bun test poc/crust/eg/pocock/grill-me/test/all.test.ts && bun test poc/crust/eg/pocock/pocock/test/all.test.ts"
+    "example:seed": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/seed-prompt.ts",
+    "example": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts",
+    "example:live": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts --live",
+    "example:live:model": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model",
+    "crust": "bun run --cwd incubator/crust crust --",
+    "test:crust": "bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test"
   },
   "dependencies": {
     "@arizeai/phoenix-client": "6.12.0",

@@ -1,49 +1,20 @@
 # Harness Engineering
 
-An executable textbook deriving a standard model of harness engineering from
-small, working examples.
+A Pi-native executable research workshop: one place to think through harness
+engineering with working examples, then distill what proves useful.
 
-Rather than begin with a complete framework or taxonomy, this repository adds
-one conceptual pressure at a time:
+This is not a framework or product. Crust and Pocock are case studies, not the
+architecture every project should copy.
 
-```text
-pressure → distinction → term → implementation → observation → ontology
-```
+## Where to reach
 
-Code supplies evidence. Chapters derive conclusions. Labs make them observable.
-The ontology records only what the examples have earned.
+- Have an idea to explore? Start or revisit an entry in [`incubator/`](./incubator/README.md).
+- Need a cross-cutting explanation? Read [`docs/`](./docs/README.md).
+- Need shared implementation already justified by reuse? Read [`src/`](./src/).
+- Need older context? Browse [`archive/`](./archive/README.md); nothing there is active.
 
-## Start here
+Start with [the vision](./VISION.md), then use the incubator's curated reading
+order. [The roadmap](./ROADMAP.md) records broad questions, not a release plan.
 
-1. Read the [vision](./VISION.md).
-2. Read [Harness Engineering: Hello World](./poc/hello-world/README.md).
-3. Run the [hello-1 lab](./poc/hello-world/examples/hello-1/README.md).
-4. Inspect the [current ontology](./poc/hello-world/docs/ontology.md).
-5. Read the [meso adapter-surgery chapter](./poc/dependency-upgrade/README.md).
-6. Read the [email review-and-send meso chapter](./poc/email-review-send/README.md).
-
-## Install the skill
-
-```bash
-npx skills@latest add https://github.com/bioshazard/harness-engineering/tree/main/skills/harness-engineering
-```
-
-## Current scope
-
-The micro chapter derives the irreducible boundaries around one guarded file
-write:
-
-```text
-Intent → Proposal → Guard → Capability → Effect
-       → Observation → Evaluator → Reaction → Receipt
-```
-
-The dependency-upgrade chapter coordinates verification, exact upgrade, and
-bounded adapter remediation. The email chapter separates narrow MCP
-mechanisms, model meta-harnesses, workflow coordination, and Goal System
-governance. Both use transition evidence to select what happens next.
-
-## Status
-
-Early and intentionally narrow. Executable examples continue to earn the model
-one concrete pressure at a time.
+When applying this repository elsewhere, take the relevant ideas—not an entire
+workflow, CLI, vocabulary, or state machine by default.

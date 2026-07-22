@@ -19,8 +19,8 @@ import {
   phoenixPrompt,
   publishPhoenixEvaluations,
 } from "../src/registry/phoenix.js";
-import { DEFAULT_OPENROUTER_MODEL } from "../poc/dependency-upgrade-instrumented/src/config.js";
-import { modelOutputAttributes } from "../poc/dependency-upgrade-instrumented/src/openinference.js";
+import { DEFAULT_OPENROUTER_MODEL } from "../incubator/dependency-upgrade-instrumented/src/config.js";
+import { modelOutputAttributes } from "../incubator/dependency-upgrade-instrumented/src/openinference.js";
 import {
   ExternalCallTimeout,
   runExternal,
@@ -43,7 +43,7 @@ test("live model default is a registered static free model", async () => {
   assert.notEqual(DEFAULT_OPENROUTER_MODEL, "openrouter/free");
   assert.match(DEFAULT_OPENROUTER_MODEL, /^nvidia\/nemotron-.+:free$/);
   const config = JSON.parse(
-    await readFile("poc/dependency-upgrade/config/models.json", "utf8"),
+    await readFile("incubator/dependency-upgrade/config/models.json", "utf8"),
   ) as { providers: { openrouter: { models: Array<{ id: string }> } } };
   assert.ok(
     config.providers.openrouter.models.some(
