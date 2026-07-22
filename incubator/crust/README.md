@@ -12,9 +12,9 @@ extension at `.pi/extensions/crust.ts`; SQLite and `.crust/objects` hold workflo
 authority and immutable evidence.
 
 ```sh
-npm install
-npm run skills:install
-npm test
+bun install
+bun run skills:install
+bun test
 pi --no-extensions --no-skills --no-prompt-templates --no-context-files \
   --no-builtin-tools --extension .pi/extensions/crust.ts
 ```
@@ -25,12 +25,12 @@ automatically. `/crust accept` and `/crust reject` remain recovery commands. Onl
 the active state's proposal tool is exposed to the model.
 Crust also activates a locked builtin-tool allowlist and bounded `stage_artifact` tool.
 
-Run `npm run test:live` for the opt-in stock-Pi/OAuth exercise; default tests remain model-free.
+Run `bun run test:live` for the opt-in stock-Pi/OAuth exercise; default tests remain model-free.
 
 Link the development CLI once, then launch Crust from any target folder:
 
 ```sh
-npm link
+bun link
 cd /path/to/target
 crust .
 ```
@@ -45,4 +45,4 @@ criteria; each fresh ticket session receives resolved specification and ticket c
 Review runs isolated read-only Standards and Specification agents in parallel before a
 review proposal becomes legal.
 
-Without linking, use `npm run crust -- /path/to/target` from this checkout.
+Without linking, use `bun run crust -- /path/to/target` from this checkout.

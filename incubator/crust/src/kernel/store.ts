@@ -1,17 +1,17 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { DatabaseSync } from "node:sqlite";
+import { Database } from "bun:sqlite";
 import { digest } from "./hash.js";
 import { CrustError, type Proposal, type Receipt, type Run, type SessionBinding, type Ticket } from "./types.js";
 
 type JsonRow = { body: string };
 
 export class SqliteRunStore {
-  private readonly db: DatabaseSync;
+  private readonly db: Database;
 
   constructor(path: string) {
     mkdirSync(dirname(path), { recursive: true });
-    this.db = new DatabaseSync(path);
+    this.db = new Database(path, { create: true });
     this.db.exec(`
       PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
       CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, revision INTEGER NOT NULL, body TEXT NOT NULL);

@@ -1,8 +1,8 @@
-import { DatabaseSync } from "node:sqlite";
+import { Database } from "bun:sqlite";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { expect, it } from "vitest";
+import { expect, it } from "bun:test";
 import { createCrustKernel } from "../src/kernel/kernel.js";
 import { directoryHash } from "../src/kernel/objects.js";
 import { PocockClient } from "../src/pocock/client.js";
@@ -20,7 +20,7 @@ it("keeps normalized authoritative rows and rejects persisted tampering", async 
   let run = await kernel.createRun({ idea: "persist", sessionId: "shape" });
   run = await kernel.child(run.id, "shape").propose(run.revision, { decisions: ["one"], glossary: [], adrs: [] });
 
-  const db = new DatabaseSync(database);
+  const db = new Database(database);
   const tables = (db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>).map(({ name }) => name);
   expect(tables).toEqual(expect.arrayContaining(["runs", "proposals", "tickets", "sessions", "receipts", "transitions"]));
   expect((db.prepare("SELECT count(*) AS count FROM proposals WHERE run_id=?").get(run.id) as { count: number }).count).toBe(1);

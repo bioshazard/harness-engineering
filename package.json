@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun run test:bun && bun install --cwd incubator/dependency-upgrade/fixture --frozen-lockfile && bun --cwd incubator/dependency-upgrade/fixture test && npm ci --prefix incubator/crust --ignore-scripts && npm test --prefix incubator/crust",
+    "test": "bun run test:bun && bun install --cwd incubator/dependency-upgrade/fixture --frozen-lockfile && bun --cwd incubator/dependency-upgrade/fixture test && bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test",
     "test:bun": "bun test test/registry.test.ts && bun test incubator/dependency-upgrade/test/ && bun test incubator/email-review-send/test/ && bun test incubator/hello-world/examples/hello-1/test/ && bun test incubator/hello-world/examples/hello-2-codeauth/test/",
     "typecheck": "bunx tsc --noEmit",
     "example:seed": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/seed-prompt.ts",
     "example": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts",
     "example:live": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts --live",
     "example:live:model": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/cli.ts --live --allow-external-model",
-    "crust": "npm run crust --prefix incubator/crust --",
-    "test:crust": "npm ci --prefix incubator/crust --ignore-scripts && npm test --prefix incubator/crust"
+    "crust": "bun run --cwd incubator/crust crust --",
+    "test:crust": "bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test"
   },
   "dependencies": {
     "@arizeai/phoenix-client": "6.12.0",

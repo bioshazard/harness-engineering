@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const [targetArg, ...piArgs] = process.argv.slice(2);
 if (!targetArg || targetArg.startsWith("-")) {
-  process.stderr.write("Usage: npm run crust -- <target-directory> [pi-options]\n");
+  process.stderr.write("Usage: bun run crust -- <target-directory> [pi-options]\n");
   process.exit(2);
 }
 

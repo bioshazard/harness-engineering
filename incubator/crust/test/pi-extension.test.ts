@@ -1,7 +1,7 @@
 import { chmod, mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { expect, it } from "vitest";
+import { expect, it } from "bun:test";
 import crustExtension from "../src/pi/extension.js";
 import { directoryHash } from "../src/kernel/objects.js";
 
@@ -152,7 +152,7 @@ it("Pi commands and child tools cross the kernel authority seam", async () => {
   expect(replacementActive).toContain("run_review_axes");
   expect(replacementActive).not.toContain("write");
   const reviewStub = join(cwd, "review-stub.mjs");
-  await writeFile(reviewStub, "#!/usr/bin/env node\nconst p=process.argv.at(-1); process.stdout.write(p.includes('Standards axis:') ? 'standards report' : 'specification report');\n");
+  await writeFile(reviewStub, "#!/usr/bin/env bun\nconst p=process.argv.at(-1); process.stdout.write(p.includes('Standards axis:') ? 'standards report' : 'specification report');\n");
   await chmod(reviewStub, 0o755);
   const previousPiBin = process.env.CRUST_PI_BIN;
   process.env.CRUST_PI_BIN = reviewStub;

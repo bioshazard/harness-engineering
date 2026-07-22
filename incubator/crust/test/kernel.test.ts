@@ -1,7 +1,7 @@
 import { chmod, mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { createCrustKernel } from "../src/kernel/kernel.js";
 import { directoryHash } from "../src/kernel/objects.js";
 import { PocockClient } from "../src/pocock/client.js";
