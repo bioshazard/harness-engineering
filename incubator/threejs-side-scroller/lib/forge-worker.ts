@@ -4,13 +4,15 @@ import { Agent, type AgentTool } from "@earendil-works/pi-agent-core";
 import { builtinModels } from "@earendil-works/pi-ai/providers/all";
 import { ArtifactSpecSchema, validateArtifactSpec, type ArtifactSpec } from "./artifact";
 import { loadPiCredentials } from "./credentials";
+import { artifactCanClearGap } from "./game-engine";
 
 const SYSTEM_PROMPT = `You are the artifact imagination worker inside a small side-scrolling game.
 The player faces a six-unit-wide gap. Invent one useful artifact from their request.
 You have exactly one capability: submit_artifact. Call it exactly once.
 Express all appearance using its bounded primitive grammar and choose exactly one
-affordance. Do not describe code, files, tools, or implementation. Interesting,
-surprising designs are welcome, but the artifact should plausibly help cross the gap.`;
+affordance. A support must span the complete gap; propulsion must launch across
+it. Do not describe code, files, tools, or implementation. Interesting,
+surprising designs are welcome, but the artifact must clear the gap.`;
 
 export async function forgeWithPi(prompt: string): Promise<{
   model: string;
@@ -37,7 +39,11 @@ export async function forgeWithPi(prompt: string): Promise<{
     parameters: ArtifactSpecSchema,
     async execute(_toolCallId, params) {
       if (proposal) throw new Error("only one artifact may be submitted");
-      proposal = validateArtifactSpec(params);
+      const candidate = validateArtifactSpec(params);
+      if (!artifactCanClearGap(candidate)) {
+        throw new Error("artifact does not span or clear the complete gap");
+      }
+      proposal = candidate;
       return {
         content: [{ type: "text", text: "Artifact proposal accepted by the harness." }],
         details: { accepted: true },

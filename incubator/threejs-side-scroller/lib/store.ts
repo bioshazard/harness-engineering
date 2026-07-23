@@ -1,10 +1,12 @@
-import "server-only";
-
 import { Database } from "bun:sqlite";
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { ArtifactSpec, ForgedArtifact } from "./artifact";
+import {
+  validateArtifactSpec,
+  type ArtifactSpec,
+  type ForgedArtifact,
+} from "./artifact";
 
 let database: Database | undefined;
 
@@ -43,6 +45,7 @@ export async function saveArtifact(input: {
   spec: ArtifactSpec;
 }): Promise<ForgedArtifact> {
   const canonical = JSON.stringify(input.spec);
+  const specHash = createHash("sha256").update(canonical).digest("hex");
   const id = createHash("sha256")
     .update(JSON.stringify({ prompt: input.prompt, model: input.model, spec: input.spec }))
     .digest("hex")
@@ -66,12 +69,53 @@ export async function saveArtifact(input: {
         prompt: input.prompt,
         model: input.model,
         createdAt,
-        specHash: createHash("sha256").update(canonical).digest("hex"),
+        specHash,
       }, null, 2)}\n`,
     ),
   ]);
 
-  return { id, prompt: input.prompt, model: input.model, spec: input.spec };
+  return {
+    id,
+    prompt: input.prompt,
+    model: input.model,
+    spec: input.spec,
+    receipt: { createdAt, specHash },
+  };
+}
+
+export async function listArtifacts(limit = 8): Promise<ForgedArtifact[]> {
+  const db = await openDatabase();
+  const rows = db
+    .query<
+      {
+        id: string;
+        prompt: string;
+        model: string;
+        spec_json: string;
+        created_at: string;
+      },
+      [number]
+    >(
+      `SELECT id, prompt, model, spec_json, created_at
+       FROM artifacts
+       ORDER BY created_at DESC
+       LIMIT ?`,
+    )
+    .all(limit);
+
+  return rows.map((row) => {
+    const canonical = row.spec_json;
+    return {
+      id: row.id,
+      prompt: row.prompt,
+      model: row.model,
+      spec: validateArtifactSpec(JSON.parse(canonical)),
+      receipt: {
+        createdAt: row.created_at,
+        specHash: createHash("sha256").update(canonical).digest("hex"),
+      },
+    };
+  });
 }
 
 export async function recordProgress(input: {

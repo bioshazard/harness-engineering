@@ -30,6 +30,24 @@ describe("artifact harness grammar", () => {
     ).toThrow("affordance.kind");
   });
 
+  test("rejects the redundant connect affordance", () => {
+    expect(() =>
+      validateArtifactSpec({
+        ...validArtifact,
+        affordance: { kind: "connect", span: 6 },
+      }),
+    ).toThrow("affordance.kind");
+  });
+
+  test("rejects support that cannot span the complete gap", () => {
+    expect(() =>
+      validateArtifactSpec({
+        ...validArtifact,
+        affordance: { kind: "support", span: 5.9 },
+      }),
+    ).toThrow("affordance.span");
+  });
+
   test("rejects undeclared fields instead of silently dropping them", () => {
     expect(() =>
       validateArtifactSpec({

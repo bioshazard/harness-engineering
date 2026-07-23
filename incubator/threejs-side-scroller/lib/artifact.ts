@@ -19,15 +19,11 @@ export const ArtifactSpecSchema = Type.Object(
     affordance: Type.Union([
       Type.Object({
         kind: Type.Literal("support"),
-        span: Type.Number({ minimum: 4, maximum: 8 }),
+        span: Type.Number({ minimum: 6, maximum: 8 }),
       }),
       Type.Object({
         kind: Type.Literal("propel"),
         force: Type.Number({ minimum: 9, maximum: 15 }),
-      }),
-      Type.Object({
-        kind: Type.Literal("connect"),
-        span: Type.Number({ minimum: 4, maximum: 8 }),
       }),
     ]),
     parts: Type.Array(
@@ -57,6 +53,10 @@ export type ForgedArtifact = {
   model: string;
   prompt: string;
   spec: ArtifactSpec;
+  receipt: {
+    createdAt: string;
+    specHash: string;
+  };
 };
 
 function boundedNumber(
@@ -109,11 +109,11 @@ export function validateArtifactSpec(input: unknown): ArtifactSpec {
   }
   const rawAffordance = value.affordance as Record<string, unknown>;
   let affordance: ArtifactSpec["affordance"];
-  if (rawAffordance.kind === "support" || rawAffordance.kind === "connect") {
+  if (rawAffordance.kind === "support") {
     assertOnlyKeys(rawAffordance, ["kind", "span"], "affordance");
     affordance = {
       kind: rawAffordance.kind,
-      span: boundedNumber(rawAffordance.span, 4, 8, "affordance.span"),
+      span: boundedNumber(rawAffordance.span, 6, 8, "affordance.span"),
     };
   } else if (rawAffordance.kind === "propel") {
     assertOnlyKeys(rawAffordance, ["kind", "force"], "affordance");
@@ -122,7 +122,7 @@ export function validateArtifactSpec(input: unknown): ArtifactSpec {
       force: boundedNumber(rawAffordance.force, 9, 15, "affordance.force"),
     };
   } else {
-    throw new Error("affordance.kind must be support, propel, or connect");
+    throw new Error("affordance.kind must be support or propel");
   }
 
   if (!Array.isArray(value.parts) || value.parts.length < 1 || value.parts.length > 10) {
