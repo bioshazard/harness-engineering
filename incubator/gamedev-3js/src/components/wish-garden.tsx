@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import {
+  advanceMote,
+  moteSpawnPosition,
+  nearestSeed,
+} from "@/lib/behaviors";
 import type { WorldConfig, WorldEntity } from "@/lib/world";
 import type { EntityPatch } from "@/lib/world-store";
 
@@ -265,6 +270,7 @@ export function WishGarden() {
       count: number,
       color: THREE.Color,
       collectedMotes: number[] = [],
+      worldEntities: WorldEntity[] = [],
     ) => {
       motes.children.forEach((child) => {
         if (child instanceof THREE.Mesh) {
@@ -275,18 +281,18 @@ export function WishGarden() {
       motes.clear();
       for (let index = 0; index < count; index += 1) {
         if (collectedMotes.includes(index)) continue;
-        const angle = seeded(index, 22) * Math.PI * 2;
-        const radius = 1.8 + seeded(index, 23) * 5.2;
+        const spawn = moteSpawnPosition(index, worldEntities);
         const material = new THREE.MeshStandardMaterial({
           color,
           emissive: color,
           emissiveIntensity: 2.8,
         });
         const mote = new THREE.Mesh(moteGeometry, material);
-        mote.position.set(Math.cos(angle) * radius, 0.75 + seeded(index, 24), Math.sin(angle) * radius);
+        mote.position.set(spawn.x, 0.75 + seeded(index, 24), spawn.z);
         mote.userData.baseY = mote.position.y;
         mote.userData.phase = seeded(index, 25) * Math.PI * 2;
         mote.userData.moteIndex = index;
+        mote.userData.age = seeded(index, 26) * 8;
         motes.add(mote);
       }
     };
@@ -294,6 +300,7 @@ export function WishGarden() {
       fallbackWorld.population.motes,
       new THREE.Color(fallbackWorld.palette.glow),
       fallbackWorld.economy.collectedMotes,
+      fallbackWorld.entities,
     );
     scene.add(motes);
 
@@ -440,6 +447,7 @@ export function WishGarden() {
         next.population.motes,
         new THREE.Color(next.palette.glow),
         next.economy.collectedMotes,
+        next.entities,
       );
       rebuildLanterns(next.population.lanterns, new THREE.Color(next.palette.accent));
       rebuildEntities(next.entities);
@@ -534,6 +542,24 @@ export function WishGarden() {
 
       motes.children.slice().forEach((child) => {
         const mote = child as THREE.Mesh;
+        const target = nearestSeed(mote.position, currentWorld.entities);
+        const nextPosition = advanceMote(
+          mote.position,
+          target?.position,
+          delta,
+        );
+        mote.position.x = nextPosition.x;
+        mote.position.z = nextPosition.z;
+        mote.userData.age += delta;
+        if (mote.userData.age > 12) {
+          const spawn = moteSpawnPosition(
+            mote.userData.moteIndex as number,
+            currentWorld.entities,
+          );
+          mote.position.x = spawn.x;
+          mote.position.z = spawn.z;
+          mote.userData.age = 0;
+        }
         mote.position.y = mote.userData.baseY + Math.sin(elapsed * 2 + mote.userData.phase) * 0.18;
         mote.rotation.y += delta * 1.7;
         if (mote.position.distanceTo(player.position) < 0.75) {
@@ -714,6 +740,11 @@ export function WishGarden() {
               </div>
             </dl>
             <code>bun run world move {selected.id} x z</code>
+            <div className="entity-behavior">
+              {selected.kind === "moon-tree"
+                ? "Behavior: emits motes"
+                : "Behavior: attracts motes"}
+            </div>
             {selected.growth && (
               <div className="growth-controls">
                 <span>Growth: {selected.growth.stage}</span>

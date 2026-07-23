@@ -291,6 +291,14 @@ input {
   margin-top: 0.65rem;
 }
 
+.entity-behavior {
+  color: var(--mint);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin-top: 0.6rem;
+  text-transform: uppercase;
+}
+
 .growth-controls button {
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 0.45rem;
