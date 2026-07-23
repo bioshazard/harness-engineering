@@ -9,6 +9,19 @@ export type EntityType = {
   defaultScale: number;
 };
 
+export type WorldSnapshot = Pick<
+  WorldConfig,
+  "name" | "palette" | "population" | "economy" | "entities"
+>;
+
+export type WorldMutation = {
+  id: string;
+  timestamp: string;
+  action: string;
+  before: WorldSnapshot;
+  after: WorldSnapshot;
+};
+
 export type WorldEntity = {
   id: string;
   kind: EntityKind;
@@ -53,4 +66,8 @@ export type WorldConfig = {
     collectedMotes: number[];
   };
   entities: WorldEntity[];
+  history: {
+    past: WorldMutation[];
+    future: WorldMutation[];
+  };
 };

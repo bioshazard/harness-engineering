@@ -348,6 +348,55 @@ input {
   opacity: 0.45;
 }
 
+.history-panel {
+  position: absolute;
+  z-index: 4;
+  top: 5rem;
+  right: 1.9rem;
+  width: min(15.5rem, 25vw);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.8rem;
+  background: rgb(9 13 29 / 72%);
+  backdrop-filter: blur(12px);
+  padding: 0.7rem;
+}
+
+.history-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.history-actions button {
+  flex: 1;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 5%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem;
+}
+
+.history-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.history-panel ol {
+  display: grid;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+}
+
+.history-panel li {
+  display: flex;
+  justify-content: space-between;
+  color: rgb(255 255 255 / 62%);
+  font-size: 0.62rem;
+}
+
 .tint-dot {
   width: 8px;
   height: 8px;

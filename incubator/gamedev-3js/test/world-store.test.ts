@@ -7,7 +7,9 @@ import {
   collectSpark,
   growEntity,
   placeCatalogEntity,
+  redoWorld,
   plantWishSeed,
+  undoWorld,
   updateEntity,
 } from "../src/lib/world-store";
 
@@ -31,6 +33,7 @@ async function fixture() {
     population: { motes: 1, stones: 1, lanterns: 1 },
     economy: { sparks: 3, collectedMotes: [] },
     entities: [],
+    history: { past: [], future: [] },
   };
   await writeFile(filePath, JSON.stringify(world));
   return filePath;
@@ -40,6 +43,28 @@ afterEach(async () => {
   await Promise.all(
     temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true })),
   );
+});
+
+describe("world mutation history", () => {
+  test("records edits and supports undo and redo", async () => {
+    const filePath = await fixture();
+    await plantWishSeed(
+      { x: 0, z: 0 },
+      { filePath, createId: () => "history-seed" },
+    );
+    await updateEntity("history-seed", { tint: "#aabbcc" }, { filePath });
+
+    const undone = await undoWorld({ filePath });
+    const redone = await redoWorld({ filePath });
+
+    expect(undone.entities[0].tint).toBe("#ffffff");
+    expect(undone.history.future).toHaveLength(1);
+    expect(redone.entities[0].tint).toBe("#aabbcc");
+    expect(redone.history.past.map((entry) => entry.action)).toEqual([
+      "Placed history-seed",
+      "Edited history-seed",
+    ]);
+  });
 });
 
 describe("persistent planting", () => {

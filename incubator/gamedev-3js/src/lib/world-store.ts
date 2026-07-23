@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readCatalog } from "./catalog";
-import type { EntityType, WorldConfig, WorldEntity } from "./world";
+import type {
+  EntityType,
+  WorldConfig,
+  WorldEntity,
+  WorldSnapshot,
+} from "./world";
 
 export const worldFilePath = path.join(process.cwd(), "public", "world.json");
 
@@ -20,13 +25,102 @@ async function writeWorld(world: WorldConfig, filePath: string) {
 
 function updateWorld<T>(
   filePath: string,
-  mutate: (world: WorldConfig) => { result: T; world: WorldConfig },
+  mutate: (world: WorldConfig) => {
+    result: T;
+    world: WorldConfig;
+    action?: string;
+  },
 ): Promise<{ result: T; world: WorldConfig }> {
   const operation = mutationQueue.then(async () => {
     const current = await readWorld(filePath);
     const mutation = mutate(current);
-    await writeWorld(mutation.world, filePath);
-    return mutation;
+    const world = mutation.action
+      ? {
+          ...mutation.world,
+          history: {
+            past: [
+              ...(current.history?.past ?? []),
+              {
+                id: randomUUID(),
+                timestamp: new Date().toISOString(),
+                action: mutation.action,
+                before: snapshotWorld(current),
+                after: snapshotWorld(mutation.world),
+              },
+            ],
+            future: [],
+          },
+        }
+      : mutation.world;
+    await writeWorld(world, filePath);
+    return { result: mutation.result, world };
+  });
+  mutationQueue = operation.then(
+    () => undefined,
+    () => undefined,
+  );
+  return operation;
+}
+
+function snapshotWorld(world: WorldConfig): WorldSnapshot {
+  return structuredClone({
+    name: world.name,
+    palette: world.palette,
+    population: world.population,
+    economy: world.economy,
+    entities: world.entities,
+  });
+}
+
+function restoreSnapshot(
+  current: WorldConfig,
+  snapshot: WorldSnapshot,
+): WorldConfig {
+  return {
+    ...current,
+    ...structuredClone(snapshot),
+    revision: current.revision + 1,
+  };
+}
+
+export function undoWorld(options: { filePath?: string } = {}) {
+  const filePath = options.filePath ?? worldFilePath;
+  const operation = mutationQueue.then(async () => {
+    const current = await readWorld(filePath);
+    const entry = current.history.past.at(-1);
+    if (!entry) throw new Error("Nothing to undo.");
+    const world = {
+      ...restoreSnapshot(current, entry.before),
+      history: {
+        past: current.history.past.slice(0, -1),
+        future: [entry, ...current.history.future],
+      },
+    };
+    await writeWorld(world, filePath);
+    return world;
+  });
+  mutationQueue = operation.then(
+    () => undefined,
+    () => undefined,
+  );
+  return operation;
+}
+
+export function redoWorld(options: { filePath?: string } = {}) {
+  const filePath = options.filePath ?? worldFilePath;
+  const operation = mutationQueue.then(async () => {
+    const current = await readWorld(filePath);
+    const entry = current.history.future[0];
+    if (!entry) throw new Error("Nothing to redo.");
+    const world = {
+      ...restoreSnapshot(current, entry.after),
+      history: {
+        past: [...current.history.past, entry],
+        future: current.history.future.slice(1),
+      },
+    };
+    await writeWorld(world, filePath);
+    return world;
   });
   mutationQueue = operation.then(
     () => undefined,
@@ -74,7 +168,7 @@ export function plantWishSeed(
       economy: { ...world.economy, sparks: world.economy.sparks - 1 },
       entities: [...world.entities, entity],
     };
-    return { result: entity, world: next };
+    return { result: entity, world: next, action: `Placed ${entity.id}` };
   });
 }
 
@@ -123,7 +217,7 @@ export async function placeCatalogEntity(
       economy: { ...world.economy, sparks: world.economy.sparks - 1 },
       entities: [...world.entities, entity],
     };
-    return { result: entity, world: next };
+    return { result: entity, world: next, action: `Placed ${entity.id}` };
   });
 }
 
@@ -169,7 +263,11 @@ export function growEntity(
       economy: { ...world.economy, sparks: world.economy.sparks - 1 },
       entities,
     };
-    return { result: entity, world: next };
+    return {
+      result: entity,
+      world: next,
+      action: `Grew ${entity.id} to ${stage}`,
+    };
   });
 }
 
@@ -196,7 +294,7 @@ export function collectSpark(
         collectedMotes: [...world.economy.collectedMotes, moteIndex],
       },
     };
-    return { result: true, world: next };
+    return { result: true, world: next, action: `Collected mote ${moteIndex}` };
   });
 }
 
@@ -232,6 +330,6 @@ export function updateEntity(
     const entities = [...world.entities];
     entities[index] = entity;
     const next = { ...world, revision: world.revision + 1, entities };
-    return { result: entity, world: next };
+    return { result: entity, world: next, action: `Edited ${entity.id}` };
   });
 }

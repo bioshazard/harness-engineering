@@ -43,6 +43,7 @@ const fallbackWorld: WorldConfig = {
       tint: "#ffffff",
     },
   ],
+  history: { past: [], future: [] },
 };
 
 const fallbackCatalog: EntityType[] = [
@@ -109,6 +110,9 @@ export function WishGarden() {
   );
   const growEntityRef = useRef<(id: string) => Promise<void>>(async () => undefined);
   const inspectEntityRef = useRef<(id: string) => void>(() => undefined);
+  const historyRef = useRef<(action: "undo" | "redo") => Promise<void>>(
+    async () => undefined,
+  );
 
   const updateSelected = (patch: EntityPatch) => {
     if (selected) void updateEntityRef.current(selected.id, patch);
@@ -561,6 +565,17 @@ export function WishGarden() {
       applyWorld(mutation.world);
       selectEntity(mutation.entity);
     };
+    historyRef.current = async (action) => {
+      const response = await fetch("/api/world/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!response.ok) return;
+      const mutation = (await response.json()) as { world: WorldConfig };
+      applyWorld(mutation.world);
+      selectEntity(null);
+    };
     const pendingMotes = new Set<number>();
     const collectMote = async (moteIndex: number) => {
       if (pendingMotes.has(moteIndex)) return;
@@ -709,6 +724,7 @@ export function WishGarden() {
       updateEntityRef.current = async () => undefined;
       growEntityRef.current = async () => undefined;
       inspectEntityRef.current = () => undefined;
+      historyRef.current = async () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -922,6 +938,41 @@ export function WishGarden() {
             </>
           )}
         </div>
+      </section>
+
+      <section className="history-panel" aria-label="World mutation history">
+        <div className="history-actions">
+          <button
+            type="button"
+            disabled={world.history.past.length === 0}
+            onClick={() => void historyRef.current("undo")}
+          >
+            Undo
+          </button>
+          <button
+            type="button"
+            disabled={world.history.future.length === 0}
+            onClick={() => void historyRef.current("redo")}
+          >
+            Redo
+          </button>
+        </div>
+        <ol>
+          {world.history.past
+            .slice(-3)
+            .reverse()
+            .map((entry) => (
+              <li key={entry.id}>
+                <span>{entry.action}</span>
+                <time dateTime={entry.timestamp}>
+                  {new Date(entry.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
+              </li>
+            ))}
+        </ol>
       </section>
 
       <div className="world-link">world.json linked · revision {world.revision}</div>
