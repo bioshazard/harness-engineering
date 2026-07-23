@@ -22,8 +22,6 @@ directory names.
 3. [`email-review-send`](./email-review-send/) — authority around a sensitive effect.
 4. [`crust`](./crust/) — durable, Pi-native state and evidence around Pocock.
 5. [`podcast-producer`](./podcast-producer/) — a broader workflow case study.
-6. [`gamedev-3js`](./gamedev-3js/) — a live Three.js game-authoring probe.
-
 Conceptual threads still being worked out:
 
 - [`scale-of-control`](./scale-of-control/)

@@ -3,7 +3,7 @@ import path from "node:path";
 
 export const currentViewPath = path.join(
   process.cwd(),
-  ".wish-garden",
+  "data",
   "current-view.png",
 );
 

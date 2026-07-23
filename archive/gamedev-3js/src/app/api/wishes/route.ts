@@ -1,6 +1,7 @@
 import {
   acceptWishProposal,
   createWishProposal,
+  rejectWishProposal,
 } from "@/lib/wish-loop";
 
 export async function POST(request: Request) {
@@ -24,6 +25,19 @@ export async function PUT(request: Request) {
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Unable to accept wish." },
+      { status: 400 },
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const body = (await request.json()) as { id?: string };
+    await rejectWishProposal(String(body.id ?? ""));
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Unable to reject wish." },
       { status: 400 },
     );
   }

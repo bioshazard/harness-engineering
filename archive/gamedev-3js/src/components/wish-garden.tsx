@@ -8,6 +8,8 @@ import {
   creatureIntent,
   moteSpawnPosition,
   nearestSeed,
+  wishBehaviorIntent,
+  wishBehaviorMotion,
 } from "@/lib/behaviors";
 import type { EntityType, WorldConfig, WorldEntity } from "@/lib/world";
 import type { EntityPatch } from "@/lib/world-store";
@@ -115,6 +117,7 @@ export function WishGarden() {
   const [wishText, setWishText] = useState("");
   const [wishProposal, setWishProposal] = useState<WishProposal | null>(null);
   const [wishBusy, setWishBusy] = useState(false);
+  const [wishError, setWishError] = useState("");
   const selectedAssetRef = useRef("wish-seed");
   const updateEntityRef = useRef<(id: string, patch: EntityPatch) => Promise<void>>(
     async () => undefined,
@@ -125,6 +128,9 @@ export function WishGarden() {
     async () => undefined,
   );
   const acceptWishRef = useRef<(id: string) => Promise<void>>(
+    async () => undefined,
+  );
+  const rejectWishRef = useRef<(id: string) => Promise<void>>(
     async () => undefined,
   );
 
@@ -140,6 +146,7 @@ export function WishGarden() {
   const previewWish = async (event: React.FormEvent) => {
     event.preventDefault();
     setWishBusy(true);
+    setWishError("");
     try {
       const response = await fetch("/api/wishes", {
         method: "POST",
@@ -149,7 +156,12 @@ export function WishGarden() {
       if (response.ok) {
         const body = (await response.json()) as { proposal: WishProposal };
         setWishProposal(body.proposal);
+      } else {
+        const body = (await response.json()) as { error?: string };
+        setWishError(body.error ?? "Wish fulfillment failed.");
       }
+    } catch {
+      setWishError("Wish fulfillment failed.");
     } finally {
       setWishBusy(false);
     }
@@ -628,6 +640,15 @@ export function WishGarden() {
       setWishProposal(null);
       setWishText("");
     };
+    rejectWishRef.current = async (id: string) => {
+      const response = await fetch("/api/wishes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) return;
+      setWishProposal(null);
+    };
     const pendingMotes = new Set<number>();
     const collectMote = async (moteIndex: number) => {
       if (pendingMotes.has(moteIndex)) return;
@@ -646,7 +667,7 @@ export function WishGarden() {
     };
     const pollWorld = async () => {
       try {
-        const response = await fetch(`/world.json?t=${Date.now()}`, { cache: "no-store" });
+        const response = await fetch(`/api/world?t=${Date.now()}`, { cache: "no-store" });
         if (response.ok) applyWorld((await response.json()) as WorldConfig);
       } catch {
         // The game remains playable while the dev server reconnects.
@@ -745,7 +766,10 @@ export function WishGarden() {
               });
             }
           }
-        } else if (worldEntity?.behavior?.kind === "lantern-eater") {
+        } else if (
+          worldEntity?.behavior &&
+          wishBehaviorMotion(worldEntity) === "hunt-lanterns"
+        ) {
           const target = lanterns.children
             .filter((lantern) => lantern.visible)
             .reduce<THREE.Object3D | undefined>((nearest, lantern) => {
@@ -762,10 +786,11 @@ export function WishGarden() {
             }, undefined);
           const state = target ? "hunting lanterns" : "sated";
           if (target) {
-            const nextPosition = advanceCreature(
+            const nextPosition = advanceMote(
               entity.position,
               target.position,
               delta,
+              worldEntity.behavior.speed ?? 0.72,
             );
             entity.position.x = nextPosition.x;
             entity.position.z = nextPosition.z;
@@ -786,6 +811,32 @@ export function WishGarden() {
                 ...worldEntity,
                 position: { x: entity.position.x, z: entity.position.z },
                 behavior: { ...worldEntity.behavior, state },
+              });
+            }
+          }
+        } else if (worldEntity?.behavior) {
+          const intent = wishBehaviorIntent(
+            elapsed,
+            worldEntity,
+            player.position,
+            currentWorld.entities,
+          );
+          const nextPosition = advanceMote(
+            entity.position,
+            intent.target,
+            delta,
+            worldEntity.behavior.speed ?? 0.5,
+          );
+          entity.position.x = nextPosition.x;
+          entity.position.z = nextPosition.z;
+          entity.userData.baseY = 1.05;
+          if (entity.userData.reportedBehavior !== intent.state) {
+            entity.userData.reportedBehavior = intent.state;
+            if (selectedId === worldEntity.id) {
+              setSelected({
+                ...worldEntity,
+                position: { x: entity.position.x, z: entity.position.z },
+                behavior: { ...worldEntity.behavior, state: intent.state },
               });
             }
           }
@@ -834,6 +885,7 @@ export function WishGarden() {
       inspectEntityRef.current = () => undefined;
       historyRef.current = async () => undefined;
       acceptWishRef.current = async () => undefined;
+      rejectWishRef.current = async () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -1043,7 +1095,7 @@ export function WishGarden() {
         <div className="hint">
           {selected ? (
             <>
-              <strong>{selected.id}</strong> is linked to world.json.
+              <strong>{selected.id}</strong> is linked to data/world.json.
             </>
           ) : (
             <>
@@ -1100,10 +1152,11 @@ export function WishGarden() {
               onChange={(event) => setWishText(event.target.value)}
             />
             <button type="submit" disabled={wishBusy || wishText.trim().length < 3}>
-              Preview
+              {wishBusy ? "Fulfilling…" : "Preview"}
             </button>
           </div>
         </form>
+        {wishError && <p role="alert">{wishError}</p>}
         {wishProposal && (
           <div className="wish-preview">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1120,7 +1173,10 @@ export function WishGarden() {
               >
                 Accept
               </button>
-              <button type="button" onClick={() => setWishProposal(null)}>
+              <button
+                type="button"
+                onClick={() => void rejectWishRef.current(wishProposal.id)}
+              >
                 Reject
               </button>
             </div>
@@ -1128,7 +1184,7 @@ export function WishGarden() {
         )}
       </section>
 
-      <div className="world-link">world.json linked · revision {world.revision}</div>
+      <div className="world-link">data/world.json linked · revision {world.revision}</div>
     </main>
   );
 }

@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 .wish-garden/
+/data/
 
 # debug
 npm-debug.log*

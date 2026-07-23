@@ -7,5 +7,7 @@ run by the root test suite, or imported by active code.
   superseded by `incubator/crust`.
 - [`harness-engineering-skill`](./harness-engineering-skill/) — archived generic,
   harness-agnostic skill.
+- [`gamedev-3js`](./gamedev-3js/) — completed Wish Garden roadmap and paused Pi
+  wish-fulfillment probe.
 
 Disposable history remains in Git instead of accumulating here.
