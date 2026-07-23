@@ -1,6 +1,7 @@
 import { validateArtifactSpec } from "../../../lib/artifact";
 import { forgeInHarnessProcess } from "../../../lib/forge-process";
 import { saveArtifact } from "../../../lib/store";
+import { artifactCanClearGap } from "../../../lib/game-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,10 +21,14 @@ export async function POST(request: Request) {
     }
 
     const proposal = await forgeInHarnessProcess(prompt);
+    const spec = validateArtifactSpec(proposal.spec);
+    if (!artifactCanClearGap(spec)) {
+      throw new Error("Pi submitted an artifact that cannot clear the gap");
+    }
     const artifact = await saveArtifact({
       prompt,
       model: proposal.model,
-      spec: validateArtifactSpec(proposal.spec),
+      spec,
     });
     return Response.json({ artifact });
   } catch (error) {

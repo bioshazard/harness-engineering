@@ -3,16 +3,17 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ForgedArtifact } from "../lib/artifact";
-
-const WORLD_END = 46;
-const PLAYER_SIZE = 1.15;
-const FLOOR_Y = -2.7;
-const GAP_START = 8;
-const GAP_END = 14;
-const GAP_CENTER = (GAP_START + GAP_END) / 2;
+import {
+  compileArtifactMechanic,
+  artifactCanClearGap,
+  FLOOR_Y,
+  GAP_END,
+  GAP_START,
+  PLAYER_SIZE,
+  WORLD_END,
+} from "../lib/game-engine";
 
 type Platform = {
-  mesh: THREE.Mesh;
   x: number;
   y: number;
   width: number;
@@ -43,8 +44,23 @@ export default function Game() {
   const [won, setWon] = useState(false);
   const [prompt, setPrompt] = useState("a bridge with questionable engineering");
   const [artifact, setArtifact] = useState<ForgedArtifact>();
+  const [artifacts, setArtifacts] = useState<ForgedArtifact[]>([]);
   const [forgeState, setForgeState] = useState<"idle" | "forging" | "failed">("idle");
   const [forgeError, setForgeError] = useState("");
+  const [completionEvidence, setCompletionEvidence] = useState<
+    "idle" | "recording" | "recorded" | "failed"
+  >("idle");
+
+  useEffect(() => {
+    void fetch("/api/artifacts")
+      .then(async (response) => {
+        const payload = (await response.json()) as {
+          artifacts?: ForgedArtifact[];
+        };
+        if (response.ok && payload.artifacts) setArtifacts(payload.artifacts);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -99,21 +115,18 @@ export default function Game() {
       [36, -0.7, 3],
       [42, 0.5, 3],
     ];
-    const platforms: Platform[] = platformData.map(([x, y, width]) => ({
-      mesh: box(scene, [width, 0.55, 3], 0x334766, [x, y, 0]),
-      x,
-      y,
-      width,
-      height: 0.55,
-    }));
+    const platforms: Platform[] = platformData.map(([x, y, width]) => {
+      box(scene, [width, 0.55, 3], 0x334766, [x, y, 0]);
+      return { x, y, width, height: 0.55 };
+    });
 
     let propulsion:
       | { x: number; width: number; force: number }
       | undefined;
 
     if (artifact) {
-      const anchorX =
-        artifact.spec.affordance.kind === "propel" ? GAP_START - 0.85 : GAP_CENTER;
+      const mechanic = compileArtifactMechanic(artifact.spec);
+      const anchorX = mechanic.x;
       const artifactGroup = new THREE.Group();
       artifactGroup.position.set(anchorX, FLOOR_Y + 0.2, 0);
       artifactGroup.name = artifact.spec.name;
@@ -152,22 +165,18 @@ export default function Game() {
       }
       scene.add(artifactGroup);
 
-      if (
-        artifact.spec.affordance.kind === "support" ||
-        artifact.spec.affordance.kind === "connect"
-      ) {
+      if (mechanic.kind === "support") {
         platforms.push({
-          mesh: artifactGroup.children[0] as THREE.Mesh,
-          x: GAP_CENTER,
-          y: FLOOR_Y + 0.15,
-          width: artifact.spec.affordance.span,
-          height: 0.4,
+          x: mechanic.x,
+          y: mechanic.y,
+          width: mechanic.width,
+          height: mechanic.height,
         });
       } else {
         propulsion = {
-          x: anchorX,
-          width: 1.8,
-          force: artifact.spec.affordance.force,
+          x: mechanic.x,
+          width: mechanic.width,
+          force: mechanic.force,
         };
       }
     }
@@ -244,6 +253,7 @@ export default function Game() {
       finished = false;
       setWon(false);
       setDistance(0);
+      setCompletionEvidence("idle");
     };
     resetRef.current = reset;
 
@@ -347,6 +357,7 @@ export default function Game() {
         finished = true;
         velocityX = 0;
         setWon(true);
+        setCompletionEvidence("recording");
         void fetch("/api/progress", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -355,7 +366,12 @@ export default function Game() {
             completed: true,
             artifactId: artifact?.id,
           }),
-        });
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("completion receipt rejected");
+            setCompletionEvidence("recorded");
+          })
+          .catch(() => setCompletionEvidence("failed"));
       }
 
       renderer.render(scene, camera);
@@ -399,7 +415,12 @@ export default function Game() {
       if (!response.ok || !payload.artifact) {
         throw new Error(payload.error ?? "The forge returned no artifact.");
       }
-      setArtifact(payload.artifact);
+      const forged = payload.artifact;
+      setArtifact(forged);
+      setArtifacts((current) => [
+        forged,
+        ...current.filter((candidate) => candidate.id !== forged.id),
+      ]);
       setForgeState("idle");
     } catch (error) {
       setForgeError(error instanceof Error ? error.message : "The forge failed.");
@@ -447,6 +468,50 @@ export default function Game() {
             <strong>{artifact.spec.name}</strong>
             <span>{artifact.spec.description}</span>
             <code>{artifact.spec.affordance.kind}</code>
+            <details className="evidence">
+              <summary>Inspect evidence</summary>
+              <dl>
+                <div>
+                  <dt>Model</dt>
+                  <dd>{artifact.model}</dd>
+                </div>
+                <div>
+                  <dt>Receipt</dt>
+                  <dd>{artifact.id}</dd>
+                </div>
+                <div>
+                  <dt>Created</dt>
+                  <dd>{artifact.receipt.createdAt}</dd>
+                </div>
+                <div>
+                  <dt>Clearable</dt>
+                  <dd>{artifactCanClearGap(artifact.spec) ? "verified" : "no"}</dd>
+                </div>
+              </dl>
+              <pre>{JSON.stringify(artifact.spec, null, 2)}</pre>
+              <small>sha256 {artifact.receipt.specHash}</small>
+            </details>
+          </div>
+        )}
+        {artifacts.length > 0 && (
+          <div className="replay">
+            <span>Replay saved evidence</span>
+            <div>
+              {artifacts.map((candidate) => (
+                <button
+                  type="button"
+                  key={candidate.id}
+                  aria-pressed={candidate.id === artifact?.id}
+                  onClick={() => {
+                    resetRef.current();
+                    setPrompt(candidate.prompt);
+                    setArtifact(candidate);
+                  }}
+                >
+                  {candidate.spec.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {forgeError && <p className="forge-error">{forgeError}</p>}
@@ -455,6 +520,11 @@ export default function Game() {
         <div className="win" role="dialog" aria-modal="true">
           <h1>Clear!</h1>
           <p>The little cube made it through.</p>
+          <small className={`completion ${completionEvidence}`}>
+            {completionEvidence === "recorded" && "Completion receipt recorded"}
+            {completionEvidence === "recording" && "Recording completion…"}
+            {completionEvidence === "failed" && "Completion receipt failed"}
+          </small>
           <button onClick={() => resetRef.current()}>Run again</button>
         </div>
       )}
