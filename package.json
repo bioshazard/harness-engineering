@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun run test:bun && bun install --cwd incubator/dependency-upgrade/fixture --frozen-lockfile && bun --cwd incubator/dependency-upgrade/fixture test && bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test",
+    "test": "bun run test:bun && bun install --cwd incubator/dependency-upgrade/fixture --frozen-lockfile && bun --cwd incubator/dependency-upgrade/fixture test && bun install --cwd incubator/crust --frozen-lockfile && bun run --cwd incubator/crust test && bun install --cwd incubator/pi-factory --frozen-lockfile && bun run --cwd incubator/pi-factory test",
     "test:bun": "bun test test/registry.test.ts && bun test incubator/dependency-upgrade/test/ && bun test incubator/email-review-send/test/ && bun test incubator/hello-world/examples/hello-1/test/ && bun test incubator/hello-world/examples/hello-2-codeauth/test/",
     "typecheck": "bunx tsc --noEmit",
     "example:seed": "bun --env-file=.env incubator/dependency-upgrade-instrumented/src/seed-prompt.ts",
