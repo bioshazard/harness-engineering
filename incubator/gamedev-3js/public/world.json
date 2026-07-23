@@ -1,0 +1,41 @@
+{
+  "revision": 9,
+  "name": "Moonmilk Hollow",
+  "palette": {
+    "sky": "#080b20",
+    "fog": "#26284b",
+    "ground": "#38495b",
+    "groundEdge": "#171a32",
+    "accent": "#8be4ff",
+    "glow": "#d6b0ff"
+  },
+  "population": {
+    "motes": 14,
+    "stones": 16,
+    "lanterns": 4
+  },
+  "entities": [
+    {
+      "id": "first-wish",
+      "kind": "wish-seed",
+      "label": "First wish",
+      "position": {
+        "x": -2.2,
+        "z": -1.2
+      },
+      "scale": 1,
+      "tint": "#ffffff"
+    },
+    {
+      "id": "moonkeeper",
+      "kind": "moon-tree",
+      "label": "Moonkeeper",
+      "position": {
+        "x": 2.8,
+        "z": 0.8
+      },
+      "scale": 1.1,
+      "tint": "#eaf6ff"
+    }
+  ]
+}
