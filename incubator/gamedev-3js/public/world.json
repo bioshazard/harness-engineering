@@ -14,6 +14,10 @@
     "stones": 16,
     "lanterns": 4
   },
+  "economy": {
+    "sparks": 0,
+    "collectedMotes": []
+  },
   "entities": [
     {
       "id": "first-wish",
@@ -24,7 +28,12 @@
         "z": -1.2
       },
       "scale": 1,
-      "tint": "#ffffff"
+      "tint": "#ffffff",
+      "growth": {
+        "stage": "seed",
+        "plantedAt": "2026-07-23T12:00:00.000Z",
+        "stageStartedAt": "2026-07-23T12:00:00.000Z"
+      }
     },
     {
       "id": "moonkeeper",
@@ -35,7 +44,32 @@
         "z": 0.8
       },
       "scale": 1.1,
-      "tint": "#eaf6ff"
+      "tint": "#eaf6ff",
+      "growth": {
+        "stage": "mature",
+        "plantedAt": "2026-07-22T12:00:00.000Z",
+        "stageStartedAt": "2026-07-23T12:00:00.000Z"
+      }
+    },
+    {
+      "id": "luma",
+      "kind": "creature",
+      "label": "Luma the moon moth",
+      "position": {
+        "x": 0,
+        "z": -3
+      },
+      "scale": 1,
+      "tint": "#ffffff",
+      "asset": "/moon-moth.png",
+      "creature": {
+        "state": "wander",
+        "energy": 100
+      }
     }
-  ]
+  ],
+  "history": {
+    "past": [],
+    "future": []
+  }
 }

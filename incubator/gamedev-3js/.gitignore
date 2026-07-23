@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+.wish-garden/
 
 # debug
 npm-debug.log*

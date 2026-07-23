@@ -262,6 +262,221 @@ input {
   gap: 6px;
 }
 
+.entity-inspector input[type="number"] {
+  width: 4.2rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.35rem;
+  background: rgb(255 255 255 / 5%);
+  color: var(--cream);
+  font: inherit;
+  padding: 0.24rem 0.35rem;
+}
+
+.catalog-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.catalog-picker button {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem 0.6rem;
+}
+
+.catalog-picker button[aria-pressed="true"] {
+  border-color: var(--mint);
+  background: rgb(139 228 255 / 14%);
+}
+
+.inspect-creature {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--peach);
+  cursor: pointer;
+  font: inherit;
+  margin-top: 0.7rem;
+  padding: 0;
+  text-align: left;
+}
+
+.entity-inspector input[type="range"] {
+  width: 5.5rem;
+  accent-color: var(--mint);
+}
+
+.entity-inspector input[type="color"] {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.growth-controls {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.entity-behavior {
+  color: var(--mint);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin-top: 0.6rem;
+  text-transform: uppercase;
+}
+
+.growth-controls button {
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.45rem;
+  background: rgb(139 228 255 / 12%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+}
+
+.growth-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.history-panel {
+  position: absolute;
+  z-index: 4;
+  top: 5rem;
+  right: 1.9rem;
+  width: min(15.5rem, 25vw);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.8rem;
+  background: rgb(9 13 29 / 72%);
+  backdrop-filter: blur(12px);
+  padding: 0.7rem;
+}
+
+.history-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.history-actions button {
+  flex: 1;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 5%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem;
+}
+
+.history-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.history-panel ol {
+  display: grid;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+}
+
+.history-panel li {
+  display: flex;
+  justify-content: space-between;
+  color: rgb(255 255 255 / 62%);
+  font-size: 0.62rem;
+}
+
+.wish-panel {
+  position: absolute;
+  z-index: 5;
+  top: 4.8rem;
+  left: 50%;
+  width: min(25rem, 42vw);
+  transform: translateX(-50%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.8rem;
+  background: rgb(9 13 29 / 78%);
+  backdrop-filter: blur(12px);
+  padding: 0.75rem;
+}
+
+.wish-panel form label {
+  display: block;
+  color: rgb(255 255 255 / 58%);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.wish-panel form > div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.wish-panel input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 5%);
+  color: var(--cream);
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+}
+
+.wish-panel button {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.4rem;
+  background: rgb(139 228 255 / 12%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.45rem 0.65rem;
+}
+
+.wish-panel button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.wish-preview {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.wish-preview img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+}
+
+.wish-preview p,
+.wish-preview span {
+  color: rgb(255 255 255 / 56%);
+  font-size: 0.66rem;
+  margin: 0.2rem 0 0;
+}
+
+.wish-decisions {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 0.4rem;
+}
+
 .tint-dot {
   width: 8px;
   height: 8px;

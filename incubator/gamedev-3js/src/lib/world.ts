@@ -1,4 +1,26 @@
-export type EntityKind = "wish-seed" | "moon-tree";
+export type EntityKind = "wish-seed" | "moon-tree" | "catalog" | "creature";
+export type GrowthStage = "seed" | "sprout" | "mature";
+
+export type EntityType = {
+  id: string;
+  label: string;
+  kind: EntityKind;
+  asset: string;
+  defaultScale: number;
+};
+
+export type WorldSnapshot = Pick<
+  WorldConfig,
+  "name" | "palette" | "population" | "economy" | "entities"
+>;
+
+export type WorldMutation = {
+  id: string;
+  timestamp: string;
+  action: string;
+  before: WorldSnapshot;
+  after: WorldSnapshot;
+};
 
 export type WorldEntity = {
   id: string;
@@ -10,6 +32,22 @@ export type WorldEntity = {
   };
   scale: number;
   tint: string;
+  asset?: string;
+  growth?: {
+    stage: GrowthStage;
+    plantedAt: string;
+    stageStartedAt: string;
+  };
+  creature?: {
+    state: "wander" | "follow" | "feed";
+    targetId?: string;
+    energy: number;
+  };
+  behavior?: {
+    kind: string;
+    summary: string;
+    state?: string;
+  };
 };
 
 export type WorldConfig = {
@@ -28,5 +66,13 @@ export type WorldConfig = {
     stones: number;
     lanterns: number;
   };
+  economy: {
+    sparks: number;
+    collectedMotes: number[];
+  };
   entities: WorldEntity[];
+  history: {
+    past: WorldMutation[];
+    future: WorldMutation[];
+  };
 };

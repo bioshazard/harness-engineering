@@ -3,6 +3,9 @@
 These are likely vertical slices, in order. Each slice should produce a
 playable, inspectable change rather than only infrastructure.
 
+All ten slices are implemented and verified. The order below records how the
+game and its authoring surface were earned.
+
 ## 1. Persistent planting
 
 Click the ground to add a seed to `world.json`. The seed survives reloads and
@@ -65,3 +68,9 @@ into the live world after acceptance.
 
 Slices 1–5 establish the game. Slices 6–9 establish its authoring surface.
 Slice 10 earns agentic world mutation.
+
+## Reflection
+
+Build a game worth changing before improving how Codex changes it. Keep
+`world.json` and the later slices provisional: after each slice, ask what became
+easier and let observed friction choose the next smallest probe.
