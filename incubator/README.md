@@ -27,5 +27,6 @@ Conceptual threads still being worked out:
 
 - [`scale-of-control`](./scale-of-control/)
 - [`goal-system-engineering`](./goal-system-engineering/)
+- [`pi-substrate`](./pi-substrate/) — Pi package roles in a software factory.
 
 The list is a map, not a maturity ranking.
