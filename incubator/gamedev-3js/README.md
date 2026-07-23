@@ -45,6 +45,12 @@ bun run world add wish-seed second-wish 1.5 2
 then converted from a flat chroma-key background to an alpha PNG. The same
 workflow produced `public/moon-tree.png`.
 
+Import another PNG, JPEG, or WebP into the in-game placement catalog:
+
+```bash
+bun run entity import path/to/moon-moth.png
+```
+
 ## Current seam
 
 Codex owns repo edits, asset creation, commands, and browser feedback. The game

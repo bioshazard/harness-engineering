@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { WorldConfig, WorldEntity } from "./world";
+import { readCatalog } from "./catalog";
+import type { EntityType, WorldConfig, WorldEntity } from "./world";
 
 export const worldFilePath = path.join(process.cwd(), "public", "world.json");
 
@@ -66,6 +67,51 @@ export function plantWishSeed(
       scale: 1,
       tint: "#ffffff",
       growth: { stage: "seed", plantedAt: now, stageStartedAt: now },
+    };
+    const next = {
+      ...world,
+      revision: world.revision + 1,
+      economy: { ...world.economy, sparks: world.economy.sparks - 1 },
+      entities: [...world.entities, entity],
+    };
+    return { result: entity, world: next };
+  });
+}
+
+export async function placeCatalogEntity(
+  position: { x: number; z: number },
+  assetId: string,
+  options: {
+    filePath?: string;
+    catalog?: EntityType[];
+    createId?: () => string;
+  } = {},
+) {
+  if (
+    !Number.isFinite(position.x) ||
+    !Number.isFinite(position.z) ||
+    Math.hypot(position.x, position.z) > 7.75
+  ) {
+    throw new Error("Entity position must be finite and inside the garden.");
+  }
+  const catalog = options.catalog ?? (await readCatalog());
+  const type = catalog.find((entry) => entry.id === assetId);
+  if (!type) throw new Error(`Unknown entity type: ${assetId}`);
+
+  return updateWorld(options.filePath ?? worldFilePath, (world) => {
+    if (world.economy.sparks < 1) {
+      throw new Error("Collect a spark before placing an entity.");
+    }
+    const entity: WorldEntity = {
+      id:
+        options.createId?.() ??
+        `${type.id}-${randomUUID().slice(0, 8)}`,
+      kind: type.kind,
+      label: type.label,
+      position,
+      scale: type.defaultScale,
+      tint: "#ffffff",
+      asset: type.asset,
     };
     const next = {
       ...world,

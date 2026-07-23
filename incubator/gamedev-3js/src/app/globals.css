@@ -272,6 +272,28 @@ input {
   padding: 0.24rem 0.35rem;
 }
 
+.catalog-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.catalog-picker button {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem 0.6rem;
+}
+
+.catalog-picker button[aria-pressed="true"] {
+  border-color: var(--mint);
+  background: rgb(139 228 255 / 14%);
+}
+
 .entity-inspector input[type="range"] {
   width: 5.5rem;
   accent-color: var(--mint);

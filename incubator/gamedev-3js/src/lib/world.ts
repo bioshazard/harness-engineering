@@ -1,5 +1,13 @@
-export type EntityKind = "wish-seed" | "moon-tree";
+export type EntityKind = "wish-seed" | "moon-tree" | "catalog";
 export type GrowthStage = "seed" | "sprout" | "mature";
+
+export type EntityType = {
+  id: string;
+  label: string;
+  kind: EntityKind;
+  asset: string;
+  defaultScale: number;
+};
 
 export type WorldEntity = {
   id: string;
@@ -11,6 +19,7 @@ export type WorldEntity = {
   };
   scale: number;
   tint: string;
+  asset?: string;
   growth?: {
     stage: GrowthStage;
     plantedAt: string;

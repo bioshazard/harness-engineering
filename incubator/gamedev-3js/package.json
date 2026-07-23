@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
+    "entity": "bun scripts/entity.ts",
     "world": "bun scripts/world.ts"
   },
   "dependencies": {

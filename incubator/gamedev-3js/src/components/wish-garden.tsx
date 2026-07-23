@@ -7,7 +7,7 @@ import {
   moteSpawnPosition,
   nearestSeed,
 } from "@/lib/behaviors";
-import type { WorldConfig, WorldEntity } from "@/lib/world";
+import type { EntityType, WorldConfig, WorldEntity } from "@/lib/world";
 import type { EntityPatch } from "@/lib/world-store";
 
 const fallbackWorld: WorldConfig = {
@@ -43,6 +43,23 @@ const fallbackWorld: WorldConfig = {
   ],
 };
 
+const fallbackCatalog: EntityType[] = [
+  {
+    id: "wish-seed",
+    label: "Wish seed",
+    kind: "wish-seed",
+    asset: "/wish-seed.png",
+    defaultScale: 1,
+  },
+  {
+    id: "moon-tree",
+    label: "Moon tree",
+    kind: "moon-tree",
+    asset: "/moon-tree.png",
+    defaultScale: 1,
+  },
+];
+
 function seeded(index: number, salt = 0) {
   const value = Math.sin(index * 9187.23 + salt * 77.11) * 43758.5453;
   return value - Math.floor(value);
@@ -75,6 +92,9 @@ export function WishGarden() {
   const [seeds, setSeeds] = useState(1);
   const [world, setWorld] = useState(fallbackWorld);
   const [selected, setSelected] = useState<WorldEntity | null>(null);
+  const [catalog, setCatalog] = useState(fallbackCatalog);
+  const [selectedAsset, setSelectedAsset] = useState("wish-seed");
+  const selectedAssetRef = useRef("wish-seed");
   const updateEntityRef = useRef<(id: string, patch: EntityPatch) => Promise<void>>(
     async () => undefined,
   );
@@ -83,6 +103,18 @@ export function WishGarden() {
   const updateSelected = (patch: EntityPatch) => {
     if (selected) void updateEntityRef.current(selected.id, patch);
   };
+
+  const chooseAsset = (id: string) => {
+    selectedAssetRef.current = id;
+    setSelectedAsset(id);
+  };
+
+  useEffect(() => {
+    void fetch("/entity-catalog.json", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((next: EntityType[]) => setCatalog(next))
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -191,10 +223,17 @@ export function WishGarden() {
     scene.add(stones);
 
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load("/wish-seed.png");
-    const moonTreeTexture = textureLoader.load("/moon-tree.png");
-    texture.colorSpace = THREE.SRGBColorSpace;
-    moonTreeTexture.colorSpace = THREE.SRGBColorSpace;
+    const textureCache = new Map<string, THREE.Texture>();
+    const getTexture = (asset: string) => {
+      const existing = textureCache.get(asset);
+      if (existing) return existing;
+      const loaded = textureLoader.load(asset);
+      loaded.colorSpace = THREE.SRGBColorSpace;
+      textureCache.set(asset, loaded);
+      return loaded;
+    };
+    getTexture("/wish-seed.png");
+    getTexture("/moon-tree.png");
     const entities = new THREE.Group();
     scene.add(entities);
     const selectionRing = new THREE.Mesh(
@@ -235,7 +274,10 @@ export function WishGarden() {
         const height = isTree ? 3.35 : 1.25;
         const sprite = new THREE.Sprite(
           new THREE.SpriteMaterial({
-            map: isTree ? moonTreeTexture : texture,
+            map: getTexture(
+              entity.asset ??
+                (isTree ? "/moon-tree.png" : "/wish-seed.png"),
+            ),
             color: entity.tint,
             transparent: true,
             depthWrite: false,
@@ -415,7 +457,11 @@ export function WishGarden() {
       const response = await fetch("/api/world/entities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ x: hit.point.x, z: hit.point.z }),
+        body: JSON.stringify({
+          x: hit.point.x,
+          z: hit.point.z,
+          assetId: selectedAssetRef.current,
+        }),
       });
       if (!response.ok) return;
       const mutation = (await response.json()) as {
@@ -608,8 +654,7 @@ export function WishGarden() {
         const materials = Array.isArray(object.material) ? object.material : [object.material];
         materials.forEach((material) => material.dispose());
       });
-      texture.dispose();
-      moonTreeTexture.dispose();
+      textureCache.forEach((texture) => texture.dispose());
       renderer.dispose();
     };
   }, []);
@@ -650,6 +695,18 @@ export function WishGarden() {
             <span>Plant</span>
             <span className="key">click</span>
           </div>
+          <div className="catalog-picker" aria-label="Entity catalog">
+            {catalog.map((entry) => (
+              <button
+                type="button"
+                key={entry.id}
+                aria-pressed={selectedAsset === entry.id}
+                onClick={() => chooseAsset(entry.id)}
+              >
+                {entry.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -660,7 +717,12 @@ export function WishGarden() {
         <div className="seed-art">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={selected?.kind === "moon-tree" ? "/moon-tree.png" : "/wish-seed.png"}
+            src={
+              selected?.asset ??
+              (selected?.kind === "moon-tree"
+                ? "/moon-tree.png"
+                : "/wish-seed.png")
+            }
             alt={selected?.label ?? "A glowing wish seed"}
           />
         </div>
@@ -743,7 +805,9 @@ export function WishGarden() {
             <div className="entity-behavior">
               {selected.kind === "moon-tree"
                 ? "Behavior: emits motes"
-                : "Behavior: attracts motes"}
+                : selected.kind === "wish-seed"
+                  ? "Behavior: attracts motes"
+                  : "Behavior: awaiting definition"}
             </div>
             {selected.growth && (
               <div className="growth-controls">

@@ -6,6 +6,7 @@ import type { WorldConfig } from "../src/lib/world";
 import {
   collectSpark,
   growEntity,
+  placeCatalogEntity,
   plantWishSeed,
   updateEntity,
 } from "../src/lib/world-store";
@@ -125,6 +126,36 @@ describe("growth lifecycle", () => {
     expect(mature.result.growth?.stage).toBe("mature");
     expect(mature.result.kind).toBe("moon-tree");
     expect(mature.world.economy.sparks).toBe(0);
+  });
+});
+
+describe("entity catalog placement", () => {
+  test("places a registered asset as an inspectable world entity", async () => {
+    const filePath = await fixture();
+    const mutation = await placeCatalogEntity(
+      { x: 1, z: 2 },
+      "lantern-fox",
+      {
+        filePath,
+        createId: () => "fox-one",
+        catalog: [
+          {
+            id: "lantern-fox",
+            label: "Lantern fox",
+            kind: "catalog",
+            asset: "/entities/lantern-fox.png",
+            defaultScale: 1.25,
+          },
+        ],
+      },
+    );
+
+    expect(mutation.result).toMatchObject({
+      id: "fox-one",
+      kind: "catalog",
+      asset: "/entities/lantern-fox.png",
+      scale: 1.25,
+    });
   });
 });
 

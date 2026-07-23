@@ -1,0 +1,16 @@
+[
+  {
+    "id": "wish-seed",
+    "label": "Wish seed",
+    "kind": "wish-seed",
+    "asset": "/wish-seed.png",
+    "defaultScale": 1
+  },
+  {
+    "id": "moon-tree",
+    "label": "Moon tree",
+    "kind": "moon-tree",
+    "asset": "/moon-tree.png",
+    "defaultScale": 1
+  }
+]
