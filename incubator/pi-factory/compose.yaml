@@ -1,0 +1,35 @@
+services:
+  devbox:
+    build: .
+    command: ["bun", "src/devbox/server.ts"]
+    user: root
+    environment:
+      WORKSPACE_ROOT: /workspace
+    healthcheck:
+      test: ["CMD", "bun", "-e", "await fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)throw Error(r.status)})"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+    volumes:
+      - ./workspace:/workspace
+
+  factory:
+    build: .
+    command: ["bun", "src/factory/main.ts", "${BUILD_INPUT}"]
+    user: root
+    depends_on:
+      devbox:
+        condition: service_healthy
+    environment:
+      MCP_URL: http://devbox:3000/mcp
+      PI_AUTH_PATH: /run/pi-auth/auth.json
+      PI_PROVIDER: ${PI_PROVIDER:-openai-codex}
+      PI_MODEL: ${PI_MODEL:-gpt-5.4}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      TOOL_CALL_TIMEOUT_MS: 10000
+      BUILD_TIMEOUT_MS: 120000
+    volumes:
+      - ${PI_AUTH_FILE:-${HOME}/.pi/agent/auth.json}:/run/pi-auth/auth.json:ro
+    read_only: true
+    cap_drop:
+      - ALL
