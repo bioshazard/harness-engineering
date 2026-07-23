@@ -52,6 +52,15 @@ Import another PNG, JPEG, or WebP into the in-game placement catalog:
 bun run entity import path/to/moon-moth.png
 ```
 
+Start the bounded stdio MCP server:
+
+```bash
+bun run mcp
+```
+
+It exposes entity listing/inspection, game-state reads, placement and bounded
+transform edits, plus the latest PNG captured by the live game tab.
+
 ## Current seam
 
 Codex owns repo edits, asset creation, commands, and browser feedback. The game

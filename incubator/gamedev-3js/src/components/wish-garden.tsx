@@ -138,7 +138,11 @@ export function WishGarden() {
     scene.background = new THREE.Color(fallbackWorld.palette.sky);
     scene.fog = new THREE.Fog(fallbackWorld.palette.fog, 13, 31);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      canvas,
+      preserveDrawingBuffer: true,
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -607,6 +611,7 @@ export function WishGarden() {
     timer.connect(document);
     const targetCamera = new THREE.Vector3();
     const direction = new THREE.Vector3();
+    let lastViewCapture = -3;
     renderer.setAnimationLoop(() => {
       timer.update();
       const delta = Math.min(timer.getDelta(), 0.05);
@@ -699,6 +704,17 @@ export function WishGarden() {
       });
       stars.rotation.y += delta * 0.006;
       renderer.render(scene, camera);
+      if (elapsed - lastViewCapture >= 3) {
+        lastViewCapture = elapsed;
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          void fetch("/api/world/view", {
+            method: "POST",
+            headers: { "Content-Type": "image/png" },
+            body: blob,
+          });
+        }, "image/png");
+      }
     });
 
     const resize = () => {
