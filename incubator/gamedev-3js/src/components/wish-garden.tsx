@@ -180,23 +180,6 @@ export function WishGarden() {
     const moonTreeTexture = textureLoader.load("/moon-tree.png");
     texture.colorSpace = THREE.SRGBColorSpace;
     moonTreeTexture.colorSpace = THREE.SRGBColorSpace;
-    const seedMaterial = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-    });
-    const plantedSeeds = new THREE.Group();
-    scene.add(plantedSeeds);
-
-    const plantSeed = (x: number, z: number, initial = false) => {
-      const sprite = new THREE.Sprite(seedMaterial.clone());
-      sprite.position.set(x, 0.72, z);
-      sprite.scale.set(1.25, 1.25, 1.25);
-      sprite.userData.phase = seeded(plantedSeeds.children.length, 18) * Math.PI * 2;
-      plantedSeeds.add(sprite);
-      if (!initial) setSeeds((value) => value + 1);
-    };
-
     const entities = new THREE.Group();
     scene.add(entities);
     const selectionRing = new THREE.Mesh(
@@ -341,7 +324,7 @@ export function WishGarden() {
     const onPointerDown = (event: PointerEvent) => {
       pointerStart = { x: event.clientX, y: event.clientY };
     };
-    const onPointerUp = (event: PointerEvent) => {
+    const onPointerUp = async (event: PointerEvent) => {
       const moved = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
       if (moved > 8) return;
       const rect = canvas.getBoundingClientRect();
@@ -359,7 +342,18 @@ export function WishGarden() {
       const hit = raycaster.intersectObject(island, false)[0];
       if (!hit || Math.hypot(hit.point.x, hit.point.z) > 7.75) return;
       selectEntity(null);
-      plantSeed(hit.point.x, hit.point.z);
+      const response = await fetch("/api/world/entities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ x: hit.point.x, z: hit.point.z }),
+      });
+      if (!response.ok) return;
+      const mutation = (await response.json()) as {
+        entity: WorldEntity;
+        world: WorldConfig;
+      };
+      applyWorld(mutation.world);
+      selectEntity(mutation.entity);
     };
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointerup", onPointerUp);
@@ -382,7 +376,7 @@ export function WishGarden() {
       rebuildLanterns(next.population.lanterns, new THREE.Color(next.palette.accent));
       rebuildEntities(next.entities);
       (selectionRing.material as THREE.MeshBasicMaterial).color.set(next.palette.accent);
-      setSeeds(next.entities.filter((entity) => entity.kind === "wish-seed").length + plantedSeeds.children.length);
+      setSeeds(next.entities.filter((entity) => entity.kind === "wish-seed").length);
       document.documentElement.style.setProperty("--peach", next.palette.glow);
       document.documentElement.style.setProperty("--mint", next.palette.accent);
       setWorld(next);
@@ -433,10 +427,6 @@ export function WishGarden() {
           motes.remove(mote);
           setSparks((value) => value + 1);
         }
-      });
-      plantedSeeds.children.forEach((child) => {
-        const seed = child as THREE.Sprite;
-        seed.position.y = 0.72 + Math.sin(elapsed * 1.6 + seed.userData.phase) * 0.07;
       });
       entities.children.forEach((child) => {
         const entity = child as THREE.Sprite;
