@@ -14,6 +14,10 @@
     "stones": 16,
     "lanterns": 4
   },
+  "economy": {
+    "sparks": 0,
+    "collectedMotes": []
+  },
   "entities": [
     {
       "id": "first-wish",

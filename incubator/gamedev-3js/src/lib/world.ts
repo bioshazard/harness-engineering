@@ -28,5 +28,9 @@ export type WorldConfig = {
     stones: number;
     lanterns: number;
   };
+  economy: {
+    sparks: number;
+    collectedMotes: number[];
+  };
   entities: WorldEntity[];
 };

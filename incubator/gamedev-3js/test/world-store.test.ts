@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { WorldConfig } from "../src/lib/world";
-import { plantWishSeed, updateEntity } from "../src/lib/world-store";
+import { collectSpark, plantWishSeed, updateEntity } from "../src/lib/world-store";
 
 const temporaryDirectories: string[] = [];
 
@@ -23,6 +23,7 @@ async function fixture() {
       glow: "#ffffff",
     },
     population: { motes: 1, stones: 1, lanterns: 1 },
+    economy: { sparks: 1, collectedMotes: [] },
     entities: [],
   };
   await writeFile(filePath, JSON.stringify(world));
@@ -53,6 +54,7 @@ describe("persistent planting", () => {
       tint: "#ffffff",
     });
     expect(mutation.world.revision).toBe(4);
+    expect(mutation.world.economy.sparks).toBe(0);
     expect(JSON.parse(await readFile(filePath, "utf8"))).toEqual(mutation.world);
   });
 
@@ -62,6 +64,25 @@ describe("persistent planting", () => {
     expect(() => plantWishSeed({ x: 8, z: 0 }, { filePath })).toThrow(
       "inside the garden",
     );
+  });
+});
+
+describe("spark economy", () => {
+  test("collects each mote once and spends one spark per seed", async () => {
+    const filePath = await fixture();
+
+    const collected = await collectSpark(0, { filePath });
+    const duplicate = await collectSpark(0, { filePath });
+    await plantWishSeed(
+      { x: 0, z: 0 },
+      { filePath, createId: () => "spark-seed" },
+    );
+    const world = JSON.parse(await readFile(filePath, "utf8")) as WorldConfig;
+
+    expect(collected.result).toBe(true);
+    expect(duplicate.result).toBe(false);
+    expect(world.economy).toEqual({ sparks: 1, collectedMotes: [0] });
+    expect(world.entities.at(-1)?.id).toBe("spark-seed");
   });
 });
 

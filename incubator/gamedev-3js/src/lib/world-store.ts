@@ -50,6 +50,9 @@ export function plantWishSeed(
   const createId = options.createId ?? (() => `wish-${randomUUID().slice(0, 8)}`);
 
   return updateWorld(filePath, (world) => {
+    if (world.economy.sparks < 1) {
+      throw new Error("Collect a spark before planting.");
+    }
     const entity: WorldEntity = {
       id: createId(),
       kind: "wish-seed",
@@ -61,9 +64,37 @@ export function plantWishSeed(
     const next = {
       ...world,
       revision: world.revision + 1,
+      economy: { ...world.economy, sparks: world.economy.sparks - 1 },
       entities: [...world.entities, entity],
     };
     return { result: entity, world: next };
+  });
+}
+
+export function collectSpark(
+  moteIndex: number,
+  options: { filePath?: string } = {},
+) {
+  if (!Number.isInteger(moteIndex) || moteIndex < 0) {
+    throw new Error("Mote index must be a non-negative integer.");
+  }
+
+  return updateWorld(options.filePath ?? worldFilePath, (world) => {
+    if (moteIndex >= world.population.motes) {
+      throw new Error(`Unknown mote: ${moteIndex}`);
+    }
+    if (world.economy.collectedMotes.includes(moteIndex)) {
+      return { result: false, world };
+    }
+    const next = {
+      ...world,
+      revision: world.revision + 1,
+      economy: {
+        sparks: world.economy.sparks + 1,
+        collectedMotes: [...world.economy.collectedMotes, moteIndex],
+      },
+    };
+    return { result: true, world: next };
   });
 }
 

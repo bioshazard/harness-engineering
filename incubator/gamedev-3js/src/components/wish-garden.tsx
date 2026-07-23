@@ -17,6 +17,7 @@ const fallbackWorld: WorldConfig = {
     glow: "#ffbd7a",
   },
   population: { motes: 10, stones: 16, lanterns: 4 },
+  economy: { sparks: 0, collectedMotes: [] },
   entities: [
     {
       id: "first-wish",
@@ -253,7 +254,11 @@ export function WishGarden() {
 
     const moteGeometry = new THREE.OctahedronGeometry(0.14, 0);
     const motes = new THREE.Group();
-    const rebuildMotes = (count: number, color: THREE.Color) => {
+    const rebuildMotes = (
+      count: number,
+      color: THREE.Color,
+      collectedMotes: number[] = [],
+    ) => {
       motes.children.forEach((child) => {
         if (child instanceof THREE.Mesh) {
           const materials = Array.isArray(child.material) ? child.material : [child.material];
@@ -262,6 +267,7 @@ export function WishGarden() {
       });
       motes.clear();
       for (let index = 0; index < count; index += 1) {
+        if (collectedMotes.includes(index)) continue;
         const angle = seeded(index, 22) * Math.PI * 2;
         const radius = 1.8 + seeded(index, 23) * 5.2;
         const material = new THREE.MeshStandardMaterial({
@@ -273,10 +279,15 @@ export function WishGarden() {
         mote.position.set(Math.cos(angle) * radius, 0.75 + seeded(index, 24), Math.sin(angle) * radius);
         mote.userData.baseY = mote.position.y;
         mote.userData.phase = seeded(index, 25) * Math.PI * 2;
+        mote.userData.moteIndex = index;
         motes.add(mote);
       }
     };
-    rebuildMotes(fallbackWorld.population.motes, new THREE.Color(fallbackWorld.palette.glow));
+    rebuildMotes(
+      fallbackWorld.population.motes,
+      new THREE.Color(fallbackWorld.palette.glow),
+      fallbackWorld.economy.collectedMotes,
+    );
     scene.add(motes);
 
     const lanterns = new THREE.Group();
@@ -418,11 +429,16 @@ export function WishGarden() {
       stones.children.forEach((stone, index) => {
         stone.visible = index < next.population.stones;
       });
-      rebuildMotes(next.population.motes, new THREE.Color(next.palette.glow));
+      rebuildMotes(
+        next.population.motes,
+        new THREE.Color(next.palette.glow),
+        next.economy.collectedMotes,
+      );
       rebuildLanterns(next.population.lanterns, new THREE.Color(next.palette.accent));
       rebuildEntities(next.entities);
       (selectionRing.material as THREE.MeshBasicMaterial).color.set(next.palette.accent);
       setSeeds(next.entities.filter((entity) => entity.kind === "wish-seed").length);
+      setSparks(next.economy.sparks);
       document.documentElement.style.setProperty("--peach", next.palette.glow);
       document.documentElement.style.setProperty("--mint", next.palette.accent);
       setWorld(next);
@@ -442,6 +458,22 @@ export function WishGarden() {
       selectEntity(mutation.entity);
     };
     updateEntityRef.current = persistEntityPatch;
+    const pendingMotes = new Set<number>();
+    const collectMote = async (moteIndex: number) => {
+      if (pendingMotes.has(moteIndex)) return;
+      pendingMotes.add(moteIndex);
+      const response = await fetch("/api/world/sparks/collect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moteIndex }),
+      });
+      if (response.ok) {
+        const mutation = (await response.json()) as { world: WorldConfig };
+        applyWorld(mutation.world);
+      } else {
+        pendingMotes.delete(moteIndex);
+      }
+    };
     const pollWorld = async () => {
       try {
         const response = await fetch(`/world.json?t=${Date.now()}`, { cache: "no-store" });
@@ -486,7 +518,7 @@ export function WishGarden() {
         mote.rotation.y += delta * 1.7;
         if (mote.position.distanceTo(player.position) < 0.75) {
           motes.remove(mote);
-          setSparks((value) => value + 1);
+          void collectMote(mote.userData.moteIndex as number);
         }
       });
       entities.children.forEach((child) => {
@@ -670,7 +702,7 @@ export function WishGarden() {
       <section className="bottom-panel">
         <div className="spark-counter">
           <span className="spark" />
-          {sparks} sparks
+          {sparks} sparks · planting costs 1
         </div>
         <div className="hint">
           {selected ? (
