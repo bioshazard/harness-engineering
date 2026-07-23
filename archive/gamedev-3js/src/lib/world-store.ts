@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readFile, rename, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readCatalog } from "./catalog";
 import type {
@@ -9,15 +9,30 @@ import type {
   WorldSnapshot,
 } from "./world";
 
-export const worldFilePath = path.join(process.cwd(), "public", "world.json");
+export const worldFilePath = path.join(process.cwd(), "data", "world.json");
+export const worldSeedPath = path.join(process.cwd(), "public", "world.json");
 
 let mutationQueue = Promise.resolve();
 
-export async function readWorld(filePath = worldFilePath): Promise<WorldConfig> {
-  return JSON.parse(await readFile(filePath, "utf8")) as WorldConfig;
+export async function readWorld(
+  filePath = worldFilePath,
+  options: { seedPath?: string } = {},
+): Promise<WorldConfig> {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8")) as WorldConfig;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    const seedPath =
+      options.seedPath ?? (filePath === worldFilePath ? worldSeedPath : undefined);
+    if (!seedPath) throw error;
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await copyFile(seedPath, filePath);
+    return JSON.parse(await readFile(filePath, "utf8")) as WorldConfig;
+  }
 }
 
 async function writeWorld(world: WorldConfig, filePath: string) {
+  await mkdir(path.dirname(filePath), { recursive: true });
   const temporaryPath = `${filePath}.${process.pid}.tmp`;
   await writeFile(temporaryPath, `${JSON.stringify(world, null, 2)}\n`);
   await rename(temporaryPath, filePath);

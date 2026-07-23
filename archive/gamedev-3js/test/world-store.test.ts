@@ -11,6 +11,7 @@ import {
   plantWishSeed,
   undoWorld,
   updateEntity,
+  readWorld,
 } from "../src/lib/world-store";
 
 const temporaryDirectories: string[] = [];
@@ -46,6 +47,19 @@ afterEach(async () => {
 });
 
 describe("world mutation history", () => {
+  test("initializes ignored runtime state from an immutable seed", async () => {
+    const seedPath = await fixture();
+    const directory = path.dirname(seedPath);
+    const runtimePath = path.join(directory, "data", "world.json");
+    const seed = JSON.parse(await readFile(seedPath, "utf8"));
+
+    const runtime = await readWorld(runtimePath, { seedPath });
+
+    expect(runtime).toEqual(seed);
+    expect(JSON.parse(await readFile(seedPath, "utf8"))).toEqual(seed);
+    expect(JSON.parse(await readFile(runtimePath, "utf8"))).toEqual(seed);
+  });
+
   test("records edits and supports undo and redo", async () => {
     const filePath = await fixture();
     await plantWishSeed(

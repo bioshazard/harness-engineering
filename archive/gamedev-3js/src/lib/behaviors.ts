@@ -84,3 +84,40 @@ export function creatureIntent(
 export function advanceCreature(position: Point, target: Point, delta: number) {
   return advanceMote(position, target, delta, 0.72);
 }
+
+export function wishBehaviorMotion(entity: WorldEntity) {
+  if (entity.behavior?.motion) return entity.behavior.motion;
+  if (entity.behavior?.kind === "lantern-eater") return "hunt-lanterns";
+  if (entity.behavior?.kind === "tree-friend") return "orbit-tree";
+  return "wander";
+}
+
+export function wishBehaviorIntent(
+  elapsed: number,
+  entity: WorldEntity,
+  player: Point,
+  entities: WorldEntity[],
+) {
+  const motion = wishBehaviorMotion(entity);
+  if (motion === "follow-player") {
+    return { state: "following player", target: player };
+  }
+  const tree = entities.find((candidate) => candidate.kind === "moon-tree");
+  if (motion === "orbit-tree") {
+    const origin = tree?.position ?? entity.position;
+    return {
+      state: tree ? `orbiting ${tree.id}` : "wandering",
+      target: {
+        x: origin.x + Math.cos(elapsed * 0.55) * 1.7,
+        z: origin.z + Math.sin(elapsed * 0.55) * 1.7,
+      },
+    };
+  }
+  return {
+    state: "wandering",
+    target: {
+      x: entity.position.x + Math.cos(elapsed * 0.7) * 1.4,
+      z: entity.position.z + Math.sin(elapsed * 0.7) * 1.4,
+    },
+  };
+}

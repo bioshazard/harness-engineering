@@ -1,5 +1,10 @@
 export type EntityKind = "wish-seed" | "moon-tree" | "catalog" | "creature";
 export type GrowthStage = "seed" | "sprout" | "mature";
+export type WishMotion =
+  | "wander"
+  | "follow-player"
+  | "orbit-tree"
+  | "hunt-lanterns";
 
 export type EntityType = {
   id: string;
@@ -44,7 +49,9 @@ export type WorldEntity = {
     energy: number;
   };
   behavior?: {
-    kind: string;
+    motion?: WishMotion;
+    speed?: number;
+    kind?: string;
     summary: string;
     state?: string;
   };
