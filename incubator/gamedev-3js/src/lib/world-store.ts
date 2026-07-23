@@ -129,6 +129,30 @@ export function redoWorld(options: { filePath?: string } = {}) {
   return operation;
 }
 
+export function introduceEntity(
+  entity: WorldEntity,
+  options: { filePath?: string; action?: string } = {},
+) {
+  if (Math.hypot(entity.position.x, entity.position.z) > 7.75) {
+    throw new Error("Entity position must be inside the garden.");
+  }
+  return updateWorld(options.filePath ?? worldFilePath, (world) => {
+    if (world.entities.some((candidate) => candidate.id === entity.id)) {
+      throw new Error(`Entity already exists: ${entity.id}`);
+    }
+    const next = {
+      ...world,
+      revision: world.revision + 1,
+      entities: [...world.entities, entity],
+    };
+    return {
+      result: entity,
+      world: next,
+      action: options.action ?? `Introduced ${entity.id}`,
+    };
+  });
+}
+
 export function plantWishSeed(
   position: { x: number; z: number },
   options: {

@@ -3,6 +3,9 @@
 These are likely vertical slices, in order. Each slice should produce a
 playable, inspectable change rather than only infrastructure.
 
+All ten slices are implemented and verified. The order below records how the
+game and its authoring surface were earned.
+
 ## 1. Persistent planting
 
 Click the ground to add a seed to `world.json`. The seed survives reloads and

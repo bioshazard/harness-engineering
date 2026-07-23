@@ -19,5 +19,12 @@
     "kind": "creature",
     "asset": "/moon-moth.png",
     "defaultScale": 1
+  },
+  {
+    "id": "moon-fox",
+    "label": "Moon fox",
+    "kind": "catalog",
+    "asset": "/moon-fox.png",
+    "defaultScale": 1
   }
 ]

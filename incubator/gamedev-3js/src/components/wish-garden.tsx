@@ -11,6 +11,7 @@ import {
 } from "@/lib/behaviors";
 import type { EntityType, WorldConfig, WorldEntity } from "@/lib/world";
 import type { EntityPatch } from "@/lib/world-store";
+import type { WishProposal } from "@/lib/wish-loop";
 
 const fallbackWorld: WorldConfig = {
   revision: 1,
@@ -68,6 +69,13 @@ const fallbackCatalog: EntityType[] = [
     asset: "/moon-moth.png",
     defaultScale: 1,
   },
+  {
+    id: "moon-fox",
+    label: "Moon fox",
+    kind: "catalog",
+    asset: "/moon-fox.png",
+    defaultScale: 1,
+  },
 ];
 
 function seeded(index: number, salt = 0) {
@@ -104,6 +112,9 @@ export function WishGarden() {
   const [selected, setSelected] = useState<WorldEntity | null>(null);
   const [catalog, setCatalog] = useState(fallbackCatalog);
   const [selectedAsset, setSelectedAsset] = useState("wish-seed");
+  const [wishText, setWishText] = useState("");
+  const [wishProposal, setWishProposal] = useState<WishProposal | null>(null);
+  const [wishBusy, setWishBusy] = useState(false);
   const selectedAssetRef = useRef("wish-seed");
   const updateEntityRef = useRef<(id: string, patch: EntityPatch) => Promise<void>>(
     async () => undefined,
@@ -111,6 +122,9 @@ export function WishGarden() {
   const growEntityRef = useRef<(id: string) => Promise<void>>(async () => undefined);
   const inspectEntityRef = useRef<(id: string) => void>(() => undefined);
   const historyRef = useRef<(action: "undo" | "redo") => Promise<void>>(
+    async () => undefined,
+  );
+  const acceptWishRef = useRef<(id: string) => Promise<void>>(
     async () => undefined,
   );
 
@@ -121,6 +135,24 @@ export function WishGarden() {
   const chooseAsset = (id: string) => {
     selectedAssetRef.current = id;
     setSelectedAsset(id);
+  };
+
+  const previewWish = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setWishBusy(true);
+    try {
+      const response = await fetch("/api/wishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: wishText }),
+      });
+      if (response.ok) {
+        const body = (await response.json()) as { proposal: WishProposal };
+        setWishProposal(body.proposal);
+      }
+    } finally {
+      setWishBusy(false);
+    }
   };
 
   useEffect(() => {
@@ -580,6 +612,22 @@ export function WishGarden() {
       applyWorld(mutation.world);
       selectEntity(null);
     };
+    acceptWishRef.current = async (id: string) => {
+      const response = await fetch("/api/wishes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) return;
+      const mutation = (await response.json()) as {
+        entity: WorldEntity;
+        world: WorldConfig;
+      };
+      applyWorld(mutation.world);
+      selectEntity(mutation.entity);
+      setWishProposal(null);
+      setWishText("");
+    };
     const pendingMotes = new Set<number>();
     const collectMote = async (moteIndex: number) => {
       if (pendingMotes.has(moteIndex)) return;
@@ -697,6 +745,50 @@ export function WishGarden() {
               });
             }
           }
+        } else if (worldEntity?.behavior?.kind === "lantern-eater") {
+          const target = lanterns.children
+            .filter((lantern) => lantern.visible)
+            .reduce<THREE.Object3D | undefined>((nearest, lantern) => {
+              if (!nearest) return lantern;
+              const candidateDistance = Math.hypot(
+                lantern.position.x - entity.position.x,
+                lantern.position.z - entity.position.z,
+              );
+              const nearestDistance = Math.hypot(
+                nearest.position.x - entity.position.x,
+                nearest.position.z - entity.position.z,
+              );
+              return candidateDistance < nearestDistance ? lantern : nearest;
+            }, undefined);
+          const state = target ? "hunting lanterns" : "sated";
+          if (target) {
+            const nextPosition = advanceCreature(
+              entity.position,
+              target.position,
+              delta,
+            );
+            entity.position.x = nextPosition.x;
+            entity.position.z = nextPosition.z;
+            if (
+              Math.hypot(
+                target.position.x - entity.position.x,
+                target.position.z - entity.position.z,
+              ) < 0.7
+            ) {
+              target.visible = false;
+            }
+          }
+          entity.userData.baseY = 1.05;
+          if (entity.userData.reportedBehavior !== state) {
+            entity.userData.reportedBehavior = state;
+            if (selectedId === worldEntity.id) {
+              setSelected({
+                ...worldEntity,
+                position: { x: entity.position.x, z: entity.position.z },
+                behavior: { ...worldEntity.behavior, state },
+              });
+            }
+          }
         }
         const amplitude = entity.userData.kind === "moon-tree" ? 0.018 : 0.06;
         entity.position.y =
@@ -741,6 +833,7 @@ export function WishGarden() {
       growEntityRef.current = async () => undefined;
       inspectEntityRef.current = () => undefined;
       historyRef.current = async () => undefined;
+      acceptWishRef.current = async () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -906,7 +999,11 @@ export function WishGarden() {
             </dl>
             <code>bun run world move {selected.id} x z</code>
             <div className="entity-behavior">
-              {selected.kind === "moon-tree"
+              {selected.behavior
+                ? `Behavior: ${selected.behavior.summary} · ${
+                    selected.behavior.state ?? "previewed"
+                  }`
+                : selected.kind === "moon-tree"
                 ? "Behavior: emits motes"
                 : selected.kind === "wish-seed"
                   ? "Behavior: attracts motes"
@@ -989,6 +1086,46 @@ export function WishGarden() {
               </li>
             ))}
         </ol>
+      </section>
+
+      <section className="wish-panel" aria-label="Wish creator">
+        <form onSubmit={previewWish}>
+          <label htmlFor="wish-description">Describe a wish</label>
+          <div>
+            <input
+              id="wish-description"
+              value={wishText}
+              maxLength={120}
+              placeholder="a lantern-eating moon fox"
+              onChange={(event) => setWishText(event.target.value)}
+            />
+            <button type="submit" disabled={wishBusy || wishText.trim().length < 3}>
+              Preview
+            </button>
+          </div>
+        </form>
+        {wishProposal && (
+          <div className="wish-preview">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={wishProposal.asset} alt={wishProposal.label} />
+            <div>
+              <strong>{wishProposal.label}</strong>
+              <p>{wishProposal.behavior.summary}</p>
+              <span>World unchanged until accepted.</span>
+            </div>
+            <div className="wish-decisions">
+              <button
+                type="button"
+                onClick={() => void acceptWishRef.current(wishProposal.id)}
+              >
+                Accept
+              </button>
+              <button type="button" onClick={() => setWishProposal(null)}>
+                Reject
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       <div className="world-link">world.json linked · revision {world.revision}</div>

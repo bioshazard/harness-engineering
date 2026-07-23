@@ -43,6 +43,11 @@ export type WorldEntity = {
     targetId?: string;
     energy: number;
   };
+  behavior?: {
+    kind: string;
+    summary: string;
+    state?: string;
+  };
 };
 
 export type WorldConfig = {
