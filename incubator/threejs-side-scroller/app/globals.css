@@ -1,0 +1,290 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #09101d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+main {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 35%, #273866 0, #10182d 42%, #070b13 100%);
+}
+
+button,
+kbd {
+  font: inherit;
+}
+
+.game {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+}
+
+.game canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(18px, 3vw, 36px);
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #f4f7ff;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.brand::before {
+  width: 11px;
+  height: 11px;
+  content: "";
+  background: #78f0c3;
+  box-shadow: 0 0 22px #78f0c3;
+  transform: rotate(45deg);
+}
+
+.status {
+  align-self: flex-end;
+  min-width: 150px;
+  padding: 11px 14px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+  color: #b9c7df;
+  background: rgb(6 10 20 / 62%);
+  backdrop-filter: blur(10px);
+  text-align: right;
+}
+
+.status strong {
+  display: block;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.controls {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 13px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 14px;
+  color: #aebcd4;
+  background: rgb(6 10 20 / 72%);
+  backdrop-filter: blur(12px);
+}
+
+.forge {
+  position: absolute;
+  top: clamp(64px, 11vh, 96px);
+  left: clamp(18px, 3vw, 36px);
+  z-index: 4;
+  width: min(390px, calc(100% - 36px));
+  padding: 16px;
+  border: 1px solid rgb(120 240 195 / 24%);
+  border-radius: 16px;
+  color: #c5d1e6;
+  background: rgb(6 10 20 / 78%);
+  box-shadow: 0 18px 55px rgb(0 0 0 / 24%);
+  backdrop-filter: blur(14px);
+}
+
+.forge-heading,
+.forge-input,
+.artifact-card {
+  display: flex;
+}
+
+.forge-heading {
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.forge-heading span {
+  color: #78f0c3;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.forge-heading small {
+  color: #6f829f;
+  font-size: 0.67rem;
+}
+
+.forge label {
+  display: block;
+  margin-bottom: 7px;
+  color: #93a5c0;
+  font-size: 0.78rem;
+}
+
+.forge-input {
+  gap: 8px;
+}
+
+.forge input {
+  min-width: 0;
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 9px;
+  outline: none;
+  color: #fff;
+  background: #111a2b;
+}
+
+.forge input:focus {
+  border-color: #78f0c3;
+  box-shadow: 0 0 0 3px rgb(120 240 195 / 12%);
+}
+
+.forge button {
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 9px;
+  color: #07121c;
+  background: #78f0c3;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.forge button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.artifact-card {
+  position: relative;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 12px;
+  padding: 11px 64px 11px 12px;
+  border-left: 2px solid #ffd36a;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 5%);
+}
+
+.artifact-card strong {
+  color: #fff;
+}
+
+.artifact-card span {
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.artifact-card code {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  color: #ffd36a;
+  font-size: 0.7rem;
+}
+
+.forge-error {
+  margin: 10px 0 0;
+  color: #ff8c9e;
+  font-size: 0.78rem;
+}
+
+kbd {
+  min-width: 32px;
+  padding: 6px 8px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  color: #fff;
+  background: #202c44;
+  text-align: center;
+  font-weight: 800;
+}
+
+.win {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: min(420px, calc(100% - 40px));
+  padding: 28px;
+  border: 1px solid rgb(120 240 195 / 45%);
+  border-radius: 20px;
+  color: #dce7f9;
+  background: rgb(7 13 25 / 90%);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 50%);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(16px);
+}
+
+.win h1 {
+  margin: 0 0 8px;
+  color: #78f0c3;
+  font-size: clamp(2rem, 8vw, 4rem);
+  letter-spacing: -0.06em;
+}
+
+.win p {
+  margin: 0;
+}
+
+.win button {
+  margin-top: 20px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  color: #07121c;
+  background: #78f0c3;
+  cursor: pointer;
+  font-weight: 900;
+  pointer-events: auto;
+}
+
+@media (max-width: 560px) {
+  .forge {
+    top: 58px;
+  }
+
+  .forge-heading small {
+    display: none;
+  }
+
+  .controls {
+    font-size: 0.78rem;
+  }
+
+  .status {
+    align-self: flex-start;
+    text-align: left;
+  }
+}
