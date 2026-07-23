@@ -120,6 +120,7 @@ input {
 
 .seed-card {
   right: 30px;
+  width: 250px;
   padding: 18px;
 }
 
@@ -212,6 +213,76 @@ input {
   font-size: 20px;
 }
 
+.inspect-hint {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.entity-inspector {
+  display: grid;
+  gap: 12px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.entity-id {
+  overflow: hidden;
+  color: var(--mint);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entity-inspector dl {
+  display: grid;
+  gap: 7px;
+}
+
+.entity-inspector dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+}
+
+.entity-inspector dt {
+  color: var(--muted);
+}
+
+.entity-inspector dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tint-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+}
+
+.entity-inspector code {
+  overflow: hidden;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.14);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bottom-panel {
   position: absolute;
   bottom: 26px;
@@ -293,7 +364,7 @@ input {
 
   .seed-card {
     right: 18px;
-    width: 150px;
+    width: 170px;
   }
 
   .seed-art {
@@ -303,6 +374,11 @@ input {
   .seed-art img {
     width: 100px;
     height: 100px;
+  }
+
+  .entity-inspector code,
+  .entity-inspector dl {
+    display: none;
   }
 
   .controls,

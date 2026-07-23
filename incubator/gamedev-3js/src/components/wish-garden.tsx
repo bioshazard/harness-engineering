@@ -2,24 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-
-type WorldConfig = {
-  revision: number;
-  name: string;
-  palette: {
-    sky: string;
-    fog: string;
-    ground: string;
-    groundEdge: string;
-    accent: string;
-    glow: string;
-  };
-  population: {
-    motes: number;
-    stones: number;
-    lanterns: number;
-  };
-};
+import type { WorldConfig, WorldEntity } from "@/lib/world";
 
 const fallbackWorld: WorldConfig = {
   revision: 1,
@@ -33,6 +16,24 @@ const fallbackWorld: WorldConfig = {
     glow: "#ffbd7a",
   },
   population: { motes: 10, stones: 16, lanterns: 4 },
+  entities: [
+    {
+      id: "first-wish",
+      kind: "wish-seed",
+      label: "First wish",
+      position: { x: -2.2, z: -1.2 },
+      scale: 1,
+      tint: "#ffffff",
+    },
+    {
+      id: "moonkeeper",
+      kind: "moon-tree",
+      label: "Moonkeeper",
+      position: { x: 2.6, z: 1.2 },
+      scale: 1,
+      tint: "#ffffff",
+    },
+  ],
 };
 
 function seeded(index: number, salt = 0) {
@@ -66,6 +67,7 @@ export function WishGarden() {
   const [sparks, setSparks] = useState(0);
   const [seeds, setSeeds] = useState(1);
   const [world, setWorld] = useState(fallbackWorld);
+  const [selected, setSelected] = useState<WorldEntity | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -173,8 +175,11 @@ export function WishGarden() {
     }
     scene.add(stones);
 
-    const texture = new THREE.TextureLoader().load("/wish-seed.png");
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load("/wish-seed.png");
+    const moonTreeTexture = textureLoader.load("/moon-tree.png");
     texture.colorSpace = THREE.SRGBColorSpace;
+    moonTreeTexture.colorSpace = THREE.SRGBColorSpace;
     const seedMaterial = new THREE.SpriteMaterial({
       map: texture,
       transparent: true,
@@ -191,7 +196,69 @@ export function WishGarden() {
       plantedSeeds.add(sprite);
       if (!initial) setSeeds((value) => value + 1);
     };
-    plantSeed(-2.2, -1.2, true);
+
+    const entities = new THREE.Group();
+    scene.add(entities);
+    const selectionRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.48, 0.62, 48),
+      new THREE.MeshBasicMaterial({
+        color: fallbackWorld.palette.accent,
+        transparent: true,
+        opacity: 0.78,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    );
+    selectionRing.rotation.x = -Math.PI / 2;
+    selectionRing.position.y = 0.015;
+    selectionRing.visible = false;
+    scene.add(selectionRing);
+
+    let selectedId: string | null = null;
+    let currentWorld = fallbackWorld;
+    const selectEntity = (entity: WorldEntity | null) => {
+      selectedId = entity?.id ?? null;
+      setSelected(entity);
+      selectionRing.visible = Boolean(entity);
+      if (!entity) return;
+      selectionRing.position.set(entity.position.x, 0.015, entity.position.z);
+      selectionRing.scale.setScalar(entity.scale * (entity.kind === "moon-tree" ? 1.5 : 1));
+    };
+    const rebuildEntities = (nextEntities: WorldEntity[]) => {
+      entities.children.forEach((child) => {
+        if (child instanceof THREE.Sprite) child.material.dispose();
+      });
+      entities.clear();
+      nextEntities.forEach((entity, index) => {
+        const isTree = entity.kind === "moon-tree";
+        const width = isTree ? 3.35 : 1.25;
+        const height = isTree ? 3.35 : 1.25;
+        const sprite = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: isTree ? moonTreeTexture : texture,
+            color: entity.tint,
+            transparent: true,
+            depthWrite: false,
+          }),
+        );
+        sprite.position.set(
+          entity.position.x,
+          height * entity.scale * 0.5 - 0.03,
+          entity.position.z,
+        );
+        sprite.scale.set(width * entity.scale, height * entity.scale, 1);
+        sprite.userData.entityId = entity.id;
+        sprite.userData.kind = entity.kind;
+        sprite.userData.baseY = sprite.position.y;
+        sprite.userData.phase = seeded(index, 42) * Math.PI * 2;
+        entities.add(sprite);
+      });
+      if (selectedId) {
+        const nextSelection = nextEntities.find((entity) => entity.id === selectedId) ?? null;
+        selectEntity(nextSelection);
+      }
+    };
+    rebuildEntities(fallbackWorld.entities);
 
     const moteGeometry = new THREE.OctahedronGeometry(0.14, 0);
     const motes = new THREE.Group();
@@ -283,8 +350,15 @@ export function WishGarden() {
         -((event.clientY - rect.top) / rect.height) * 2 + 1,
       );
       raycaster.setFromCamera(pointer, camera);
+      const entityHit = raycaster.intersectObjects(entities.children, false)[0];
+      if (entityHit) {
+        const entityId = entityHit.object.userData.entityId as string;
+        selectEntity(currentWorld.entities.find((entity) => entity.id === entityId) ?? null);
+        return;
+      }
       const hit = raycaster.intersectObject(island, false)[0];
       if (!hit || Math.hypot(hit.point.x, hit.point.z) > 7.75) return;
+      selectEntity(null);
       plantSeed(hit.point.x, hit.point.z);
     };
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -295,6 +369,7 @@ export function WishGarden() {
     const applyWorld = (next: WorldConfig) => {
       if (next.revision === activeRevision) return;
       activeRevision = next.revision;
+      currentWorld = next;
       scene.background = new THREE.Color(next.palette.sky);
       scene.fog = new THREE.Fog(next.palette.fog, 13, 31);
       (island.material as THREE.MeshStandardMaterial).color.set(next.palette.ground);
@@ -305,6 +380,9 @@ export function WishGarden() {
       });
       rebuildMotes(next.population.motes, new THREE.Color(next.palette.glow));
       rebuildLanterns(next.population.lanterns, new THREE.Color(next.palette.accent));
+      rebuildEntities(next.entities);
+      (selectionRing.material as THREE.MeshBasicMaterial).color.set(next.palette.accent);
+      setSeeds(next.entities.filter((entity) => entity.kind === "wish-seed").length + plantedSeeds.children.length);
       document.documentElement.style.setProperty("--peach", next.palette.glow);
       document.documentElement.style.setProperty("--mint", next.palette.accent);
       setWorld(next);
@@ -360,6 +438,12 @@ export function WishGarden() {
         const seed = child as THREE.Sprite;
         seed.position.y = 0.72 + Math.sin(elapsed * 1.6 + seed.userData.phase) * 0.07;
       });
+      entities.children.forEach((child) => {
+        const entity = child as THREE.Sprite;
+        const amplitude = entity.userData.kind === "moon-tree" ? 0.018 : 0.06;
+        entity.position.y =
+          entity.userData.baseY + Math.sin(elapsed * 1.4 + entity.userData.phase) * amplitude;
+      });
       stars.rotation.y += delta * 0.006;
       renderer.render(scene, camera);
     });
@@ -393,6 +477,7 @@ export function WishGarden() {
         materials.forEach((material) => material.dispose());
       });
       texture.dispose();
+      moonTreeTexture.dispose();
       renderer.dispose();
     };
   }, []);
@@ -436,18 +521,51 @@ export function WishGarden() {
         </div>
       </section>
 
-      <section className="side-card seed-card">
+      <section
+        className="side-card seed-card inspector-card"
+        data-selected-entity={selected?.id ?? ""}
+      >
         <div className="seed-art">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/wish-seed.png" alt="A glowing wish seed" />
+          <img
+            src={selected?.kind === "moon-tree" ? "/moon-tree.png" : "/wish-seed.png"}
+            alt={selected?.label ?? "A glowing wish seed"}
+          />
         </div>
         <div className="seed-meta">
           <div>
-            <div className="eyebrow">Growing</div>
-            <div className="seed-name">Wish seed</div>
+            <div className="eyebrow">{selected ? "Selected entity" : "Field guide"}</div>
+            <div className="seed-name">{selected?.label ?? "Wish seed"}</div>
           </div>
-          <div className="seed-count">×{seeds}</div>
+          {!selected && <div className="seed-count">×{seeds}</div>}
         </div>
+        {selected ? (
+          <div className="entity-inspector">
+            <div className="entity-id">{selected.id}</div>
+            <dl>
+              <div>
+                <dt>Position</dt>
+                <dd>
+                  {selected.position.x.toFixed(1)}, {selected.position.z.toFixed(1)}
+                </dd>
+              </div>
+              <div>
+                <dt>Scale</dt>
+                <dd>{selected.scale.toFixed(2)}</dd>
+              </div>
+              <div>
+                <dt>Tint</dt>
+                <dd>
+                  <span className="tint-dot" style={{ background: selected.tint }} />
+                  {selected.tint}
+                </dd>
+              </div>
+            </dl>
+            <code>bun run world move {selected.id} x z</code>
+          </div>
+        ) : (
+          <div className="inspect-hint">Click a world object to inspect it.</div>
+        )}
       </section>
 
       <section className="bottom-panel">
@@ -456,7 +574,15 @@ export function WishGarden() {
           {sparks} sparks
         </div>
         <div className="hint">
-          <strong>Click the earth</strong> to leave a new thought behind.
+          {selected ? (
+            <>
+              <strong>{selected.id}</strong> is linked to world.json.
+            </>
+          ) : (
+            <>
+              <strong>Click the earth</strong> to leave a new thought behind.
+            </>
+          )}
         </div>
       </section>
 
