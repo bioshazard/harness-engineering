@@ -285,6 +285,27 @@ input {
   padding: 0;
 }
 
+.growth-controls {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.growth-controls button {
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.45rem;
+  background: rgb(139 228 255 / 12%);
+  color: var(--cream);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+}
+
+.growth-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .tint-dot {
   width: 8px;
   height: 8px;

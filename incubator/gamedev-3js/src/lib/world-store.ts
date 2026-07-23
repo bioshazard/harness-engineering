@@ -36,7 +36,11 @@ function updateWorld<T>(
 
 export function plantWishSeed(
   position: { x: number; z: number },
-  options: { filePath?: string; createId?: () => string } = {},
+  options: {
+    filePath?: string;
+    createId?: () => string;
+    now?: () => Date;
+  } = {},
 ) {
   if (
     !Number.isFinite(position.x) ||
@@ -48,6 +52,7 @@ export function plantWishSeed(
 
   const filePath = options.filePath ?? worldFilePath;
   const createId = options.createId ?? (() => `wish-${randomUUID().slice(0, 8)}`);
+  const now = (options.now ?? (() => new Date()))().toISOString();
 
   return updateWorld(filePath, (world) => {
     if (world.economy.sparks < 1) {
@@ -60,12 +65,59 @@ export function plantWishSeed(
       position,
       scale: 1,
       tint: "#ffffff",
+      growth: { stage: "seed", plantedAt: now, stageStartedAt: now },
     };
     const next = {
       ...world,
       revision: world.revision + 1,
       economy: { ...world.economy, sparks: world.economy.sparks - 1 },
       entities: [...world.entities, entity],
+    };
+    return { result: entity, world: next };
+  });
+}
+
+const growthWaitMs = 5_000;
+
+export function growEntity(
+  id: string,
+  options: { filePath?: string; now?: () => Date } = {},
+) {
+  const now = (options.now ?? (() => new Date()))();
+
+  return updateWorld(options.filePath ?? worldFilePath, (world) => {
+    const index = world.entities.findIndex((entity) => entity.id === id);
+    if (index < 0) throw new Error(`Unknown entity: ${id}`);
+    const current = world.entities[index];
+    if (!current.growth || current.growth.stage === "mature") {
+      throw new Error("This entity cannot grow further.");
+    }
+    if (world.economy.sparks < 1) {
+      throw new Error("Collect a spark before nourishing growth.");
+    }
+    const elapsed = now.getTime() - new Date(current.growth.stageStartedAt).getTime();
+    if (elapsed < growthWaitMs) {
+      throw new Error("This growth stage needs more time.");
+    }
+
+    const stage = current.growth.stage === "seed" ? "sprout" : "mature";
+    const entity: WorldEntity = {
+      ...current,
+      kind: stage === "mature" ? "moon-tree" : current.kind,
+      label: stage === "mature" ? `${current.label} tree` : current.label,
+      growth: {
+        ...current.growth,
+        stage,
+        stageStartedAt: now.toISOString(),
+      },
+    };
+    const entities = [...world.entities];
+    entities[index] = entity;
+    const next = {
+      ...world,
+      revision: world.revision + 1,
+      economy: { ...world.economy, sparks: world.economy.sparks - 1 },
+      entities,
     };
     return { result: entity, world: next };
   });

@@ -73,6 +73,7 @@ export function WishGarden() {
   const updateEntityRef = useRef<(id: string, patch: EntityPatch) => Promise<void>>(
     async () => undefined,
   );
+  const growEntityRef = useRef<(id: string) => Promise<void>>(async () => undefined);
 
   const updateSelected = (patch: EntityPatch) => {
     if (selected) void updateEntityRef.current(selected.id, patch);
@@ -222,7 +223,9 @@ export function WishGarden() {
       });
       entities.clear();
       nextEntities.forEach((entity, index) => {
-        const isTree = entity.kind === "moon-tree";
+        const isTree =
+          entity.kind === "moon-tree" || entity.growth?.stage === "mature";
+        const growthScale = entity.growth?.stage === "sprout" ? 1.45 : 1;
         const width = isTree ? 3.35 : 1.25;
         const height = isTree ? 3.35 : 1.25;
         const sprite = new THREE.Sprite(
@@ -235,10 +238,14 @@ export function WishGarden() {
         );
         sprite.position.set(
           entity.position.x,
-          height * entity.scale * 0.5 - 0.03,
+          height * entity.scale * growthScale * 0.5 - 0.03,
           entity.position.z,
         );
-        sprite.scale.set(width * entity.scale, height * entity.scale, 1);
+        sprite.scale.set(
+          width * entity.scale * growthScale,
+          height * entity.scale * growthScale,
+          1,
+        );
         sprite.userData.entityId = entity.id;
         sprite.userData.kind = entity.kind;
         sprite.userData.baseY = sprite.position.y;
@@ -458,6 +465,19 @@ export function WishGarden() {
       selectEntity(mutation.entity);
     };
     updateEntityRef.current = persistEntityPatch;
+    growEntityRef.current = async (id: string) => {
+      const response = await fetch(
+        `/api/world/entities/${encodeURIComponent(id)}/grow`,
+        { method: "POST" },
+      );
+      if (!response.ok) return;
+      const mutation = (await response.json()) as {
+        entity: WorldEntity;
+        world: WorldConfig;
+      };
+      applyWorld(mutation.world);
+      selectEntity(mutation.entity);
+    };
     const pendingMotes = new Set<number>();
     const collectMote = async (moteIndex: number) => {
       if (pendingMotes.has(moteIndex)) return;
@@ -552,6 +572,7 @@ export function WishGarden() {
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
       updateEntityRef.current = async () => undefined;
+      growEntityRef.current = async () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -693,6 +714,20 @@ export function WishGarden() {
               </div>
             </dl>
             <code>bun run world move {selected.id} x z</code>
+            {selected.growth && (
+              <div className="growth-controls">
+                <span>Growth: {selected.growth.stage}</span>
+                {selected.growth.stage !== "mature" && (
+                  <button
+                    type="button"
+                    disabled={sparks < 1}
+                    onClick={() => void growEntityRef.current(selected.id)}
+                  >
+                    Nourish growth · 1 spark
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="inspect-hint">Click a world object to inspect it.</div>
