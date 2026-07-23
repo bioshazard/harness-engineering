@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import {
+  advanceCreature,
   advanceMote,
+  creatureIntent,
   moteSpawnPosition,
   nearestSeed,
 } from "@/lib/behaviors";
@@ -58,6 +60,13 @@ const fallbackCatalog: EntityType[] = [
     asset: "/moon-tree.png",
     defaultScale: 1,
   },
+  {
+    id: "moon-moth",
+    label: "Moon moth",
+    kind: "creature",
+    asset: "/moon-moth.png",
+    defaultScale: 1,
+  },
 ];
 
 function seeded(index: number, salt = 0) {
@@ -99,6 +108,7 @@ export function WishGarden() {
     async () => undefined,
   );
   const growEntityRef = useRef<(id: string) => Promise<void>>(async () => undefined);
+  const inspectEntityRef = useRef<(id: string) => void>(() => undefined);
 
   const updateSelected = (patch: EntityPatch) => {
     if (selected) void updateEntityRef.current(selected.id, patch);
@@ -261,6 +271,24 @@ export function WishGarden() {
       selectionRing.position.set(entity.position.x, 0.015, entity.position.z);
       selectionRing.scale.setScalar(entity.scale * (entity.kind === "moon-tree" ? 1.5 : 1));
     };
+    inspectEntityRef.current = (id: string) => {
+      const entity = currentWorld.entities.find((candidate) => candidate.id === id);
+      if (!entity) return;
+      const sprite = entities.children.find((child) => child.userData.entityId === id);
+      selectEntity(
+        entity.kind === "creature" && sprite?.userData.reportedState
+          ? {
+              ...entity,
+              position: { x: sprite.position.x, z: sprite.position.z },
+              creature: {
+                state: sprite.userData.reportedState,
+                targetId: sprite.userData.targetId,
+                energy: entity.creature?.energy ?? 100,
+              },
+            }
+          : entity,
+      );
+    };
     const rebuildEntities = (nextEntities: WorldEntity[]) => {
       entities.children.forEach((child) => {
         if (child instanceof THREE.Sprite) child.material.dispose();
@@ -269,9 +297,10 @@ export function WishGarden() {
       nextEntities.forEach((entity, index) => {
         const isTree =
           entity.kind === "moon-tree" || entity.growth?.stage === "mature";
+        const isCreature = entity.kind === "creature";
         const growthScale = entity.growth?.stage === "sprout" ? 1.45 : 1;
-        const width = isTree ? 3.35 : 1.25;
-        const height = isTree ? 3.35 : 1.25;
+        const width = isTree ? 3.35 : isCreature ? 1.8 : 1.25;
+        const height = isTree ? 3.35 : isCreature ? 1.8 : 1.25;
         const sprite = new THREE.Sprite(
           new THREE.SpriteMaterial({
             map: getTexture(
@@ -615,6 +644,40 @@ export function WishGarden() {
       });
       entities.children.forEach((child) => {
         const entity = child as THREE.Sprite;
+        const worldEntity = currentWorld.entities.find(
+          (candidate) => candidate.id === entity.userData.entityId,
+        );
+        if (worldEntity?.kind === "creature") {
+          const intent = creatureIntent(
+            elapsed,
+            worldEntity,
+            player.position,
+            currentWorld.entities,
+          );
+          const nextPosition = advanceCreature(
+            entity.position,
+            intent.target,
+            delta,
+          );
+          entity.position.x = nextPosition.x;
+          entity.position.z = nextPosition.z;
+          entity.userData.baseY = 1.15;
+          entity.userData.targetId = intent.targetId;
+          if (entity.userData.reportedState !== intent.state) {
+            entity.userData.reportedState = intent.state;
+            if (selectedId === worldEntity.id) {
+              setSelected({
+                ...worldEntity,
+                position: { x: entity.position.x, z: entity.position.z },
+                creature: {
+                  state: intent.state,
+                  targetId: intent.targetId,
+                  energy: worldEntity.creature?.energy ?? 100,
+                },
+              });
+            }
+          }
+        }
         const amplitude = entity.userData.kind === "moon-tree" ? 0.018 : 0.06;
         entity.position.y =
           entity.userData.baseY + Math.sin(elapsed * 1.4 + entity.userData.phase) * amplitude;
@@ -645,6 +708,7 @@ export function WishGarden() {
       canvas.removeEventListener("pointerup", onPointerUp);
       updateEntityRef.current = async () => undefined;
       growEntityRef.current = async () => undefined;
+      inspectEntityRef.current = () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -707,6 +771,13 @@ export function WishGarden() {
               </button>
             ))}
           </div>
+          <button
+            className="inspect-creature"
+            type="button"
+            onClick={() => inspectEntityRef.current("luma")}
+          >
+            Inspect Luma
+          </button>
         </div>
       </section>
 
@@ -807,6 +878,12 @@ export function WishGarden() {
                 ? "Behavior: emits motes"
                 : selected.kind === "wish-seed"
                   ? "Behavior: attracts motes"
+                  : selected.kind === "creature"
+                    ? `State: ${selected.creature?.state ?? "wander"}${
+                        selected.creature?.targetId
+                          ? ` · ${selected.creature.targetId}`
+                          : ""
+                      }`
                   : "Behavior: awaiting definition"}
             </div>
             {selected.growth && (

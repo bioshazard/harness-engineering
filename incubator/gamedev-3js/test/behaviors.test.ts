@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
+  advanceCreature,
   advanceMote,
+  creatureIntent,
   moteSpawnPosition,
   nearestSeed,
 } from "../src/lib/behaviors";
@@ -14,6 +16,15 @@ const entities: WorldEntity[] = [
     position: { x: 3, z: 2 },
     scale: 1,
     tint: "#ffffff",
+  },
+  {
+    id: "moth",
+    kind: "creature",
+    label: "Moth",
+    position: { x: 0, z: 0 },
+    scale: 1,
+    tint: "#ffffff",
+    creature: { state: "wander", energy: 100 },
   },
   {
     id: "seed",
@@ -41,5 +52,18 @@ describe("entity behaviors", () => {
     expect(Math.hypot(next.x + 2, next.z + 1)).toBeLessThan(
       Math.hypot(start.x + 2, start.z + 1),
     );
+  });
+
+  test("cycles a creature through wandering, following, and tree feeding", () => {
+    const moth = entities[1];
+    const wander = creatureIntent(1, moth, { x: 1, z: 1 }, entities);
+    const follow = creatureIntent(7, moth, { x: 1, z: 1 }, entities);
+    const feed = creatureIntent(13, moth, { x: 1, z: 1 }, entities);
+    const next = advanceCreature(moth.position, follow.target, 1);
+
+    expect(wander.state).toBe("wander");
+    expect(follow.state).toBe("follow");
+    expect(feed).toMatchObject({ state: "feed", targetId: "tree" });
+    expect(Math.hypot(next.x - 1, next.z - 1)).toBeLessThan(Math.SQRT2);
   });
 });

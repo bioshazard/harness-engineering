@@ -1,4 +1,4 @@
-export type EntityKind = "wish-seed" | "moon-tree" | "catalog";
+export type EntityKind = "wish-seed" | "moon-tree" | "catalog" | "creature";
 export type GrowthStage = "seed" | "sprout" | "mature";
 
 export type EntityType = {
@@ -24,6 +24,11 @@ export type WorldEntity = {
     stage: GrowthStage;
     plantedAt: string;
     stageStartedAt: string;
+  };
+  creature?: {
+    state: "wander" | "follow" | "feed";
+    targetId?: string;
+    energy: number;
   };
 };
 

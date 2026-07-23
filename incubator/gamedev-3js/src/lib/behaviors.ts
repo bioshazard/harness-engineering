@@ -53,3 +53,34 @@ export function advanceMote(
     z: position.z + (z / distance) * step,
   };
 }
+
+export function creatureIntent(
+  elapsed: number,
+  creature: WorldEntity,
+  player: Point,
+  entities: WorldEntity[],
+) {
+  const phase = elapsed % 18;
+  if (phase < 6) {
+    return {
+      state: "wander" as const,
+      target: {
+        x: creature.position.x + Math.cos(elapsed * 0.7) * 1.4,
+        z: creature.position.z + Math.sin(elapsed * 0.7) * 1.4,
+      },
+    };
+  }
+  if (phase < 12) {
+    return { state: "follow" as const, target: player };
+  }
+  const tree = entities.find((entity) => entity.kind === "moon-tree");
+  return {
+    state: "feed" as const,
+    target: tree?.position ?? creature.position,
+    targetId: tree?.id,
+  };
+}
+
+export function advanceCreature(position: Point, target: Point, delta: number) {
+  return advanceMote(position, target, delta, 0.72);
+}

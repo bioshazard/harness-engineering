@@ -12,5 +12,12 @@
     "kind": "moon-tree",
     "asset": "/moon-tree.png",
     "defaultScale": 1
+  },
+  {
+    "id": "moon-moth",
+    "label": "Moon moth",
+    "kind": "creature",
+    "asset": "/moon-moth.png",
+    "defaultScale": 1
   }
 ]

@@ -112,6 +112,10 @@ export async function placeCatalogEntity(
       scale: type.defaultScale,
       tint: "#ffffff",
       asset: type.asset,
+      creature:
+        type.kind === "creature"
+          ? { state: "wander", energy: 100 }
+          : undefined,
     };
     const next = {
       ...world,
