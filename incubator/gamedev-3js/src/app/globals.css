@@ -262,6 +262,29 @@ input {
   gap: 6px;
 }
 
+.entity-inspector input[type="number"] {
+  width: 4.2rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.35rem;
+  background: rgb(255 255 255 / 5%);
+  color: var(--cream);
+  font: inherit;
+  padding: 0.24rem 0.35rem;
+}
+
+.entity-inspector input[type="range"] {
+  width: 5.5rem;
+  accent-color: var(--mint);
+}
+
+.entity-inspector input[type="color"] {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
 .tint-dot {
   width: 8px;
   height: 8px;

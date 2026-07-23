@@ -66,3 +66,39 @@ export function plantWishSeed(
     return { result: entity, world: next };
   });
 }
+
+export type EntityPatch = Partial<Pick<WorldEntity, "position" | "scale" | "tint">>;
+
+export function updateEntity(
+  id: string,
+  patch: EntityPatch,
+  options: { filePath?: string } = {},
+) {
+  if (
+    patch.position &&
+    (!Number.isFinite(patch.position.x) ||
+      !Number.isFinite(patch.position.z) ||
+      Math.hypot(patch.position.x, patch.position.z) > 7.75)
+  ) {
+    throw new Error("Entity position must be finite and inside the garden.");
+  }
+  if (
+    patch.scale !== undefined &&
+    (!Number.isFinite(patch.scale) || patch.scale < 0.25 || patch.scale > 4)
+  ) {
+    throw new Error("Entity scale must be between 0.25 and 4.");
+  }
+  if (patch.tint !== undefined && !/^#[0-9a-f]{6}$/i.test(patch.tint)) {
+    throw new Error("Entity tint must be a six-digit hex color.");
+  }
+
+  return updateWorld(options.filePath ?? worldFilePath, (world) => {
+    const index = world.entities.findIndex((entity) => entity.id === id);
+    if (index < 0) throw new Error(`Unknown entity: ${id}`);
+    const entity = { ...world.entities[index], ...patch };
+    const entities = [...world.entities];
+    entities[index] = entity;
+    const next = { ...world, revision: world.revision + 1, entities };
+    return { result: entity, world: next };
+  });
+}

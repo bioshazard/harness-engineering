@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { WorldConfig } from "../src/lib/world";
-import { plantWishSeed } from "../src/lib/world-store";
+import { plantWishSeed, updateEntity } from "../src/lib/world-store";
 
 const temporaryDirectories: string[] = [];
 
@@ -61,6 +61,39 @@ describe("persistent planting", () => {
 
     expect(() => plantWishSeed({ x: 8, z: 0 }, { filePath })).toThrow(
       "inside the garden",
+    );
+  });
+});
+
+describe("direct manipulation", () => {
+  test("persists position, scale, and tint edits together", async () => {
+    const filePath = await fixture();
+    await plantWishSeed(
+      { x: 0, z: 0 },
+      { filePath, createId: () => "editable-seed" },
+    );
+
+    const mutation = await updateEntity(
+      "editable-seed",
+      {
+        position: { x: 2, z: -3 },
+        scale: 1.5,
+        tint: "#aabbcc",
+      },
+      { filePath },
+    );
+
+    expect(mutation.result.position).toEqual({ x: 2, z: -3 });
+    expect(mutation.result.scale).toBe(1.5);
+    expect(mutation.result.tint).toBe("#aabbcc");
+    expect(JSON.parse(await readFile(filePath, "utf8"))).toEqual(mutation.world);
+  });
+
+  test("rejects invalid scale edits", async () => {
+    const filePath = await fixture();
+
+    expect(() => updateEntity("missing", { scale: 10 }, { filePath })).toThrow(
+      "between 0.25 and 4",
     );
   });
 });

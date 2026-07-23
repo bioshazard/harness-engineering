@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { WorldConfig, WorldEntity } from "@/lib/world";
+import type { EntityPatch } from "@/lib/world-store";
 
 const fallbackWorld: WorldConfig = {
   revision: 1,
@@ -68,6 +69,13 @@ export function WishGarden() {
   const [seeds, setSeeds] = useState(1);
   const [world, setWorld] = useState(fallbackWorld);
   const [selected, setSelected] = useState<WorldEntity | null>(null);
+  const updateEntityRef = useRef<(id: string, patch: EntityPatch) => Promise<void>>(
+    async () => undefined,
+  );
+
+  const updateSelected = (patch: EntityPatch) => {
+    if (selected) void updateEntityRef.current(selected.id, patch);
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -320,19 +328,56 @@ export function WishGarden() {
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
+    const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const dragPoint = new THREE.Vector3();
     let pointerStart = { x: 0, y: 0 };
-    const onPointerDown = (event: PointerEvent) => {
-      pointerStart = { x: event.clientX, y: event.clientY };
-    };
-    const onPointerUp = async (event: PointerEvent) => {
-      const moved = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
-      if (moved > 8) return;
+    let draggedId: string | null = null;
+    const updatePointer = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       pointer.set(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
         -((event.clientY - rect.top) / rect.height) * 2 + 1,
       );
       raycaster.setFromCamera(pointer, camera);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      pointerStart = { x: event.clientX, y: event.clientY };
+      updatePointer(event);
+      const entityHit = raycaster.intersectObjects(entities.children, false)[0];
+      const entityId = entityHit?.object.userData.entityId as string | undefined;
+      draggedId = entityId === selectedId ? entityId : null;
+      if (draggedId) canvas.setPointerCapture(event.pointerId);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!draggedId) return;
+      updatePointer(event);
+      if (!raycaster.ray.intersectPlane(dragPlane, dragPoint)) return;
+      const radius = Math.hypot(dragPoint.x, dragPoint.z);
+      if (radius > 7.4) dragPoint.multiplyScalar(7.4 / radius);
+      const sprite = entities.children.find(
+        (child) => child.userData.entityId === draggedId,
+      );
+      if (!sprite) return;
+      sprite.position.x = dragPoint.x;
+      sprite.position.z = dragPoint.z;
+      selectionRing.position.set(dragPoint.x, 0.015, dragPoint.z);
+    };
+    const onPointerUp = async (event: PointerEvent) => {
+      const moved = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
+      if (draggedId) {
+        const id = draggedId;
+        draggedId = null;
+        canvas.releasePointerCapture(event.pointerId);
+        const sprite = entities.children.find((child) => child.userData.entityId === id);
+        if (sprite) {
+          await persistEntityPatch(id, {
+            position: { x: sprite.position.x, z: sprite.position.z },
+          });
+        }
+        return;
+      }
+      if (moved > 8) return;
+      updatePointer(event);
       const entityHit = raycaster.intersectObjects(entities.children, false)[0];
       if (entityHit) {
         const entityId = entityHit.object.userData.entityId as string;
@@ -356,6 +401,7 @@ export function WishGarden() {
       selectEntity(mutation.entity);
     };
     canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerup", onPointerUp);
 
     let activeRevision = -1;
@@ -381,6 +427,21 @@ export function WishGarden() {
       document.documentElement.style.setProperty("--mint", next.palette.accent);
       setWorld(next);
     };
+    const persistEntityPatch = async (id: string, patch: EntityPatch) => {
+      const response = await fetch(`/api/world/entities/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!response.ok) return;
+      const mutation = (await response.json()) as {
+        entity: WorldEntity;
+        world: WorldConfig;
+      };
+      applyWorld(mutation.world);
+      selectEntity(mutation.entity);
+    };
+    updateEntityRef.current = persistEntityPatch;
     const pollWorld = async () => {
       try {
         const response = await fetch(`/world.json?t=${Date.now()}`, { cache: "no-store" });
@@ -456,7 +517,9 @@ export function WishGarden() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
       canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
+      updateEntityRef.current = async () => undefined;
       observer.disconnect();
       timer.disconnect();
       renderer.setAnimationLoop(null);
@@ -536,17 +599,63 @@ export function WishGarden() {
               <div>
                 <dt>Position</dt>
                 <dd>
-                  {selected.position.x.toFixed(1)}, {selected.position.z.toFixed(1)}
+                  <input
+                    aria-label="Position X"
+                    type="number"
+                    step="0.1"
+                    value={selected.position.x}
+                    onChange={(event) =>
+                      updateSelected({
+                        position: {
+                          ...selected.position,
+                          x: Number(event.target.value),
+                        },
+                      })
+                    }
+                  />
+                  <input
+                    aria-label="Position Z"
+                    type="number"
+                    step="0.1"
+                    value={selected.position.z}
+                    onChange={(event) =>
+                      updateSelected({
+                        position: {
+                          ...selected.position,
+                          z: Number(event.target.value),
+                        },
+                      })
+                    }
+                  />
                 </dd>
               </div>
               <div>
                 <dt>Scale</dt>
-                <dd>{selected.scale.toFixed(2)}</dd>
+                <dd>
+                  <input
+                    aria-label="Scale"
+                    type="range"
+                    min="0.25"
+                    max="4"
+                    step="0.05"
+                    defaultValue={selected.scale}
+                    key={`${selected.id}-${selected.scale}`}
+                    onPointerUp={(event) =>
+                      updateSelected({ scale: Number(event.currentTarget.value) })
+                    }
+                  />
+                  {selected.scale.toFixed(2)}
+                </dd>
               </div>
               <div>
                 <dt>Tint</dt>
                 <dd>
-                  <span className="tint-dot" style={{ background: selected.tint }} />
+                  <input
+                    aria-label="Tint"
+                    type="color"
+                    value={selected.tint}
+                    onChange={(event) => updateSelected({ tint: event.target.value })}
+                  />
                   {selected.tint}
                 </dd>
               </div>
