@@ -65,3 +65,9 @@ into the live world after acceptance.
 
 Slices 1–5 establish the game. Slices 6–9 establish its authoring surface.
 Slice 10 earns agentic world mutation.
+
+## Reflection
+
+Build a game worth changing before improving how Codex changes it. Keep
+`world.json` and the later slices provisional: after each slice, ask what became
+easier and let observed friction choose the next smallest probe.
